@@ -1,10 +1,12 @@
 using EntryPointApp.Api.Models.Dtos.Authentication;
 using EntryPointApp.Api.Models.Entities;
 
+
 namespace EntryPointApp.Api.Services.Authentication
 {
     public interface IAuthenticationService
     {
+        Task<AuthResult> RegisterAsync(RegisterRequest request);
         Task<AuthResult> LoginAsync(LoginRequest request);
         Task<AuthResult> RefreshTokenAsync(RefreshTokenRequest request);
         Task<bool> LogoutAsync(string refreshToken);

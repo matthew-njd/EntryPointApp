@@ -14,6 +14,18 @@ namespace EntryPointApp.Api.Services.Authentication
         private readonly IJwtService _jwtService = jwtService;
         private readonly ILogger<AuthenticationService> _logger = logger;
 
+        public async Task<AuthResult> RegisterAsync(RegisterRequest register)
+        {
+            try
+            {
+                
+            }
+            catch (Exception ex)
+            {
+                
+            }
+        }
+        
         public async Task<AuthResult> LoginAsync(LoginRequest request)
         {
             try
@@ -26,7 +38,7 @@ namespace EntryPointApp.Api.Services.Authentication
                     {
                         Success = false,
                         Message = "Invalid email or password",
-                        Errors = new List<string> { "Invalid credentials" }
+                        Errors = ["Invalid credentials"]
                     };
                 }
 
@@ -36,21 +48,19 @@ namespace EntryPointApp.Api.Services.Authentication
                     {
                         Success = false,
                         Message = "Invalid email or password",
-                        Errors = new List<string> { "Invalid credentials" }
+                        Errors = ["Invalid credentials"]
                     };
                 }
 
-                // Generate tokens
                 var accessToken = _jwtService.GenerateToken(user);
                 var refreshToken = _jwtService.GenerateRefreshToken();
 
-                // Save refresh token to database
                 var refreshTokenEntity = new RefreshToken
                 {
                     Token = refreshToken,
                     UserId = user.Id,
                     User = user,
-                    ExpiryDate = DateTime.UtcNow.AddDays(7), // Should come from configuration
+                    ExpiryDate = DateTime.UtcNow.AddDays(7), // add reference to JWT Settings
                     CreatedAt = DateTime.UtcNow,
                     IsRevoked = false
                 };
@@ -62,7 +72,7 @@ namespace EntryPointApp.Api.Services.Authentication
                 {
                     AccessToken = accessToken,
                     RefreshToken = refreshToken,
-                    ExpiresAt = DateTime.UtcNow.AddMinutes(30), // Should come from JWT settings
+                    ExpiresAt = DateTime.UtcNow.AddMinutes(30), // add reference to JWT Settings
                     User = new UserInfo
                     {
                         Id = user.Id,
@@ -88,7 +98,7 @@ namespace EntryPointApp.Api.Services.Authentication
                 {
                     Success = false,
                     Message = "An error occurred during login",
-                    Errors = new List<string> { "Internal server error" }
+                    Errors = ["Internal server error"]
                 };
             }
         }
@@ -107,7 +117,7 @@ namespace EntryPointApp.Api.Services.Authentication
                     {
                         Success = false,
                         Message = "Invalid or expired refresh token",
-                        Errors = new List<string> { "Invalid refresh token" }
+                        Errors = ["Invalid refresh token"]
                     };
                 }
 
@@ -117,20 +127,17 @@ namespace EntryPointApp.Api.Services.Authentication
                     {
                         Success = false,
                         Message = "User account is not active",
-                        Errors = new List<string> { "Account not active" }
+                        Errors = ["Account not active"]
                     };
                 }
 
-                // Generate new tokens
                 var newAccessToken = _jwtService.GenerateToken(refreshToken.User);
                 var newRefreshToken = _jwtService.GenerateRefreshToken();
 
-                // Revoke old refresh token
                 refreshToken.IsRevoked = true;
                 refreshToken.RevokedAt = DateTime.UtcNow;
                 refreshToken.ReplacedBy = newRefreshToken;
 
-                // Create new refresh token
                 var newRefreshTokenEntity = new RefreshToken
                 {
                     Token = newRefreshToken,
@@ -174,7 +181,7 @@ namespace EntryPointApp.Api.Services.Authentication
                 {
                     Success = false,
                     Message = "An error occurred during token refresh",
-                    Errors = new List<string> { "Internal server error" }
+                    Errors = ["Internal server error"]
                 };
             }
         }
