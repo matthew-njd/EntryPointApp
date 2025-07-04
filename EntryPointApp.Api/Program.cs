@@ -1,5 +1,6 @@
 using System.Text;
 using EntryPointApp.Api.Data.Context;
+using EntryPointApp.Api.Extensions;
 using EntryPointApp.Api.Middleware;
 using EntryPointApp.Api.Models.Configuration;
 using EntryPointApp.Api.Services.Authentication;
@@ -20,6 +21,8 @@ builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSet
 
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+
+builder.Services.AddSecurityServices(builder.Configuration);
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
 
@@ -66,10 +69,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseSecurityMiddleware();
+
+app.UseCors("DefaultCorsPolicy");
+
 app.UseHttpsRedirection();
-
 app.UseMiddleware<JwtMiddleware>();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
