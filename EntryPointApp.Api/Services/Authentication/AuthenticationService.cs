@@ -1,28 +1,116 @@
 using EntryPointApp.Api.Data.Context;
+using EntryPointApp.Api.Models.Configuration;
 using EntryPointApp.Api.Models.Dtos.Authentication;
 using EntryPointApp.Api.Models.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace EntryPointApp.Api.Services.Authentication
 {
     public class AuthenticationService(
         ApplicationDbContext context,
         IJwtService jwtService,
+        IOptions<JwtSettings> jwtSettings,
         ILogger<AuthenticationService> logger) : IAuthenticationService
     {
         private readonly ApplicationDbContext _context = context;
         private readonly IJwtService _jwtService = jwtService;
+        private readonly JwtSettings _jwtSettings = jwtSettings.Value;
         private readonly ILogger<AuthenticationService> _logger = logger;
 
-        public async Task<AuthResult> RegisterAsync(RegisterRequest register)
+        public async Task<AuthResult> RegisterAsync(RegisterRequest request)
         {
             try
             {
-                
+                var existingUser = await GetUserByEmailAsync(request.Email);
+                if (existingUser != null)
+                {
+                    return new AuthResult
+                    {
+                        Success = false,
+                        Message = "User already exists",
+                        Errors = ["A user with this email already exists"]
+                    };
+                }
+
+                if (request.ManagerId.HasValue)
+                {
+                    var manager = await GetUserByIdAsync(request.ManagerId.Value);
+                    if (manager == null)
+                    {
+                        return new AuthResult
+                        {
+                            Success = false,
+                            Message = "Invalid manager",
+                            Errors = ["The specified manager does not exist"]
+                        };
+                    }
+                }
+
+                var user = new User
+                {
+                    Email = request.Email.ToLowerInvariant(),
+                    PasswordHash = HashPassword(request.Password),
+                    FirstName = request.FirstName,
+                    LastName = request.LastName,
+                    Role = request.Role,
+                    ManagerId = request.ManagerId ?? 0,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                    IsActive = true
+                };
+
+                _context.Users.Add(user);
+                await _context.SaveChangesAsync();
+
+                var accessToken = _jwtService.GenerateToken(user);
+                var refreshToken = _jwtService.GenerateRefreshToken();
+
+                var refreshTokenEntity = new RefreshToken
+                {
+                    Token = refreshToken,
+                    UserId = user.Id,
+                    User = user,
+                    ExpiryDate = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpirationDays),
+                    CreatedAt = DateTime.UtcNow,
+                    IsRevoked = false
+                };
+
+                _context.RefreshTokens.Add(refreshTokenEntity);
+                await _context.SaveChangesAsync();
+
+                var response = new LoginResponse
+                {
+                    AccessToken = accessToken,
+                    RefreshToken = refreshToken,
+                    ExpiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationMinutes),
+                    User = new UserInfo
+                    {
+                        Id = user.Id,
+                        Email = user.Email,
+                        FirstName = user.FirstName,
+                        LastName = user.LastName,
+                        Role = user.Role.ToString(),
+                        ManagerId = user.ManagerId == 0 ? null : user.ManagerId
+                    }
+                };
+
+                return new AuthResult
+                {
+                    Success = true,
+                    Message = "User registered successfully",
+                    Data = response
+                };
             }
             catch (Exception ex)
             {
-                
+                _logger.LogError(ex, "Error during registration for user: {Email}", request.Email);
+                return new AuthResult
+                {
+                    Success = false,
+                    Message = "An error occurred during registration",
+                    Errors = ["Internal server error"]
+                };
             }
         }
         
@@ -60,7 +148,7 @@ namespace EntryPointApp.Api.Services.Authentication
                     Token = refreshToken,
                     UserId = user.Id,
                     User = user,
-                    ExpiryDate = DateTime.UtcNow.AddDays(7), // add reference to JWT Settings
+                    ExpiryDate = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpirationDays),
                     CreatedAt = DateTime.UtcNow,
                     IsRevoked = false
                 };
@@ -72,7 +160,7 @@ namespace EntryPointApp.Api.Services.Authentication
                 {
                     AccessToken = accessToken,
                     RefreshToken = refreshToken,
-                    ExpiresAt = DateTime.UtcNow.AddMinutes(30), // add reference to JWT Settings
+                    ExpiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationMinutes),
                     User = new UserInfo
                     {
                         Id = user.Id,
@@ -143,7 +231,7 @@ namespace EntryPointApp.Api.Services.Authentication
                     Token = newRefreshToken,
                     UserId = refreshToken.UserId,
                     User = refreshToken.User,
-                    ExpiryDate = DateTime.UtcNow.AddDays(7),
+                    ExpiryDate = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpirationDays),
                     CreatedAt = DateTime.UtcNow,
                     IsRevoked = false
                 };
@@ -155,7 +243,7 @@ namespace EntryPointApp.Api.Services.Authentication
                 {
                     AccessToken = newAccessToken,
                     RefreshToken = newRefreshToken,
-                    ExpiresAt = DateTime.UtcNow.AddMinutes(30),
+                    ExpiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationMinutes),
                     User = new UserInfo
                     {
                         Id = refreshToken.User.Id,
@@ -236,7 +324,7 @@ namespace EntryPointApp.Api.Services.Authentication
         public async Task<User?> GetUserByEmailAsync(string email)
         {
             return await _context.Users
-                .FirstOrDefaultAsync(u => u.Email == email);
+                .FirstOrDefaultAsync(u => u.Email == email.ToLowerInvariant());
         }
 
         public async Task<User?> GetUserByIdAsync(int id)
