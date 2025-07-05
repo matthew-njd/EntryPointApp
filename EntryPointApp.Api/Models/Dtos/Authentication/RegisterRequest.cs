@@ -29,7 +29,7 @@ namespace EntryPointApp.Api.Models.Dtos.Authentication
         [Required(ErrorMessage = "Role is required.")]
         public UserRole Role { get; set; } = UserRole.User;
 
-        [Range(1, int.MaxValue, ErrorMessage = "Manager ID must be a positive number.")]
-        public int? ManagerId { get; set; }
+        // [Range(1, int.MaxValue, ErrorMessage = "Manager ID must be a positive number.")]
+        // public int? ManagerId { get; set; }
     }
 }

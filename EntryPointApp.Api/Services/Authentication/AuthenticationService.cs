@@ -33,19 +33,19 @@ namespace EntryPointApp.Api.Services.Authentication
                     };
                 }
 
-                if (request.ManagerId.HasValue)
-                {
-                    var manager = await GetUserByIdAsync(request.ManagerId.Value);
-                    if (manager == null)
-                    {
-                        return new AuthResult
-                        {
-                            Success = false,
-                            Message = "Invalid manager",
-                            Errors = ["The specified manager does not exist"]
-                        };
-                    }
-                }
+                // if (request.ManagerId.HasValue)
+                // {
+                //     var manager = await GetUserByIdAsync(request.ManagerId.Value);
+                //     if (manager == null)
+                //     {
+                //         return new AuthResult
+                //         {
+                //             Success = false,
+                //             Message = "Invalid manager",
+                //             Errors = ["The specified manager does not exist"]
+                //         };
+                //     }
+                // }
 
                 var user = new User
                 {
@@ -54,7 +54,7 @@ namespace EntryPointApp.Api.Services.Authentication
                     FirstName = request.FirstName,
                     LastName = request.LastName,
                     Role = request.Role,
-                    ManagerId = request.ManagerId ?? 0,
+                    //ManagerId = request.ManagerId ?? 0,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow,
                     IsActive = true
