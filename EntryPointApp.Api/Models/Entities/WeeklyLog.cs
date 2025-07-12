@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace EntryPointApp.Api.Models.Entities
 {
     public class WeeklyLog
@@ -18,6 +20,9 @@ namespace EntryPointApp.Api.Models.Entities
 
         public decimal OtherCharges { get; set; }
 
+        [MaxLength(500)]
         public string Comment { get; set; } = string.Empty;
+
+        public User User { get; set; } = null!;
     }
 }

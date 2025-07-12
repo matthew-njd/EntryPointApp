@@ -11,8 +11,6 @@ namespace EntryPointApp.Api.Models.Entities
 
         public required int UserId { get; set; }
 
-        public required User User { get; set; } = null!;
-
         public required DateTime ExpiryDate { get; set; }
 
         public required DateTime CreatedAt { get; set; }
@@ -23,5 +21,7 @@ namespace EntryPointApp.Api.Models.Entities
         public string? ReplacedBy { get; set; }
         
         public DateTime? RevokedAt { get; set; }
+        
+        public User? User { get; set; }
     }
 }

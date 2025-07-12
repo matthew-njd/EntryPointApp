@@ -209,6 +209,17 @@ namespace EntryPointApp.Api.Services.Authentication
                     };
                 }
 
+                if (refreshToken.User == null)
+                {
+                    _logger.LogWarning("RefreshToken {TokenId} has no associated user", refreshToken.Id);
+                    return new AuthResult
+                    {
+                        Success = false,
+                        Message = "Invalid refresh token",
+                        Errors = ["Token has no associated user"]
+                    };
+                }
+
                 if (!refreshToken.User.IsActive)
                 {
                     return new AuthResult
@@ -300,25 +311,45 @@ namespace EntryPointApp.Api.Services.Authentication
         public async Task<bool> RevokeAllTokensAsync(int userId)
         {
             try
-            {
-                var tokens = await _context.RefreshTokens
-                    .Where(rt => rt.UserId == userId && !rt.IsRevoked)
-                    .ToListAsync();
-
-                foreach (var token in tokens)
                 {
-                    token.IsRevoked = true;
-                    token.RevokedAt = DateTime.UtcNow;
-                }
+                    var user = await _context.Users
+                        .Include(u => u.RefreshTokens)
+                        .FirstOrDefaultAsync(u => u.Id == userId);
 
-                await _context.SaveChangesAsync();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error revoking all tokens for user: {UserId}", userId);
-                return false;
-            }
+                    if (user == null)
+                    {
+                        _logger.LogWarning("User {UserId} not found for token revocation", userId);
+                        return false;
+                    }
+
+                    var activeTokens = user.RefreshTokens
+                        .Where(t => !t.IsRevoked)
+                        .ToList();
+
+                    if (activeTokens.Count == 0)
+                    {
+                        _logger.LogInformation("No active tokens found for user {UserId}", userId);
+                        return true;
+                    }
+
+                    foreach (var token in activeTokens)
+                    {
+                        token.IsRevoked = true;
+                        token.RevokedAt = DateTime.UtcNow;
+                    }
+
+                    await _context.SaveChangesAsync();
+                    
+                    _logger.LogInformation("Successfully revoked {TokenCount} tokens for user {UserId}", 
+                        activeTokens.Count, userId);
+                    
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error revoking all tokens for user: {UserId}", userId);
+                    return false;
+                }
         }
         
         public async Task<User?> GetUserByEmailAsync(string email)

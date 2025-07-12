@@ -25,7 +25,10 @@ namespace EntryPointApp.Api.Models.Entities
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-        
+
         public bool IsActive { get; set; } = true;
+        
+        public ICollection<WeeklyLog> WeeklyLogs { get; set; } = [];
+        public ICollection<RefreshToken> RefreshTokens { get; set; } = [];
     }
 }
