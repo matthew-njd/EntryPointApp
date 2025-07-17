@@ -27,6 +27,12 @@ namespace EntryPointApp.Api.Data.Context
                 entity.Property(e => e.Email).IsRequired();
                 entity.Property(e => e.PasswordHash).IsRequired();
                 entity.Property(e => e.Role).HasConversion<string>();
+                entity.HasOne(e => e.Manager)
+                    .WithMany(m => m.ManagedUsers)
+                    .HasForeignKey(e => e.ManagerId)
+                    .OnDelete(DeleteBehavior.Restrict);
+                entity.HasIndex(e => e.ManagerId);
+                entity.HasIndex(e => e.IsManager);
             });
         }
 
