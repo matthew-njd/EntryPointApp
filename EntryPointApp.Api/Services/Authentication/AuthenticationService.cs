@@ -1,6 +1,7 @@
 using EntryPointApp.Api.Data.Context;
 using EntryPointApp.Api.Models.Configuration;
 using EntryPointApp.Api.Models.Dtos.Authentication;
+using EntryPointApp.Api.Models.Dtos.Users;
 using EntryPointApp.Api.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -18,14 +19,14 @@ namespace EntryPointApp.Api.Services.Authentication
         private readonly JwtSettings _jwtSettings = jwtSettings.Value;
         private readonly ILogger<AuthenticationService> _logger = logger;
 
-        public async Task<AuthResult> RegisterAsync(RegisterRequest request)
+        public async Task<RegisterAuthResult> RegisterAsync(RegisterRequest request)
         {
             try
             {
                 var existingUser = await GetUserByEmailAsync(request.Email);
                 if (existingUser != null)
                 {
-                    return new AuthResult
+                    return new RegisterAuthResult
                     {
                         Success = false,
                         Message = "User already exists",
@@ -79,12 +80,12 @@ namespace EntryPointApp.Api.Services.Authentication
                 _context.RefreshTokens.Add(refreshTokenEntity);
                 await _context.SaveChangesAsync();
 
-                var response = new LoginResponse
+                var response = new RegisterResponse
                 {
                     AccessToken = accessToken,
                     RefreshToken = refreshToken,
                     ExpiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationMinutes),
-                    User = new UserInfo
+                    User = new UserDto
                     {
                         Id = user.Id,
                         Email = user.Email,
@@ -95,7 +96,7 @@ namespace EntryPointApp.Api.Services.Authentication
                     }
                 };
 
-                return new AuthResult
+                return new RegisterAuthResult
                 {
                     Success = true,
                     Message = "User registered successfully",
@@ -105,7 +106,7 @@ namespace EntryPointApp.Api.Services.Authentication
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error during registration for user: {Email}", request.Email);
-                return new AuthResult
+                return new RegisterAuthResult
                 {
                     Success = false,
                     Message = "An error occurred during registration",
@@ -114,7 +115,7 @@ namespace EntryPointApp.Api.Services.Authentication
             }
         }
         
-        public async Task<AuthResult> LoginAsync(LoginRequest request)
+        public async Task<LoginAuthResult> LoginAsync(LoginRequest request)
         {
             try
             {
@@ -122,7 +123,7 @@ namespace EntryPointApp.Api.Services.Authentication
 
                 if (user == null || !user.IsActive)
                 {
-                    return new AuthResult
+                    return new LoginAuthResult
                     {
                         Success = false,
                         Message = "Invalid email or password",
@@ -132,7 +133,7 @@ namespace EntryPointApp.Api.Services.Authentication
 
                 if (!VerifyPassword(request.Password, user.PasswordHash))
                 {
-                    return new AuthResult
+                    return new LoginAuthResult
                     {
                         Success = false,
                         Message = "Invalid email or password",
@@ -161,7 +162,7 @@ namespace EntryPointApp.Api.Services.Authentication
                     AccessToken = accessToken,
                     RefreshToken = refreshToken,
                     ExpiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationMinutes),
-                    User = new UserInfo
+                    User = new UserDto
                     {
                         Id = user.Id,
                         Email = user.Email,
@@ -172,7 +173,7 @@ namespace EntryPointApp.Api.Services.Authentication
                     }
                 };
 
-                return new AuthResult
+                return new LoginAuthResult
                 {
                     Success = true,
                     Message = "Login successful",
@@ -182,7 +183,7 @@ namespace EntryPointApp.Api.Services.Authentication
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error during login for user: {Email}", request.Email);
-                return new AuthResult
+                return new LoginAuthResult
                 {
                     Success = false,
                     Message = "An error occurred during login",
@@ -191,7 +192,7 @@ namespace EntryPointApp.Api.Services.Authentication
             }
         }
 
-        public async Task<AuthResult> RefreshTokenAsync(RefreshTokenRequest request)
+        public async Task<RefreshTokenAuthResult> RefreshTokenAsync(RefreshTokenRequest request)
         {
             try
             {
@@ -201,7 +202,7 @@ namespace EntryPointApp.Api.Services.Authentication
 
                 if (refreshToken == null || refreshToken.IsRevoked || refreshToken.ExpiryDate <= DateTime.UtcNow)
                 {
-                    return new AuthResult
+                    return new RefreshTokenAuthResult
                     {
                         Success = false,
                         Message = "Invalid or expired refresh token",
@@ -212,7 +213,7 @@ namespace EntryPointApp.Api.Services.Authentication
                 if (refreshToken.User == null)
                 {
                     _logger.LogWarning("RefreshToken {TokenId} has no associated user", refreshToken.Id);
-                    return new AuthResult
+                    return new RefreshTokenAuthResult
                     {
                         Success = false,
                         Message = "Invalid refresh token",
@@ -222,7 +223,7 @@ namespace EntryPointApp.Api.Services.Authentication
 
                 if (!refreshToken.User.IsActive)
                 {
-                    return new AuthResult
+                    return new RefreshTokenAuthResult
                     {
                         Success = false,
                         Message = "User account is not active",
@@ -255,7 +256,7 @@ namespace EntryPointApp.Api.Services.Authentication
                     AccessToken = newAccessToken,
                     RefreshToken = newRefreshToken,
                     ExpiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationMinutes),
-                    User = new UserInfo
+                    User = new UserDto
                     {
                         Id = refreshToken.User.Id,
                         Email = refreshToken.User.Email,
@@ -266,7 +267,7 @@ namespace EntryPointApp.Api.Services.Authentication
                     }
                 };
 
-                return new AuthResult
+                return new RefreshTokenAuthResult
                 {
                     Success = true,
                     Message = "Token refreshed successfully",
@@ -276,7 +277,7 @@ namespace EntryPointApp.Api.Services.Authentication
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error during token refresh");
-                return new AuthResult
+                return new RefreshTokenAuthResult
                 {
                     Success = false,
                     Message = "An error occurred during token refresh",

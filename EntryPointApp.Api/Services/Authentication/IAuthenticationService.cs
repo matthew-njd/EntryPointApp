@@ -6,9 +6,9 @@ namespace EntryPointApp.Api.Services.Authentication
 {
     public interface IAuthenticationService
     {
-        Task<AuthResult> RegisterAsync(RegisterRequest request);
-        Task<AuthResult> LoginAsync(LoginRequest request);
-        Task<AuthResult> RefreshTokenAsync(RefreshTokenRequest request);
+        Task<RegisterAuthResult> RegisterAsync(RegisterRequest request);
+        Task<LoginAuthResult> LoginAsync(LoginRequest request);
+        Task<RefreshTokenAuthResult> RefreshTokenAsync(RefreshTokenRequest request);
         Task<bool> LogoutAsync(string refreshToken);
         Task<bool> RevokeAllTokensAsync(int userId);
         Task<User?> GetUserByEmailAsync(string email);
