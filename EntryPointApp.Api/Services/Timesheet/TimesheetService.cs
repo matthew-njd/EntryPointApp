@@ -4,12 +4,27 @@ namespace EntryPointApp.Api.Services.Timesheet
 {
     public class TimesheetService : ITimesheetService
     {
-        public Task<TimesheetDto> GetTimesheetByIdAsync(int id)
+        public Task<TimesheetDto> CreateTimesheetAsync(TimesheetRequest request, int userId)
         {
             throw new NotImplementedException();
         }
 
-        public Task<TimesheetDto> GetTimesheetsAsync()
+        public Task<List<TimesheetDto>> GetTimesheetsAsync(int userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<TimesheetDto?> GetTimesheetByIdAsync(int id, int userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<TimesheetDto?> UpdateTimesheetAsync(int id, TimesheetRequest request, int userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> DeleteTimesheetAsync(int id, int userId)
         {
             throw new NotImplementedException();
         }

@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace EntryPointApp.Api.Models.Dtos.Timesheets
 {
-    public class CreateTimesheetRequest
+    public class TimesheetRequest
     {
         [Required(ErrorMessage = "A date is required.")]
         public DateTime Date { get; set; }

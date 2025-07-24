@@ -1,11 +1,18 @@
+using EntryPointApp.Api.Models.Dtos.Common;
 using EntryPointApp.Api.Models.Dtos.Timesheets;
 
 namespace EntryPointApp.Api.Services.Timesheet
 {
     public interface ITimesheetService
     {
-        public Task<TimesheetDto> GetTimesheetsAsync();
-        public Task<TimesheetDto> GetTimesheetByIdAsync(int id);
+        Task<PagedResult<TimesheetDto>> GetTimesheetsAsync(int userId, PagedRequest request);
 
+        Task<TimesheetDto?> GetTimesheetByIdAsync(int id, int userId);
+        
+        Task<TimesheetDto> CreateTimesheetAsync(TimesheetRequest request, int userId);
+        
+        Task<TimesheetDto?> UpdateTimesheetAsync(int id, TimesheetRequest request, int userId);
+        
+        Task<bool> DeleteTimesheetAsync(int id, int userId);
     }
 }
