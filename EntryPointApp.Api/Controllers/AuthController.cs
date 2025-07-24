@@ -55,7 +55,7 @@ namespace EntryPointApp.Api.Controllers
                     });
                 }
 
-                return Ok(new ApiResponse<LoginResponse>
+                return Ok(new ApiResponse<RegisterResponse>
                 {
                     Success = true,
                     Message = result.Message,
