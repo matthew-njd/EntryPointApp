@@ -1,3 +1,4 @@
+using EntryPointApp.Api.Models.Dtos.Common;
 using EntryPointApp.Api.Models.Dtos.Timesheets;
 
 namespace EntryPointApp.Api.Services.Timesheet
@@ -25,6 +26,11 @@ namespace EntryPointApp.Api.Services.Timesheet
         }
 
         public Task<bool> DeleteTimesheetAsync(int id, int userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<PagedResult<TimesheetDto>> GetTimesheetsAsync(int userId, PagedRequest request)
         {
             throw new NotImplementedException();
         }

@@ -20,6 +20,8 @@ namespace EntryPointApp.Api.Models.Entities
 
         public decimal OtherCharges { get; set; }
 
+        public bool IsDeleted { get; set; } = false;
+
         [MaxLength(500)]
         public string Comment { get; set; } = string.Empty;
 
