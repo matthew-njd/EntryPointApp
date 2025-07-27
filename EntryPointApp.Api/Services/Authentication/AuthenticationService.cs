@@ -29,7 +29,7 @@ namespace EntryPointApp.Api.Services.Authentication
                     return new RegisterAuthResult
                     {
                         Success = false,
-                        Message = "User already exists",
+                        Message = "User already exists.",
                         Errors = ["A user with this email already exists"]
                     };
                 }
@@ -99,7 +99,7 @@ namespace EntryPointApp.Api.Services.Authentication
                 return new RegisterAuthResult
                 {
                     Success = true,
-                    Message = "User registered successfully",
+                    Message = "User registered successfully!",
                     Data = response
                 };
             }
@@ -109,7 +109,7 @@ namespace EntryPointApp.Api.Services.Authentication
                 return new RegisterAuthResult
                 {
                     Success = false,
-                    Message = "An error occurred during registration",
+                    Message = "An error occurred during registration.",
                     Errors = ["Internal server error"]
                 };
             }
@@ -126,7 +126,7 @@ namespace EntryPointApp.Api.Services.Authentication
                     return new LoginAuthResult
                     {
                         Success = false,
-                        Message = "Invalid email or password",
+                        Message = "Invalid email or password.",
                         Errors = ["Invalid credentials"]
                     };
                 }
@@ -136,7 +136,7 @@ namespace EntryPointApp.Api.Services.Authentication
                     return new LoginAuthResult
                     {
                         Success = false,
-                        Message = "Invalid email or password",
+                        Message = "Invalid email or password.",
                         Errors = ["Invalid credentials"]
                     };
                 }
@@ -176,7 +176,7 @@ namespace EntryPointApp.Api.Services.Authentication
                 return new LoginAuthResult
                 {
                     Success = true,
-                    Message = "Login successful",
+                    Message = "You've successully logged in!",
                     Data = response
                 };
             }
@@ -186,7 +186,7 @@ namespace EntryPointApp.Api.Services.Authentication
                 return new LoginAuthResult
                 {
                     Success = false,
-                    Message = "An error occurred during login",
+                    Message = "An error occurred during login.",
                     Errors = ["Internal server error"]
                 };
             }
@@ -205,7 +205,7 @@ namespace EntryPointApp.Api.Services.Authentication
                     return new RefreshTokenAuthResult
                     {
                         Success = false,
-                        Message = "Invalid or expired refresh token",
+                        Message = "Invalid or expired refresh token.",
                         Errors = ["Invalid refresh token"]
                     };
                 }
@@ -216,7 +216,7 @@ namespace EntryPointApp.Api.Services.Authentication
                     return new RefreshTokenAuthResult
                     {
                         Success = false,
-                        Message = "Invalid refresh token",
+                        Message = "Invalid refresh token.",
                         Errors = ["Token has no associated user"]
                     };
                 }
@@ -226,7 +226,7 @@ namespace EntryPointApp.Api.Services.Authentication
                     return new RefreshTokenAuthResult
                     {
                         Success = false,
-                        Message = "User account is not active",
+                        Message = "User account is not active.",
                         Errors = ["Account not active"]
                     };
                 }
@@ -270,7 +270,7 @@ namespace EntryPointApp.Api.Services.Authentication
                 return new RefreshTokenAuthResult
                 {
                     Success = true,
-                    Message = "Token refreshed successfully",
+                    Message = "Token refreshed successfully!",
                     Data = response
                 };
             }
@@ -280,7 +280,7 @@ namespace EntryPointApp.Api.Services.Authentication
                 return new RefreshTokenAuthResult
                 {
                     Success = false,
-                    Message = "An error occurred during token refresh",
+                    Message = "An error occurred during token refresh.",
                     Errors = ["Internal server error"]
                 };
             }
