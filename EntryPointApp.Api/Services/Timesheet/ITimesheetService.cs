@@ -5,13 +5,13 @@ namespace EntryPointApp.Api.Services.Timesheet
 {
     public interface ITimesheetService
     {
-        Task<PagedResult<TimesheetDto>> GetTimesheetsAsync(int userId, PagedRequest request);
+        Task<TimesheetListResult> GetTimesheetsAsync(int userId, PagedRequest request);
 
-        Task<TimesheetDto?> GetTimesheetByIdAsync(int id, int userId);
+        Task<TimesheetResponse?> GetTimesheetByIdAsync(int id, int userId);
         
-        Task<TimesheetDto> CreateTimesheetAsync(TimesheetRequest request, int userId);
+        Task<TimesheetResponse> CreateTimesheetAsync(TimesheetRequest request, int userId);
         
-        Task<TimesheetDto?> UpdateTimesheetAsync(int id, TimesheetRequest request, int userId);
+        Task<TimesheetResponse?> UpdateTimesheetAsync(int id, TimesheetRequest request, int userId);
         
         Task<bool> DeleteTimesheetAsync(int id, int userId);
     }

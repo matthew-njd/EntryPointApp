@@ -1,6 +1,6 @@
 namespace EntryPointApp.Api.Models.Dtos.Timesheets
 {
-    public class TimesheetDto
+    public class TimesheetResponse
     {
         public int Id { get; set; }
         public int UserId { get; set; }
