@@ -85,7 +85,7 @@ namespace EntryPointApp.Api.Services.Authentication
                     AccessToken = accessToken,
                     RefreshToken = refreshToken,
                     ExpiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationMinutes),
-                    User = new UserDto
+                    User = new UserResponse
                     {
                         Id = user.Id,
                         Email = user.Email,
@@ -162,7 +162,7 @@ namespace EntryPointApp.Api.Services.Authentication
                     AccessToken = accessToken,
                     RefreshToken = refreshToken,
                     ExpiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationMinutes),
-                    User = new UserDto
+                    User = new UserResponse
                     {
                         Id = user.Id,
                         Email = user.Email,
@@ -256,7 +256,7 @@ namespace EntryPointApp.Api.Services.Authentication
                     AccessToken = newAccessToken,
                     RefreshToken = newRefreshToken,
                     ExpiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationMinutes),
-                    User = new UserDto
+                    User = new UserResponse
                     {
                         Id = refreshToken.User.Id,
                         Email = refreshToken.User.Email,
