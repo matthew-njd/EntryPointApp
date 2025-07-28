@@ -18,7 +18,7 @@ namespace EntryPointApp.Api.Services.Timesheet
                 _logger.LogInformation("Retrieving timesheets for user {UserId} - Page: {Page}, PageSize: {PageSize}",
                     userId, request.Page, request.PageSize);
 
-                var query = _context.WeeklyLogs.Where(w => w.UserId == userId);
+                var query = _context.WeeklyLogs.Where(w => w.UserId == userId && !w.IsDeleted);
 
                 if (request.StartDate.HasValue)
                 {
@@ -85,6 +85,93 @@ namespace EntryPointApp.Api.Services.Timesheet
             }
             
         }
+        
+        public async Task<TimesheetListWithSummaryResult> GetTimesheetsWithSummaryAsync(int userId, PagedRequest request)
+        {
+            try
+            {
+                _logger.LogInformation("Retrieving timesheets with summary for user {UserId} - Page: {Page}, PageSize: {PageSize}",
+                    userId, request.Page, request.PageSize);
+
+                var query = _context.WeeklyLogs.Where(w => w.UserId == userId && !w.IsDeleted);
+
+                if (request.StartDate.HasValue)
+                {
+                    query = query.Where(w => w.Date >= request.StartDate.Value);
+                }
+
+                if (request.EndDate.HasValue)
+                {
+                    query = query.Where(w => w.Date <= request.EndDate.Value);
+                }
+
+                var summaryData = await query
+                    .GroupBy(w => 1)
+                    .Select(g => new TimesheetSummary
+                    {
+                        TotalHours = g.Sum(w => w.Hours),
+                        TotalMileage = g.Sum(w => w.Mileage),
+                        TotalExpenses = g.Sum(w => w.TollCharge + w.ParkingFee + w.OtherCharges),
+                        TimesheetCount = g.Count()
+                    })
+                    .FirstOrDefaultAsync() ?? new TimesheetSummary();
+
+                var totalCount = await query.CountAsync();
+
+                var timesheets = await query
+                    .OrderByDescending(w => w.Date)
+                    .Skip((request.Page - 1) * request.PageSize)
+                    .Take(request.PageSize)
+                    .Select(w => new TimesheetResponse
+                    {
+                        Id = w.Id,
+                        UserId = w.UserId,
+                        Date = w.Date,
+                        Hours = w.Hours,
+                        Mileage = w.Mileage,
+                        TollCharge = w.TollCharge,
+                        ParkingFee = w.ParkingFee,
+                        OtherCharges = w.OtherCharges,
+                        Comment = w.Comment
+                    })
+                    .ToListAsync();
+
+                var totalPages = (int)Math.Ceiling((double)totalCount / request.PageSize);
+
+                var pagedResult = new PagedResult<TimesheetResponse>
+                {
+                    Data = timesheets,
+                    TotalCount = totalCount,
+                    Page = request.Page,
+                    PageSize = request.PageSize,
+                    TotalPages = totalPages,
+                    HasNextPage = request.Page < totalPages,
+                    HasPreviousPage = request.Page > 1
+                };
+
+                _logger.LogInformation("Successfully retrieved {Count} timesheets with summary for user {UserId}", 
+                    timesheets.Count, userId);
+
+                return new TimesheetListWithSummaryResult
+                {
+                    Success = true,
+                    Message = "Timesheets with summary retrieved successfully!",
+                    Data = pagedResult,
+                    Summary = summaryData
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving timesheets with summary for user {UserId}", userId);
+                
+                return new TimesheetListWithSummaryResult
+                {
+                    Success = false,
+                    Message = "Failed to retrieve timesheets with summary",
+                    Errors = [ex.Message]
+                };
+            }
+        }
 
         public async Task<TimesheetResult> GetTimesheetByIdAsync(int id, int userId)
         {
@@ -93,7 +180,7 @@ namespace EntryPointApp.Api.Services.Timesheet
                 _logger.LogInformation("Retrieving timesheet {TimesheetId} for user {UserId}", id, userId);
 
                 var timesheet = await _context.WeeklyLogs
-                    .Where(w => w.Id == id && w.UserId == userId)
+                    .Where(w => w.Id == id && w.UserId == userId && !w.IsDeleted)
                     .Select(w => new TimesheetResponse
                     {
                         Id = w.Id,
@@ -111,7 +198,7 @@ namespace EntryPointApp.Api.Services.Timesheet
                 if (timesheet == null)
                 {
                     _logger.LogWarning("Timesheet {TimesheetId} not found for user {UserId}", id, userId);
-                    
+
                     return new TimesheetResult
                     {
                         Success = false,
@@ -132,7 +219,7 @@ namespace EntryPointApp.Api.Services.Timesheet
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving timesheet {TimesheetId} for user {UserId}", id, userId);
-                
+
                 return new TimesheetResult
                 {
                     Success = false,
@@ -206,7 +293,7 @@ namespace EntryPointApp.Api.Services.Timesheet
                 _logger.LogInformation("Updating timesheet {TimesheetId} for user {UserId}", id, userId);
 
                 var existingTimesheet = await _context.WeeklyLogs
-                    .FirstOrDefaultAsync(w => w.Id == id && w.UserId == userId);
+                    .FirstOrDefaultAsync(w => w.Id == id && w.UserId == userId && !w.IsDeleted);
 
                 if (existingTimesheet == null)
                 {

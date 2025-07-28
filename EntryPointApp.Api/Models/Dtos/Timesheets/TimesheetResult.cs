@@ -18,4 +18,10 @@ namespace EntryPointApp.Api.Models.Dtos.Timesheets
     {
         public PagedResult<TimesheetResponse>? Data { get; set; }
     }
+
+    public class TimesheetListWithSummaryResult : BaseTimesheetResult
+    {
+        public PagedResult<TimesheetResponse>? Data { get; set; }
+        public TimesheetSummary? Summary { get; set; }
+    }
 }

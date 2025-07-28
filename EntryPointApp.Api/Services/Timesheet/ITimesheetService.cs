@@ -7,6 +7,8 @@ namespace EntryPointApp.Api.Services.Timesheet
     {
         Task<TimesheetListResult> GetTimesheetsAsync(int userId, PagedRequest request);
 
+        Task<TimesheetListWithSummaryResult> GetTimesheetsWithSummaryAsync(int userId, PagedRequest request);
+
         Task<TimesheetResult> GetTimesheetByIdAsync(int id, int userId);
         
         Task<TimesheetResult> CreateTimesheetAsync(TimesheetRequest request, int userId);
