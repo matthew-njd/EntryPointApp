@@ -1,6 +1,6 @@
 namespace EntryPointApp.Api.Models.Dtos.Timesheets
 {
-    public class TimesheetSummary
+    public class TimesheetSummaryResponse
     {
         public decimal TotalHours { get; set; }
         public decimal TotalMileage { get; set; }

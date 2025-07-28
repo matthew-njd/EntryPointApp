@@ -107,14 +107,14 @@ namespace EntryPointApp.Api.Services.Timesheet
 
                 var summaryData = await query
                     .GroupBy(w => 1)
-                    .Select(g => new TimesheetSummary
+                    .Select(g => new TimesheetSummaryResponse
                     {
                         TotalHours = g.Sum(w => w.Hours),
                         TotalMileage = g.Sum(w => w.Mileage),
                         TotalExpenses = g.Sum(w => w.TollCharge + w.ParkingFee + w.OtherCharges),
                         TimesheetCount = g.Count()
                     })
-                    .FirstOrDefaultAsync() ?? new TimesheetSummary();
+                    .FirstOrDefaultAsync() ?? new TimesheetSummaryResponse();
 
                 var totalCount = await query.CountAsync();
 
