@@ -64,8 +64,8 @@ namespace EntryPointApp.Api.Controllers
                 {
                     request.EndDate = DateTime.UtcNow.Date;
                     request.StartDate = request.EndDate.Value.AddMonths(-3);
-                    
-                    _logger.LogInformation("Applied default date range for user {UserId}: {StartDate} to {EndDate}", 
+
+                    _logger.LogInformation("Applied default date range for user {UserId}: {StartDate} to {EndDate}",
                         userId, request.StartDate, request.EndDate);
                 }
 
@@ -122,6 +122,308 @@ namespace EntryPointApp.Api.Controllers
                     Title = "Timesheet Retrieval Error",
                     Status = 500,
                     Detail = "An unexpected error occurred while retrieving timesheets",
+                    Instance = HttpContext.Request.Path,
+                    TraceId = HttpContext.TraceIdentifier
+                });
+            }
+        }
+
+        /// <summary>
+        /// Get a specific timesheet by ID for the authenticated user
+        /// </summary>
+        /// <param name="id">Timesheet ID</param>
+        /// <returns>Timesheet details</returns>
+        [HttpGet("{id}")]
+        [Authorize]
+        [ProducesResponseType(typeof(ApiResponse<TimesheetResponse>), 200)]
+        [ProducesResponseType(typeof(ApiResponse), 400)]
+        [ProducesResponseType(typeof(ApiResponse), 404)]
+        [ProducesResponseType(typeof(ErrorResponse), 500)]
+        public async Task<IActionResult> GetTimesheetById([FromRoute] int id)
+        {
+            try
+            {
+                if (id <= 0)
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Validation failed",
+                        Errors = ["Timesheet ID must be greater than 0"]
+                    });
+                }
+
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Invalid user context",
+                        Errors = ["Unable to identify user"]
+                    });
+                }
+
+                var result = await _timesheetService.GetTimesheetByIdAsync(id, userId);
+
+                if (!result.Success)
+                {
+                    return NotFound(new ApiResponse
+                    {
+                        Success = false,
+                        Message = result.Message,
+                        Errors = result.Errors
+                    });
+                }
+
+                return Ok(new ApiResponse<TimesheetResponse>
+                {
+                    Success = true,
+                    Message = result.Message,
+                    Data = result.Data
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error retrieving timesheet {TimesheetId}", id);
+                return StatusCode(500, new ErrorResponse
+                {
+                    Type = "InternalServerError",
+                    Title = "Timesheet Retrieval Error",
+                    Status = 500,
+                    Detail = "An unexpected error occurred while retrieving the timesheet",
+                    Instance = HttpContext.Request.Path,
+                    TraceId = HttpContext.TraceIdentifier
+                });
+            }
+        }
+
+        /// <summary>
+        /// Create a new timesheet for the authenticated user
+        /// </summary>
+        /// <param name="request">Timesheet data</param>
+        /// <returns>Created timesheet details</returns>
+        [HttpPost]
+        [Authorize]
+        [ProducesResponseType(typeof(ApiResponse<TimesheetResponse>), 201)]
+        [ProducesResponseType(typeof(ApiResponse), 400)]
+        [ProducesResponseType(typeof(ErrorResponse), 500)]
+        public async Task<IActionResult> CreateTimesheet([FromBody] TimesheetRequest request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList();
+
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Validation failed",
+                        Errors = errors
+                    });
+                }
+
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Invalid user context",
+                        Errors = ["Unable to identify user"]
+                    });
+                }
+
+                var result = await _timesheetService.CreateTimesheetAsync(request, userId);
+
+                if (!result.Success)
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = result.Message,
+                        Errors = result.Errors
+                    });
+                }
+
+                // Add Location header pointing to the new resource
+                var locationUri = Url.Action(nameof(GetTimesheetById), new { id = result.Data!.Id });
+
+                return Created(locationUri, new ApiResponse<TimesheetResponse>
+                {
+                    Success = true,
+                    Message = result.Message,
+                    Data = result.Data
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error creating timesheet for user");
+                return StatusCode(500, new ErrorResponse
+                {
+                    Type = "InternalServerError",
+                    Title = "Timesheet Creation Error",
+                    Status = 500,
+                    Detail = "An unexpected error occurred while creating the timesheet",
+                    Instance = HttpContext.Request.Path,
+                    TraceId = HttpContext.TraceIdentifier
+                });
+            }
+        }
+
+        /// <summary>
+        /// Update an existing timesheet for the authenticated user
+        /// </summary>
+        /// <param name="id">Timesheet ID</param>
+        /// <param name="request">Updated timesheet data</param>
+        /// <returns>Updated timesheet details</returns>
+        [HttpPut("{id}")]
+        [Authorize]
+        [ProducesResponseType(typeof(ApiResponse<TimesheetResponse>), 200)]
+        [ProducesResponseType(typeof(ApiResponse), 400)]
+        [ProducesResponseType(typeof(ApiResponse), 404)]
+        [ProducesResponseType(typeof(ErrorResponse), 500)]
+        public async Task<IActionResult> UpdateTimesheet([FromRoute] int id, [FromBody] TimesheetRequest request)
+        {
+            try
+            {
+                if (id <= 0)
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Validation failed",
+                        Errors = ["Timesheet ID must be greater than 0"]
+                    });
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList();
+
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Validation failed",
+                        Errors = errors
+                    });
+                }
+
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Invalid user context",
+                        Errors = ["Unable to identify user"]
+                    });
+                }
+
+                var result = await _timesheetService.UpdateTimesheetAsync(id, request, userId);
+
+                if (!result.Success)
+                {
+                    return NotFound(new ApiResponse
+                    {
+                        Success = false,
+                        Message = result.Message,
+                        Errors = result.Errors
+                    });
+                }
+
+                return Ok(new ApiResponse<TimesheetResponse>
+                {
+                    Success = true,
+                    Message = result.Message,
+                    Data = result.Data
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error updating timesheet {TimesheetId}", id);
+                return StatusCode(500, new ErrorResponse
+                {
+                    Type = "InternalServerError",
+                    Title = "Timesheet Update Error",
+                    Status = 500,
+                    Detail = "An unexpected error occurred while updating the timesheet",
+                    Instance = HttpContext.Request.Path,
+                    TraceId = HttpContext.TraceIdentifier
+                });
+            }
+        }
+        
+        /// <summary>
+        /// Delete a timesheet for the authenticated user
+        /// </summary>
+        /// <param name="id">Timesheet ID</param>
+        /// <returns>Deletion result</returns>
+        [HttpDelete("{id}")]
+        [Authorize]
+        [ProducesResponseType(typeof(ApiResponse), 200)]
+        [ProducesResponseType(typeof(ApiResponse), 400)]
+        [ProducesResponseType(typeof(ApiResponse), 404)]
+        [ProducesResponseType(typeof(ErrorResponse), 500)]
+        public async Task<IActionResult> DeleteTimesheet([FromRoute] int id)
+        {
+            try
+            {
+                if (id <= 0)
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Validation failed",
+                        Errors = ["Timesheet ID must be greater than 0"]
+                    });
+                }
+
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Invalid user context",
+                        Errors = ["Unable to identify user"]
+                    });
+                }
+
+                var result = await _timesheetService.DeleteTimesheetAsync(id, userId);
+
+                if (!result.Success)
+                {
+                    return NotFound(new ApiResponse
+                    {
+                        Success = false,
+                        Message = result.Message,
+                        Errors = result.Errors
+                    });
+                }
+
+                return Ok(new ApiResponse
+                {
+                    Success = true,
+                    Message = result.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error deleting timesheet {TimesheetId}", id);
+                return StatusCode(500, new ErrorResponse
+                {
+                    Type = "InternalServerError",
+                    Title = "Timesheet Deletion Error",
+                    Status = 500,
+                    Detail = "An unexpected error occurred while deleting the timesheet",
                     Instance = HttpContext.Request.Path,
                     TraceId = HttpContext.TraceIdentifier
                 });
