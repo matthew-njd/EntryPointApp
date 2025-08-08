@@ -4,7 +4,7 @@ namespace EntryPointApp.Api.Models.Dtos.Timesheets
     {
         public int Id { get; set; }
         public int UserId { get; set; }
-        public DateTime Date { get; set; }
+        public DateOnly Date { get; set; }
         public decimal Hours { get; set; }
         public decimal Mileage { get; set; }
         public decimal TollCharge { get; set; }

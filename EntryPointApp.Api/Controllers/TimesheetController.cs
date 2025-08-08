@@ -62,7 +62,7 @@ namespace EntryPointApp.Api.Controllers
 
                 if (!request.StartDate.HasValue && !request.EndDate.HasValue)
                 {
-                    request.EndDate = DateTime.UtcNow.Date;
+                    request.EndDate = DateOnly.FromDateTime(DateTime.Now);
                     request.StartDate = request.EndDate.Value.AddMonths(-3);
 
                     _logger.LogInformation("Applied default date range for user {UserId}: {StartDate} to {EndDate}",
@@ -82,7 +82,7 @@ namespace EntryPointApp.Api.Controllers
                 // Validate date range doesn't exceed 1 year
                 if (request.StartDate.HasValue && request.EndDate.HasValue)
                 {
-                    var daysDifference = (request.EndDate.Value - request.StartDate.Value).TotalDays;
+                    var daysDifference = request.EndDate.Value.DayNumber - request.StartDate.Value.DayNumber;
                     if (daysDifference > 365)
                     {
                         return BadRequest(new ApiResponse

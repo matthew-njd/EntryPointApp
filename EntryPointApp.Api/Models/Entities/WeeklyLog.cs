@@ -8,7 +8,7 @@ namespace EntryPointApp.Api.Models.Entities
 
         public required int UserId { get; set; }
 
-        public required DateTime Date { get; set; }
+        public required DateOnly Date { get; set; }
 
         public decimal Hours { get; set; }
 
@@ -21,6 +21,10 @@ namespace EntryPointApp.Api.Models.Entities
         public decimal OtherCharges { get; set; }
 
         public bool IsDeleted { get; set; } = false;
+
+        public DateTime CreatedAt { get; set; }
+
+        public DateTime UpdatedAt { get; set; }
 
         [MaxLength(500)]
         public string Comment { get; set; } = string.Empty;

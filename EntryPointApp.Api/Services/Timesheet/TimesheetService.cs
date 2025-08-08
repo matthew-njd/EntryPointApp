@@ -244,7 +244,9 @@ namespace EntryPointApp.Api.Services.Timesheet
                     TollCharge = request.TollCharge,
                     ParkingFee = request.ParkingFee,
                     OtherCharges = request.OtherCharges,
-                    Comment = request.Comment
+                    Comment = request.Comment,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
                 };
 
                 _context.WeeklyLogs.Add(weeklyLog);
@@ -314,6 +316,7 @@ namespace EntryPointApp.Api.Services.Timesheet
                 existingTimesheet.ParkingFee = request.ParkingFee;
                 existingTimesheet.OtherCharges = request.OtherCharges;
                 existingTimesheet.Comment = request.Comment;
+                existingTimesheet.UpdatedAt = DateTime.UtcNow;
 
                 await _context.SaveChangesAsync();
 
