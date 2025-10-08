@@ -1,1 +1,97 @@
-<p>dashboard works!</p>
+<div class="mt-16 sm:mt-40">
+  <div class="flex justify-between">
+    <h1 class="text-3xl">Timesheet Overview</h1>
+    <button class="btn btn-primary btn-md">New Timesheet</button>
+  </div>
+  <div class="flex flex-col items-center">
+    <div
+      class="w-full overflow-x-auto overflow-y-auto mb-4 mt-4 rounded-box bg-base-300"
+    >
+      <table class="table">
+        <!-- head -->
+        <thead>
+          <tr>
+            <th>Week</th>
+            <th>Total Hours</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- row 1 -->
+          <tr class="align-middle">
+            <td>Sept 23 - Sept 29</td>
+            <td>34 hours</td>
+            <td class="text-warning">Draft</td>
+            <th class="flex justify-center">
+              <button class="btn btn-sm sm:btn-md btn-outline btn-secondary">
+                View/Edit
+              </button>
+            </th>
+          </tr>
+          <!-- row 2 -->
+          <tr>
+            <td>Sept 16 - Sept 22</td>
+            <td>40 hours</td>
+            <td class="text-info">Submitted</td>
+            <th class="flex justify-center">
+              <button class="btn btn-sm sm:btn-md btn-outline btn-secondary">
+                View/Edit
+              </button>
+            </th>
+          </tr>
+          <!-- row 3 -->
+          <tr>
+            <td>Sept 09 - Sept 15</td>
+            <td>32 hours</td>
+            <td class="text-success">Approved</td>
+            <th class="flex justify-center">
+              <button class="btn btn-sm sm:btn-md btn-outline btn-secondary">
+                View/Edit
+              </button>
+            </th>
+          </tr>
+          <!-- row 4 -->
+          <tr>
+            <td>Sept 02 - Sept 08</td>
+            <td>38 hours</td>
+            <td class="text-error">Denied</td>
+            <th class="flex justify-center">
+              <button class="btn btn-sm sm:btn-md btn-outline btn-secondary">
+                View/Edit
+              </button>
+            </th>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="join">
+      <input
+        class="join-item btn btn-square"
+        type="radio"
+        name="options"
+        aria-label="1"
+        checked="checked"
+      />
+      <input
+        class="join-item btn btn-square"
+        type="radio"
+        name="options"
+        aria-label="2"
+      />
+      <input
+        class="join-item btn btn-square"
+        type="radio"
+        name="options"
+        aria-label="3"
+      />
+      <input
+        class="join-item btn btn-square"
+        type="radio"
+        name="options"
+        aria-label="4"
+      />
+    </div>
+  </div>
+</div>
