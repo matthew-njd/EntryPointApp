@@ -1,0 +1,55 @@
+<fieldset
+  class="fieldset bg-base-200 border-base-300 rounded-box w-md mx-auto border mt-36 p-4"
+>
+  <legend class="fieldset-legend">Login</legend>
+
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    @if (errorMessage) {
+    <div class="alert alert-error mb-4">
+      <span>{{ errorMessage }}</span>
+    </div>
+    }
+
+    <label class="label">Email</label>
+    <input
+      type="email"
+      class="input w-full"
+      placeholder="Email"
+      formControlName="email"
+      [class.input-error]="email?.invalid && email?.touched"
+    />
+    @if (email?.invalid && email?.touched) {
+    <div class="text-error text-sm mt-1">
+      @if (email?.errors?.['required']) {
+      <span>Email is required</span>
+      } @if (email?.errors?.['email']) {
+      <span>Invalid email format</span>
+      }
+    </div>
+    }
+
+    <label class="label mt-4">Password</label>
+    <input
+      type="password"
+      class="input w-full"
+      placeholder="Password"
+      formControlName="password"
+      [class.input-error]="password?.invalid && password?.touched"
+    />
+    @if (password?.invalid && password?.touched) {
+    <div class="text-error text-sm mt-1">
+      <span>Password is required</span>
+    </div>
+    }
+
+    <button
+      type="submit"
+      class="btn btn-neutral mt-4 w-full"
+      [disabled]="isLoading"
+    >
+      @if (isLoading) {
+      <span class="loading loading-spinner"></span>
+      Logging in... } @else { Login }
+    </button>
+  </form>
+</fieldset>
