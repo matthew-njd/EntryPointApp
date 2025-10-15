@@ -16,8 +16,8 @@ export const routes: Routes = [
   },
   {
     path: '',
-    canActivate: [redirectGuard],
-    children: [],
+    redirectTo: '/login',
+    pathMatch: 'full',
   },
   {
     path: '**',
