@@ -40,7 +40,6 @@ export class AuthService {
       .pipe(
         map((response) => {
           if (response.success && response.data) {
-            // Store tokens and user data
             this.storeAuthData(response.data);
             this.currentUserSubject.next(response.data.user);
             return response.data;
