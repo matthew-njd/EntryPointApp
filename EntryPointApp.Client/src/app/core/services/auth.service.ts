@@ -20,7 +20,7 @@ export class AuthService {
 
   private isBrowser: boolean;
 
-  // BehaviorSubject to track current user state
+  // track current user state
   private currentUserSubject = new BehaviorSubject<UserResponse | null>(
     this.getUserFromStorage()
   );
@@ -122,10 +122,8 @@ export class AuthService {
     let errorMessage = 'An unknown error occurred';
 
     if (error.error instanceof ErrorEvent) {
-      // Client-side error
       errorMessage = `Error: ${error.error.message}`;
     } else {
-      // Server-side error
       if (error.error?.message) {
         errorMessage = error.error.message;
       } else if (error.error?.errors && error.error.errors.length > 0) {
