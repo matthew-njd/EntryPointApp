@@ -1,1 +1,1 @@
-Angular frontend using DaisyUI
+EntryPoint a Timesheet App
