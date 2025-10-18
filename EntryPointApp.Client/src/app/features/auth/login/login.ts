@@ -8,7 +8,6 @@ import {
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
-import { TimesheetService } from '../../../core/services/timesheet.service';
 
 @Component({
   selector: 'app-login',
@@ -19,7 +18,6 @@ import { TimesheetService } from '../../../core/services/timesheet.service';
 export class Login {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
-  private timesheetService = inject(TimesheetService);
   private router = inject(Router);
 
   loginForm: FormGroup;
@@ -48,18 +46,8 @@ export class Login {
     this.authService.login(email, password).subscribe({
       next: (response) => {
         console.log('Login successful:', response);
-
-        this.timesheetService.getTimesheets().subscribe({
-          next: (timesheets) => {
-            console.log('Timesheets fetched:', timesheets);
-            this.isLoading = false;
-            this.router.navigate(['/dashboard']);
-          },
-          error: (error) => {
-            console.error('Interceptor failed:', error);
-            this.isLoading = false;
-          },
-        });
+        this.isLoading = false;
+        //this.router.navigate(['/dashboard']);
       },
       error: (error) => {
         console.error('Login error:', error);
