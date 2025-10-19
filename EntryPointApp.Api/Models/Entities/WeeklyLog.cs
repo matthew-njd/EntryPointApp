@@ -24,9 +24,8 @@ namespace EntryPointApp.Api.Models.Entities
 
         public DateTime UpdatedAt { get; set; }
 
+        // Navigation properties
         public User User { get; set; } = null!;
-
         public ICollection<DailyLog> DailyLogs { get; set; } = [];
-
     }
 }

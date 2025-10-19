@@ -30,9 +30,11 @@ namespace EntryPointApp.Api.Models.Entities
 
         public bool IsActive { get; set; } = true;
 
+        // Navigation properties
         public User? Manager { get; set; }
         public ICollection<User> ManagedUsers { get; set; } = [];
         public ICollection<RefreshToken> RefreshTokens { get; set; } = [];
         public ICollection<WeeklyLog> WeeklyLogs { get; set; } = [];
+        public ICollection<DailyLog> DailyLogs { get; set; } = [];
     }
 }
