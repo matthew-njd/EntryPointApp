@@ -4,12 +4,11 @@ namespace EntryPointApp.Api.Models.Dtos.Timesheets
     {
         public int Id { get; set; }
         public int UserId { get; set; }
-        public DateOnly Date { get; set; }
-        public decimal Hours { get; set; }
-        public decimal Mileage { get; set; }
-        public decimal TollCharge { get; set; }
-        public decimal ParkingFee { get; set; }
-        public decimal OtherCharges { get; set; }
-        public string Comment { get; set; } = string.Empty;
+        public DateOnly DateFrom { get; set; }
+        public DateOnly DateTo { get; set; }
+        public decimal TotalHours { get; set; }
+        public decimal TollCharges { get; set; }
+        public string Status { get; set; } = string.Empty;
+        public List<DailyLogResponse> DailyLogs { get; set; } = [];
     }
 }
