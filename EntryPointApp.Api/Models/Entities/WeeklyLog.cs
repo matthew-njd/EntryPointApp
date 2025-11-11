@@ -14,7 +14,7 @@ namespace EntryPointApp.Api.Models.Entities
 
         public decimal TotalHours { get; set; }
 
-        public decimal TollCharges { get; set; }
+        public decimal TotalCharges { get; set; }
 
         public string Status { get; set; } = string.Empty;
 

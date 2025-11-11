@@ -45,7 +45,7 @@ namespace EntryPointApp.Api.Services.Timesheet
                         DateFrom = w.DateFrom,
                         DateTo = w.DateTo,
                         TotalHours = w.TotalHours,
-                        TollCharges = w.TollCharges,
+                        TotalCharges = w.TotalCharges,
                         Status = w.Status,
                         DailyLogs = w.DailyLogs.Select(d => new DailyLogResponse
                         {
@@ -143,7 +143,7 @@ namespace EntryPointApp.Api.Services.Timesheet
                         DateFrom = w.DateFrom,
                         DateTo = w.DateTo,
                         TotalHours = w.TotalHours,
-                        TollCharges = w.TollCharges,
+                        TotalCharges = w.TotalCharges,
                         Status = w.Status,
                         DailyLogs = w.DailyLogs.Select(d => new DailyLogResponse
                         {
@@ -212,7 +212,7 @@ namespace EntryPointApp.Api.Services.Timesheet
                         DateFrom = w.DateFrom,
                         DateTo = w.DateTo,
                         TotalHours = w.TotalHours,
-                        TollCharges = w.TollCharges,
+                        TotalCharges = w.TotalCharges,
                         Status = w.Status,
                         DailyLogs = w.DailyLogs.Select(d => new DailyLogResponse
                         {
@@ -276,7 +276,7 @@ namespace EntryPointApp.Api.Services.Timesheet
                     DateFrom = request.DateFrom,
                     DateTo = request.DateTo,
                     TotalHours = request.DailyLogs?.Sum(d => d.Hours) ?? 0,
-                    TollCharges = request.DailyLogs?.Sum(d => d.TollCharge) ?? 0,
+                    TotalCharges = request.DailyLogs?.Sum(d => d.TollCharge + d.ParkingFee + d.OtherCharges) ?? 0,
                     Status = request.Status ?? "Draft",
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow,
@@ -318,7 +318,7 @@ namespace EntryPointApp.Api.Services.Timesheet
                         DateFrom = w.DateFrom,
                         DateTo = w.DateTo,
                         TotalHours = w.TotalHours,
-                        TollCharges = w.TollCharges,
+                        TotalCharges = w.TotalCharges,
                         Status = w.Status,
                         DailyLogs = w.DailyLogs.Select(d => new DailyLogResponse
                         {
@@ -411,7 +411,7 @@ namespace EntryPointApp.Api.Services.Timesheet
 
                     // Update totals
                     existingTimesheet.TotalHours = dailyLogs.Sum(d => d.Hours);
-                    existingTimesheet.TollCharges = dailyLogs.Sum(d => d.TollCharge);
+                    existingTimesheet.TotalCharges = dailyLogs.Sum(d => d.TollCharge);
                 }
 
                 await _context.SaveChangesAsync();
@@ -427,7 +427,7 @@ namespace EntryPointApp.Api.Services.Timesheet
                         DateFrom = w.DateFrom,
                         DateTo = w.DateTo,
                         TotalHours = w.TotalHours,
-                        TollCharges = w.TollCharges,
+                        TotalCharges = w.TotalCharges,
                         Status = w.Status,
                         DailyLogs = w.DailyLogs.Select(d => new DailyLogResponse
                         {

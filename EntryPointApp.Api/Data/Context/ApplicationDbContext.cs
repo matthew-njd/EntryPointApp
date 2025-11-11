@@ -62,7 +62,7 @@ namespace EntryPointApp.Api.Data.Context
                entity.Property(e => e.DateFrom).IsRequired();
                entity.Property(e => e.DateTo).IsRequired();
                entity.Property(e => e.TotalHours).HasPrecision(5, 2);
-               entity.Property(e => e.TollCharges).HasPrecision(8, 2);
+               entity.Property(e => e.TotalCharges).HasPrecision(8, 2);
                entity.Property(e => e.Status).HasMaxLength(50);
                entity.HasOne(e => e.User)
                    .WithMany(u => u.WeeklyLogs)
