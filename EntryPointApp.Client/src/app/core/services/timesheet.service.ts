@@ -2,19 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-
-export interface TimesheetResponse {
-  id: number;
-  userId: number;
-  date: string;
-  hoursWorked: number;
-  milage: number;
-  tollCharges: number;
-  parkingFee: number;
-  otherCharges: number;
-  status?: string;
-  comment: string;
-}
+import { WeeklyLog } from '../models/weeklylog.model';
 
 export interface PagedResult<T> {
   items: T[];
@@ -41,9 +29,9 @@ export class TimesheetService {
   getTimesheets(
     page: number = 1,
     pageSize: number = 10
-  ): Observable<PagedResult<TimesheetResponse>> {
+  ): Observable<PagedResult<WeeklyLog>> {
     return this.http
-      .get<ApiResponse<PagedResult<TimesheetResponse>>>(
+      .get<ApiResponse<PagedResult<WeeklyLog>>>(
         `${this.apiUrl}?page=${page}&pageSize=${pageSize}`
       )
       .pipe(
