@@ -411,7 +411,7 @@ namespace EntryPointApp.Api.Services.Timesheet
 
                     // Update totals
                     existingTimesheet.TotalHours = dailyLogs.Sum(d => d.Hours);
-                    existingTimesheet.TotalCharges = dailyLogs.Sum(d => d.TollCharge);
+                    existingTimesheet.TotalCharges = dailyLogs.Sum(d => d.TollCharge + d.ParkingFee + d.OtherCharges);
                 }
 
                 await _context.SaveChangesAsync();
