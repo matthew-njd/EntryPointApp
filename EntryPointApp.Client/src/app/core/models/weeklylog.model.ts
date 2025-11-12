@@ -6,7 +6,7 @@ export interface WeeklyLog {
   dateFrom: string;
   dateTo: string;
   totalHours: number;
-  tollCharges: number;
+  totalCharges: number;
   status: string;
   isDeleted: boolean;
   createdAt: string;

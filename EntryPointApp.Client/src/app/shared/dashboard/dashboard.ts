@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Nav } from '../nav/nav';
 import {
@@ -15,6 +15,7 @@ import { WeeklyLog } from '../../core/models/weeklylog.model';
 })
 export class Dashboard implements OnInit {
   private timesheetService = inject(TimesheetService);
+  private cdr = inject(ChangeDetectorRef);
   timesheets: WeeklyLog[] = [];
   pagedResult: PagedResult<WeeklyLog> | null = null;
   currentPage: number = 1;
@@ -29,8 +30,10 @@ export class Dashboard implements OnInit {
       next: (result) => {
         console.log('Timesheets fetched:', result);
         this.pagedResult = result;
-        this.timesheets = result.items;
-        this.currentPage = result.pageNumber;
+        this.timesheets = result.data;
+        this.currentPage = result.page;
+
+        this.cdr.detectChanges(); //TODO: check why this needs to be manually used
       },
       error: (error) => {
         console.error('Timesheets fetch failed:', error);
@@ -53,5 +56,27 @@ export class Dashboard implements OnInit {
 
   onPageChange(page: number): void {
     this.loadTimesheets(page, this.pageSize);
+  }
+
+  getPageNumbers(): number[] {
+    if (!this.pagedResult) return [];
+
+    const totalPages = this.pagedResult.totalPages;
+    const current = this.currentPage;
+    const pages: number[] = [];
+
+    const maxButtons = 5;
+    let startPage = Math.max(1, current - Math.floor(maxButtons / 2));
+    let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+
+    if (endPage - startPage < maxButtons - 1) {
+      startPage = Math.max(1, endPage - maxButtons + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+
+    return pages;
   }
 }

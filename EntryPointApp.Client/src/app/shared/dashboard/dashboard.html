@@ -10,90 +10,71 @@
       class="w-full overflow-x-auto overflow-y-auto mb-4 mt-4 rounded-box bg-base-300"
     >
       <table class="table">
-        <!-- head -->
         <thead>
           <tr>
             <th>Week</th>
             <th>Total Hours</th>
+            <th>Total Charges</th>
             <th>Status</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
-          <!-- row 1 -->
+          @for (timesheet of timesheets; track timesheet.id) {
           <tr class="align-middle">
-            <td>Sept 23 - Sept 29</td>
-            <td>34 hours</td>
-            <td class="text-warning">Draft</td>
+            <td>
+              {{ timesheet.dateFrom | date : "MMM d" }} -
+              {{ timesheet.dateTo | date : "MMM d" }}
+            </td>
+            <td>{{ timesheet.totalHours }} hours</td>
+            <td>${{ timesheet.totalCharges }}</td>
+            <td [ngClass]="getStatusClass(timesheet.status)">
+              {{ timesheet.status }}
+            </td>
             <th class="flex justify-center">
               <button class="btn btn-sm sm:btn-md btn-outline btn-secondary">
                 View/Edit
               </button>
             </th>
           </tr>
-          <!-- row 2 -->
+          } @empty {
           <tr>
-            <td>Sept 16 - Sept 22</td>
-            <td>40 hours</td>
-            <td class="text-info">Submitted</td>
-            <th class="flex justify-center">
-              <button class="btn btn-sm sm:btn-md btn-outline btn-secondary">
-                View/Edit
-              </button>
-            </th>
+            <td colspan="4" class="text-center py-8">No timesheets found</td>
           </tr>
-          <!-- row 3 -->
-          <tr>
-            <td>Sept 09 - Sept 15</td>
-            <td>32 hours</td>
-            <td class="text-success">Approved</td>
-            <th class="flex justify-center">
-              <button class="btn btn-sm sm:btn-md btn-outline btn-secondary">
-                View/Edit
-              </button>
-            </th>
-          </tr>
-          <!-- row 4 -->
-          <tr>
-            <td>Sept 02 - Sept 08</td>
-            <td>38 hours</td>
-            <td class="text-error">Denied</td>
-            <th class="flex justify-center">
-              <button class="btn btn-sm sm:btn-md btn-outline btn-secondary">
-                View/Edit
-              </button>
-            </th>
-          </tr>
+          }
         </tbody>
       </table>
     </div>
 
+    <!-- Pagination -->
+    @if (pagedResult && pagedResult.totalPages > 1) {
     <div class="join">
-      <input
+      <button
         class="join-item btn btn-square"
-        type="radio"
-        name="options"
-        aria-label="1"
-        checked="checked"
-      />
-      <input
+        [disabled]="!pagedResult.hasPreviousPage"
+        (click)="onPageChange(currentPage - 1)"
+      >
+        «
+      </button>
+
+      @for (pageNum of getPageNumbers(); track pageNum) {
+      <button
         class="join-item btn btn-square"
-        type="radio"
-        name="options"
-        aria-label="2"
-      />
-      <input
+        [class.btn-active]="pageNum === currentPage"
+        (click)="onPageChange(pageNum)"
+      >
+        {{ pageNum }}
+      </button>
+      }
+
+      <button
         class="join-item btn btn-square"
-        type="radio"
-        name="options"
-        aria-label="3"
-      />
-      <input
-        class="join-item btn btn-square"
-        type="radio"
-        name="options"
-        aria-label="4"
-      />
+        [disabled]="!pagedResult.hasNextPage"
+        (click)="onPageChange(currentPage + 1)"
+      >
+        »
+      </button>
     </div>
+    }
   </div>
 </div>

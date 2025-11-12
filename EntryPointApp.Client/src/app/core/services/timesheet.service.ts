@@ -5,11 +5,13 @@ import { map } from 'rxjs/operators';
 import { WeeklyLog } from '../models/weeklylog.model';
 
 export interface PagedResult<T> {
-  items: T[];
+  data: T[];
   totalCount: number;
-  pageNumber: number;
+  page: number;
   pageSize: number;
   totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
 }
 
 export interface ApiResponse<T> {
