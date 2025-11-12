@@ -191,7 +191,7 @@ namespace EntryPointApp.Api.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
-                    b.Property<decimal>("TollCharges")
+                    b.Property<decimal>("TotalCharges")
                         .HasPrecision(8, 2)
                         .HasColumnType("TEXT");
 

@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EntryPointApp.Api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251110223045_InitialCreateSQLite")]
-    partial class InitialCreateSQLite
+    [Migration("20251112001139_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -194,7 +194,7 @@ namespace EntryPointApp.Api.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
-                    b.Property<decimal>("TollCharges")
+                    b.Property<decimal>("TotalCharges")
                         .HasPrecision(8, 2)
                         .HasColumnType("TEXT");
 

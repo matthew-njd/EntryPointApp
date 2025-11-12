@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace EntryPointApp.Api.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreateSQLite : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -74,7 +74,7 @@ namespace EntryPointApp.Api.Migrations
                     DateFrom = table.Column<DateOnly>(type: "TEXT", nullable: false),
                     DateTo = table.Column<DateOnly>(type: "TEXT", nullable: false),
                     TotalHours = table.Column<decimal>(type: "TEXT", precision: 5, scale: 2, nullable: false),
-                    TollCharges = table.Column<decimal>(type: "TEXT", precision: 8, scale: 2, nullable: false),
+                    TotalCharges = table.Column<decimal>(type: "TEXT", precision: 8, scale: 2, nullable: false),
                     Status = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
                     IsDeleted = table.Column<bool>(type: "INTEGER", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
