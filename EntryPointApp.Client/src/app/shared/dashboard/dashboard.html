@@ -23,8 +23,8 @@
           @for (timesheet of timesheets; track timesheet.id) {
           <tr class="align-middle">
             <td>
-              {{ timesheet.dateFrom | date : "MMM d" }} -
-              {{ timesheet.dateTo | date : "MMM d" }}
+              {{ timesheet.dateFrom | date : "MMM d, y" }} -
+              {{ timesheet.dateTo | date : "MMM d, y" }}
             </td>
             <td>{{ timesheet.totalHours }} hours</td>
             <td>${{ timesheet.totalCharges }}</td>

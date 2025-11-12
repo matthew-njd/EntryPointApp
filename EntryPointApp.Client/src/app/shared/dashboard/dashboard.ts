@@ -43,6 +43,8 @@ export class Dashboard implements OnInit {
 
   getStatusClass(status: string | undefined): string {
     switch (status) {
+      case 'Draft':
+        return 'text-warning';
       case 'Pending':
         return 'text-info';
       case 'Approved':
