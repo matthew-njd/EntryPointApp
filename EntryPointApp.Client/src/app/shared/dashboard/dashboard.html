@@ -48,7 +48,7 @@
 
     <!-- Pagination -->
     @if (pagedResult && pagedResult.totalPages > 1) {
-    <div class="join">
+    <div class="join mb-8">
       <button
         class="join-item btn btn-square"
         [disabled]="!pagedResult.hasPreviousPage"
@@ -59,7 +59,7 @@
 
       @for (pageNum of getPageNumbers(); track pageNum) {
       <button
-        class="join-item btn btn-square mb-8"
+        class="join-item btn btn-square"
         [class.btn-active]="pageNum === currentPage"
         (click)="onPageChange(pageNum)"
       >
