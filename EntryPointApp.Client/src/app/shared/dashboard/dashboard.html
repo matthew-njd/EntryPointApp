@@ -33,7 +33,7 @@
             </td>
             <th class="flex justify-center">
               <button class="btn btn-sm sm:btn-md btn-outline btn-secondary">
-                View/Edit
+                View
               </button>
             </th>
           </tr>
@@ -59,7 +59,7 @@
 
       @for (pageNum of getPageNumbers(); track pageNum) {
       <button
-        class="join-item btn btn-square"
+        class="join-item btn btn-square mb-8"
         [class.btn-active]="pageNum === currentPage"
         (click)="onPageChange(pageNum)"
       >

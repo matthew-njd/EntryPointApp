@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { WeeklyLog } from '../models/weeklylog.model';
@@ -29,13 +29,20 @@ export class TimesheetService {
   private apiUrl = 'http://localhost:5077/api/Timesheet';
 
   getTimesheets(
-    page: number = 1,
-    pageSize: number = 10
+    page?: number,
+    pageSize?: number
   ): Observable<PagedResult<WeeklyLog>> {
+    let params = new HttpParams();
+
+    if (page !== undefined) {
+      params = params.set('page', page.toString());
+    }
+    if (pageSize !== undefined) {
+      params = params.set('pageSize', pageSize.toString());
+    }
+
     return this.http
-      .get<ApiResponse<PagedResult<WeeklyLog>>>(
-        `${this.apiUrl}?page=${page}&pageSize=${pageSize}`
-      )
+      .get<ApiResponse<PagedResult<WeeklyLog>>>(this.apiUrl, { params })
       .pipe(
         map((response) => {
           if (response.success && response.data) {
