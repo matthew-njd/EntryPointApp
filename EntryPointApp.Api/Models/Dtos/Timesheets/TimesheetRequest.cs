@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using EntryPointApp.Api.Models.Dtos.DailyLog;
 
 namespace EntryPointApp.Api.Models.Dtos.Timesheets
 {

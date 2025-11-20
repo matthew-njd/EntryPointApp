@@ -1,4 +1,4 @@
-namespace EntryPointApp.Api.Models.Dtos.Timesheets
+namespace EntryPointApp.Api.Models.Dtos.DailyLog
 {
     public class DailyLogResponse
     {

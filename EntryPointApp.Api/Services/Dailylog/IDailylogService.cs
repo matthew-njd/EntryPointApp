@@ -1,6 +1,6 @@
-namespace EntryPointApp.Api.Services.Dailylog
+namespace EntryPointApp.Api.Services.DailyLog
 {
-    public interface IDailylogService
+    public interface IDailyLogService
     {
         
     }

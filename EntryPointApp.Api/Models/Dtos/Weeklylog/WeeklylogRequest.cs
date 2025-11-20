@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace EntryPointApp.Api.Models.Dtos.Timesheets
+namespace EntryPointApp.Api.Models.Dtos.WeeklyLog
 {
-    public class WeeklylogRequest
+    public class WeeklyLogRequest
     {
         [Required(ErrorMessage = "Start date is required.")]
         public DateOnly DateFrom { get; set; }

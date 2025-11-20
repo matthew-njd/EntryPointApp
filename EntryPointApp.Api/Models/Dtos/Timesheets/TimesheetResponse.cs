@@ -1,3 +1,5 @@
+using EntryPointApp.Api.Models.Dtos.DailyLog;
+
 namespace EntryPointApp.Api.Models.Dtos.Timesheets
 {
     public class TimesheetResponse

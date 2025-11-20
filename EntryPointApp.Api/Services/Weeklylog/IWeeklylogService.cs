@@ -1,13 +1,12 @@
 using EntryPointApp.Api.Models.Dtos.Common;
-using EntryPointApp.Api.Models.Dtos.Timesheets;
-using EntryPointApp.Api.Models.Dtos.Weeklylog;
+using EntryPointApp.Api.Models.Dtos.WeeklyLog;
 
-namespace EntryPointApp.Api.Services.Weeklylog
+namespace EntryPointApp.Api.Services.WeeklyLog
 {
-    public interface IWeeklylogService
+    public interface IWeeklyLogService
     {
         Task<WeeklyLogListResult> GetWeeklyLogsAsync(int userId, PagedRequest request);
 
-        Task<WeeklylogRequest> GetWeeklyLogByIdAsync(int id, int userId);
+        Task<WeeklyLogResult> GetWeeklyLogByIdAsync(int id, int userId);
     }
 }

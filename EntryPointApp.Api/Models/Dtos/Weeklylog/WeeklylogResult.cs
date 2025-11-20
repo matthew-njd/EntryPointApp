@@ -1,7 +1,6 @@
 using EntryPointApp.Api.Models.Dtos.Common;
-using EntryPointApp.Api.Models.Dtos.Timesheets;
 
-namespace EntryPointApp.Api.Models.Dtos.Weeklylog
+namespace EntryPointApp.Api.Models.Dtos.WeeklyLog
 {
     public class BaseWeeklylogResult
     {
@@ -12,11 +11,11 @@ namespace EntryPointApp.Api.Models.Dtos.Weeklylog
 
     public class WeeklyLogResult : BaseWeeklylogResult
     {
-        public WeeklylogResponse? Data { get; set; }
+        public WeeklyLogResponse? Data { get; set; }
     }
 
     public class WeeklyLogListResult : BaseWeeklylogResult
     {
-        public PagedResult<WeeklylogResponse>? Data { get; set; }
+        public PagedResult<WeeklyLogResponse>? Data { get; set; }
     }
 }

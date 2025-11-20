@@ -1,6 +1,6 @@
-namespace EntryPointApp.Api.Models.Dtos.Timesheets
+namespace EntryPointApp.Api.Models.Dtos.WeeklyLog
 {
-    public class WeeklylogResponse
+    public class WeeklyLogResponse
     {
         public int Id { get; set; }
         public int UserId { get; set; }
