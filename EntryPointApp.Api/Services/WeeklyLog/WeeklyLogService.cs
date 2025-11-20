@@ -1,15 +1,14 @@
 using EntryPointApp.Api.Data.Context;
 using EntryPointApp.Api.Models.Dtos.Common;
 using EntryPointApp.Api.Models.Dtos.WeeklyLog;
-using EntryPointApp.Api.Services.WeeklyLog;
 using Microsoft.EntityFrameworkCore;
 
-namespace EntryPointApp.Api.Services.Weeklylog
+namespace EntryPointApp.Api.Services.WeeklyLog
 {
-    public class WeeklylogService(ApplicationDbContext context, ILogger<WeeklylogService> logger) : IWeeklyLogService
+    public class WeeklyLogService(ApplicationDbContext context, ILogger<WeeklyLogService> logger) : IWeeklyLogService
     {
         private readonly ApplicationDbContext _context = context;
-        private readonly ILogger<WeeklylogService> _logger = logger;
+        private readonly ILogger<WeeklyLogService> _logger = logger;
 
         public async Task<WeeklyLogListResult> GetWeeklyLogsAsync(int userId, PagedRequest request)
         {
@@ -34,16 +33,16 @@ namespace EntryPointApp.Api.Services.Weeklylog
 
                 var weeklylogs = await query.OrderByDescending(w => w.DateFrom).Skip((request.Page - 1) * request.PageSize).Take(request.PageSize).Select(w => new WeeklyLogResponse
                 {
-                        Id = w.Id,
-                        UserId = w.UserId,
-                        DateFrom = w.DateFrom,
-                        DateTo = w.DateTo,
-                        TotalHours = w.TotalHours,
-                        TotalCharges = w.TotalCharges,
-                        Status = w.Status,
+                    Id = w.Id,
+                    UserId = w.UserId,
+                    DateFrom = w.DateFrom,
+                    DateTo = w.DateTo,
+                    TotalHours = w.TotalHours,
+                    TotalCharges = w.TotalCharges,
+                    Status = w.Status,
                 }).ToListAsync();
 
-                 var totalPages = (int)Math.Ceiling((double)totalCount / request.PageSize);
+                var totalPages = (int)Math.Ceiling((double)totalCount / request.PageSize);
 
                 var pagedResult = new PagedResult<WeeklyLogResponse>
                 {
@@ -56,7 +55,7 @@ namespace EntryPointApp.Api.Services.Weeklylog
                     HasPreviousPage = request.Page > 1
                 };
 
-                _logger.LogInformation("Successfully retrieved {Count} timesheets for user {UserId}", 
+                _logger.LogInformation("Successfully retrieved {Count} timesheets for user {UserId}",
                     weeklylogs.Count, userId);
 
                 return new WeeklyLogListResult
@@ -77,7 +76,7 @@ namespace EntryPointApp.Api.Services.Weeklylog
                     Errors = [ex.Message]
                 };
             }
-           
+
         }
 
         public Task<WeeklyLogResult> GetWeeklyLogByIdAsync(int id, int userId)
