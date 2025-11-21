@@ -4,7 +4,9 @@ using EntryPointApp.Api.Extensions;
 using EntryPointApp.Api.Middleware;
 using EntryPointApp.Api.Models.Configuration;
 using EntryPointApp.Api.Services.Authentication;
+using EntryPointApp.Api.Services.DailyLog;
 using EntryPointApp.Api.Services.Timesheet;
+using EntryPointApp.Api.Services.WeeklyLog;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -74,6 +76,9 @@ builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSet
 
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+
+builder.Services.AddScoped<IWeeklyLogService, WeeklyLogService>();
+builder.Services.AddScoped<IDailyLogService, DailyLogService>();
 builder.Services.AddScoped<ITimesheetService, TimesheetService>();
 
 builder.Services.AddSecurityServices(builder.Configuration);
