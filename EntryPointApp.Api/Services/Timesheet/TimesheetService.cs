@@ -1,25 +1,36 @@
 using EntryPointApp.Api.Data.Context;
 using EntryPointApp.Api.Models.Dtos.Common;
 using EntryPointApp.Api.Models.Dtos.Timesheets;
-using EntryPointApp.Api.Models.Entities;
+using EntryPointApp.Api.Models.Dtos.DailyLog;
+using EntryPointApp.Api.Services.WeeklyLog;
+using EntryPointApp.Api.Services.DailyLog;
 using Microsoft.EntityFrameworkCore;
 
 namespace EntryPointApp.Api.Services.Timesheet
 {
-    public class TimesheetService(ApplicationDbContext context, ILogger<TimesheetService> logger) : ITimesheetService
+    /// <summary>
+    /// TimesheetService refactored for WeeklyLogService and DailyLogService
+    /// Keeps existing endpoints working while enabling the new granular approach
+    /// </summary>
+    public class TimesheetService(
+        ApplicationDbContext context,
+        IWeeklyLogService weeklyLogService,
+        IDailyLogService dailyLogService,
+        ILogger<TimesheetService> logger) : ITimesheetService
     {
         private readonly ApplicationDbContext _context = context;
+        private readonly IWeeklyLogService _weeklyLogService = weeklyLogService;
+        private readonly IDailyLogService _dailyLogService = dailyLogService;
         private readonly ILogger<TimesheetService> _logger = logger;
 
         public async Task<TimesheetListResult> GetTimesheetsAsync(int userId, PagedRequest request)
         {
             try
             {
-                _logger.LogInformation("Retrieving timesheets for user {UserId} - Page: {Page}, PageSize: {PageSize}",
-                    userId, request.Page, request.PageSize);
+                _logger.LogInformation("Retrieving complete timesheets for user {UserId}", userId);
 
                 var query = _context.WeeklyLogs
-                    .Include(w => w.DailyLogs)
+                    .Include(w => w.DailyLogs.Where(d => !d.IsDeleted))
                     .Where(w => w.UserId == userId && !w.IsDeleted);
 
                 if (request.StartDate.HasValue)
@@ -60,7 +71,7 @@ namespace EntryPointApp.Api.Services.Timesheet
                         }).ToList()
                     })
                     .ToListAsync();
-                    
+
                 var totalPages = (int)Math.Ceiling((double)totalCount / request.PageSize);
 
                 var pagedResult = new PagedResult<TimesheetResponse>
@@ -74,7 +85,7 @@ namespace EntryPointApp.Api.Services.Timesheet
                     HasPreviousPage = request.Page > 1
                 };
 
-                _logger.LogInformation("Successfully retrieved {Count} timesheets for user {UserId}", 
+                _logger.LogInformation("Successfully retrieved {Count} complete timesheets for user {UserId}",
                     timesheets.Count, userId);
 
                 return new TimesheetListResult
@@ -86,7 +97,7 @@ namespace EntryPointApp.Api.Services.Timesheet
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving timesheets for user {UserId}", userId);
+                _logger.LogError(ex, "Error retrieving complete timesheets for user {UserId}", userId);
 
                 return new TimesheetListResult
                 {
@@ -95,18 +106,16 @@ namespace EntryPointApp.Api.Services.Timesheet
                     Errors = [ex.Message]
                 };
             }
-            
         }
-        
+
         public async Task<TimesheetListWithSummaryResult> GetTimesheetsWithSummaryAsync(int userId, PagedRequest request)
         {
             try
             {
-                _logger.LogInformation("Retrieving timesheets with summary for user {UserId} - Page: {Page}, PageSize: {PageSize}",
-                    userId, request.Page, request.PageSize);
+                _logger.LogInformation("Retrieving timesheets with summary for user {UserId}", userId);
 
                 var query = _context.WeeklyLogs
-                    .Include(w => w.DailyLogs)
+                    .Include(w => w.DailyLogs.Where(d => !d.IsDeleted))
                     .Where(w => w.UserId == userId && !w.IsDeleted);
 
                 if (request.StartDate.HasValue)
@@ -172,7 +181,7 @@ namespace EntryPointApp.Api.Services.Timesheet
                     HasPreviousPage = request.Page > 1
                 };
 
-                _logger.LogInformation("Successfully retrieved {Count} timesheets with summary for user {UserId}", 
+                _logger.LogInformation("Successfully retrieved {Count} timesheets with summary for user {UserId}",
                     timesheets.Count, userId);
 
                 return new TimesheetListWithSummaryResult
@@ -186,7 +195,7 @@ namespace EntryPointApp.Api.Services.Timesheet
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving timesheets with summary for user {UserId}", userId);
-                
+
                 return new TimesheetListWithSummaryResult
                 {
                     Success = false,
@@ -200,10 +209,10 @@ namespace EntryPointApp.Api.Services.Timesheet
         {
             try
             {
-                _logger.LogInformation("Retrieving timesheet {TimesheetId} for user {UserId}", id, userId);
+                _logger.LogInformation("Retrieving complete timesheet {TimesheetId} for user {UserId}", id, userId);
 
                 var timesheet = await _context.WeeklyLogs
-                    .Include(w => w.DailyLogs)
+                    .Include(w => w.DailyLogs.Where(d => !d.IsDeleted))
                     .Where(w => w.Id == id && w.UserId == userId && !w.IsDeleted)
                     .Select(w => new TimesheetResponse
                     {
@@ -240,7 +249,7 @@ namespace EntryPointApp.Api.Services.Timesheet
                     };
                 }
 
-                _logger.LogInformation("Successfully retrieved timesheet {TimesheetId} for user {UserId}", id, userId);
+                _logger.LogInformation("Successfully retrieved complete timesheet {TimesheetId}", id);
 
                 return new TimesheetResult
                 {
@@ -251,7 +260,7 @@ namespace EntryPointApp.Api.Services.Timesheet
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving timesheet {TimesheetId} for user {UserId}", id, userId);
+                _logger.LogError(ex, "Error retrieving timesheet {TimesheetId}", id);
 
                 return new TimesheetResult
                 {
@@ -266,88 +275,74 @@ namespace EntryPointApp.Api.Services.Timesheet
         {
             try
             {
-                _logger.LogInformation("Creating timesheet for user {UserId} from {DateFrom} to {DateTo}", 
-                    userId, request.DateFrom, request.DateTo);
+                _logger.LogInformation("Creating complete timesheet for user {UserId}", userId);
 
-                // Create the weekly log
-                var weeklyLog = new WeeklyLog
+                // Use WeeklyLogService to create the week
+                var weeklyLogRequest = new Models.Dtos.WeeklyLog.WeeklyLogRequest
                 {
-                    UserId = userId,
                     DateFrom = request.DateFrom,
                     DateTo = request.DateTo,
-                    TotalHours = request.DailyLogs?.Sum(d => d.Hours) ?? 0,
-                    TotalCharges = request.DailyLogs?.Sum(d => d.TollCharge + d.ParkingFee + d.OtherCharges) ?? 0,
-                    Status = request.Status ?? "Draft",
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow,
+                    Status = request.Status
                 };
 
-                _context.WeeklyLogs.Add(weeklyLog);
-                await _context.SaveChangesAsync();
+                var weeklyLogResult = await _weeklyLogService.CreateWeeklyLogAsync(weeklyLogRequest, userId);
 
-                // Create daily logs if provided
-                if (request.DailyLogs != null && request.DailyLogs.Any())
+                if (!weeklyLogResult.Success)
                 {
-                    var dailyLogs = request.DailyLogs.Select(d => new DailyLog
+                    return new TimesheetResult
                     {
-                        UserId = userId,
-                        WeeklyLogId = weeklyLog.Id,
-                        Date = d.Date,
-                        Hours = d.Hours,
-                        Mileage = d.Mileage,
-                        TollCharge = d.TollCharge,
-                        ParkingFee = d.ParkingFee,
-                        OtherCharges = d.OtherCharges,
-                        Comment = d.Comment ?? string.Empty,
-                        CreatedAt = DateTime.UtcNow,
-                        UpdatedAt = DateTime.UtcNow
-                    }).ToList();
-
-                    _context.DailyLogs.AddRange(dailyLogs);
-                    await _context.SaveChangesAsync();
+                        Success = false,
+                        Message = weeklyLogResult.Message,
+                        Errors = weeklyLogResult.Errors
+                    };
                 }
 
-                // Fetch the complete timesheet with daily logs
-                var createdTimesheet = await _context.WeeklyLogs
-                    .Include(w => w.DailyLogs)
-                    .Where(w => w.Id == weeklyLog.Id)
-                    .Select(w => new TimesheetResponse
-                    {
-                        Id = w.Id,
-                        UserId = w.UserId,
-                        DateFrom = w.DateFrom,
-                        DateTo = w.DateTo,
-                        TotalHours = w.TotalHours,
-                        TotalCharges = w.TotalCharges,
-                        Status = w.Status,
-                        DailyLogs = w.DailyLogs.Select(d => new DailyLogResponse
-                        {
-                            Id = d.Id,
-                            Date = d.Date,
-                            Hours = d.Hours,
-                            Mileage = d.Mileage,
-                            TollCharge = d.TollCharge,
-                            ParkingFee = d.ParkingFee,
-                            OtherCharges = d.OtherCharges,
-                            Comment = d.Comment
-                        }).ToList()
-                    })
-                    .FirstAsync();
+                var weeklyLogId = weeklyLogResult.Data!.Id;
 
-                _logger.LogInformation("Successfully created timesheet {TimesheetId} for user {UserId}", 
-                    weeklyLog.Id, userId);
-
-                return new TimesheetResult
+                // Use DailyLogService to create each dailylog
+                if (request.DailyLogs != null && request.DailyLogs.Any())
                 {
-                    Success = true,
-                    Message = "Timesheet created successfully!",
-                    Data = createdTimesheet
-                };
+                    foreach (var dailyLogReq in request.DailyLogs)
+                    {
+                        var dailyLogRequest = new DailyLogRequest
+                        {
+                            Date = dailyLogReq.Date,
+                            Hours = dailyLogReq.Hours,
+                            Mileage = dailyLogReq.Mileage,
+                            TollCharge = dailyLogReq.TollCharge,
+                            ParkingFee = dailyLogReq.ParkingFee,
+                            OtherCharges = dailyLogReq.OtherCharges,
+                            Comment = dailyLogReq.Comment
+                        };
+
+                        var dailyLogResult = await _dailyLogService.CreateDailyLogAsync(weeklyLogId, dailyLogRequest, userId);
+
+                        if (!dailyLogResult.Success)
+                        {
+                            // Rollback: delete the weeklylog if any dailylog fails
+                            await _weeklyLogService.DeleteWeeklyLogAsync(weeklyLogId, userId);
+
+                            return new TimesheetResult
+                            {
+                                Success = false,
+                                Message = "Failed to create dailylog",
+                                Errors = dailyLogResult.Errors
+                            };
+                        }
+                    }
+                }
+
+                // Fetch the complete timesheet
+                var result = await GetTimesheetByIdAsync(weeklyLogId, userId);
+
+                _logger.LogInformation("Successfully created complete timesheet {TimesheetId}", weeklyLogId);
+
+                return result;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creating timesheet for user {UserId}", userId);
-                
+                _logger.LogError(ex, "Error creating complete timesheet for user {UserId}", userId);
+
                 return new TimesheetResult
                 {
                     Success = false,
@@ -361,101 +356,79 @@ namespace EntryPointApp.Api.Services.Timesheet
         {
             try
             {
-                _logger.LogInformation("Updating timesheet {TimesheetId} for user {UserId}", id, userId);
+                _logger.LogInformation("Updating complete timesheet {TimesheetId}", id);
 
-                var existingTimesheet = await _context.WeeklyLogs
-                    .Include(w => w.DailyLogs)
-                    .FirstOrDefaultAsync(w => w.Id == id && w.UserId == userId && !w.IsDeleted);
-
-                if (existingTimesheet == null)
+                // Update weeklylog
+                var weeklyLogRequest = new Models.Dtos.WeeklyLog.WeeklyLogRequest
                 {
-                    _logger.LogWarning("Timesheet {TimesheetId} not found for user {UserId} during update", id, userId);
-                    
+                    DateFrom = request.DateFrom,
+                    DateTo = request.DateTo,
+                    Status = request.Status
+                };
+
+                var weeklyLogResult = await _weeklyLogService.UpdateWeeklyLogAsync(id, weeklyLogRequest, userId);
+
+                if (!weeklyLogResult.Success)
+                {
                     return new TimesheetResult
                     {
                         Success = false,
-                        Message = "Timesheet not found",
-                        Errors = ["The requested timesheet does not exist or you don't have permission to update it"]
+                        Message = weeklyLogResult.Message,
+                        Errors = weeklyLogResult.Errors
                     };
                 }
 
-                // Update weekly log properties
-                existingTimesheet.DateFrom = request.DateFrom;
-                existingTimesheet.DateTo = request.DateTo;
-                existingTimesheet.Status = request.Status ?? existingTimesheet.Status;
-                existingTimesheet.UpdatedAt = DateTime.UtcNow;
+                // Delete all existing dailylogs
+                var existingDailyLogs = await _context.DailyLogs
+                    .Where(d => d.WeeklyLogId == id && !d.IsDeleted)
+                    .ToListAsync();
 
-                // Update or create daily logs
-                if (request.DailyLogs != null)
+                foreach (var dailyLog in existingDailyLogs)
                 {
-                    // Remove existing daily logs
-                    _context.DailyLogs.RemoveRange(existingTimesheet.DailyLogs);
-
-                    // Add new daily logs
-                    var dailyLogs = request.DailyLogs.Select(d => new DailyLog
-                    {
-                        UserId = userId,
-                        WeeklyLogId = existingTimesheet.Id,
-                        Date = d.Date,
-                        Hours = d.Hours,
-                        Mileage = d.Mileage,
-                        TollCharge = d.TollCharge,
-                        ParkingFee = d.ParkingFee,
-                        OtherCharges = d.OtherCharges,
-                        Comment = d.Comment ?? string.Empty,
-                        CreatedAt = DateTime.UtcNow,
-                        UpdatedAt = DateTime.UtcNow
-                    }).ToList();
-
-                    _context.DailyLogs.AddRange(dailyLogs);
-
-                    // Update totals
-                    existingTimesheet.TotalHours = dailyLogs.Sum(d => d.Hours);
-                    existingTimesheet.TotalCharges = dailyLogs.Sum(d => d.TollCharge + d.ParkingFee + d.OtherCharges);
+                    await _dailyLogService.DeleteDailyLogAsync(dailyLog.Id, id, userId);
                 }
 
-                await _context.SaveChangesAsync();
-
-                // Fetch updated timesheet
-                var updatedTimesheet = await _context.WeeklyLogs
-                    .Include(w => w.DailyLogs)
-                    .Where(w => w.Id == id)
-                    .Select(w => new TimesheetResponse
-                    {
-                        Id = w.Id,
-                        UserId = w.UserId,
-                        DateFrom = w.DateFrom,
-                        DateTo = w.DateTo,
-                        TotalHours = w.TotalHours,
-                        TotalCharges = w.TotalCharges,
-                        Status = w.Status,
-                        DailyLogs = w.DailyLogs.Select(d => new DailyLogResponse
-                        {
-                            Id = d.Id,
-                            Date = d.Date,
-                            Hours = d.Hours,
-                            Mileage = d.Mileage,
-                            TollCharge = d.TollCharge,
-                            ParkingFee = d.ParkingFee,
-                            OtherCharges = d.OtherCharges,
-                            Comment = d.Comment
-                        }).ToList()
-                    })
-                    .FirstAsync();
-
-                _logger.LogInformation("Successfully updated timesheet {TimesheetId} for user {UserId}", id, userId);
-
-                return new TimesheetResult
+                // Create new dailylogs
+                if (request.DailyLogs != null && request.DailyLogs.Any())
                 {
-                    Success = true,
-                    Message = "Timesheet updated successfully!",
-                    Data = updatedTimesheet
-                };
+                    foreach (var dailyLogReq in request.DailyLogs)
+                    {
+                        var dailyLogRequest = new DailyLogRequest
+                        {
+                            Date = dailyLogReq.Date,
+                            Hours = dailyLogReq.Hours,
+                            Mileage = dailyLogReq.Mileage,
+                            TollCharge = dailyLogReq.TollCharge,
+                            ParkingFee = dailyLogReq.ParkingFee,
+                            OtherCharges = dailyLogReq.OtherCharges,
+                            Comment = dailyLogReq.Comment
+                        };
+
+                        var dailyLogResult = await _dailyLogService.CreateDailyLogAsync(id, dailyLogRequest, userId);
+
+                        if (!dailyLogResult.Success)
+                        {
+                            return new TimesheetResult
+                            {
+                                Success = false,
+                                Message = "Failed to update dailylog",
+                                Errors = dailyLogResult.Errors
+                            };
+                        }
+                    }
+                }
+
+                // Fetch the updated timesheet
+                var result = await GetTimesheetByIdAsync(id, userId);
+
+                _logger.LogInformation("Successfully updated complete timesheet {TimesheetId}", id);
+
+                return result;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error updating timesheet {TimesheetId} for user {UserId}", id, userId);
-                
+                _logger.LogError(ex, "Error updating timesheet {TimesheetId}", id);
+
                 return new TimesheetResult
                 {
                     Success = false,
@@ -469,48 +442,23 @@ namespace EntryPointApp.Api.Services.Timesheet
         {
             try
             {
-                _logger.LogInformation("Soft deleting timesheet {TimesheetId} for user {UserId}", id, userId);
+                _logger.LogInformation("Deleting complete timesheet {TimesheetId}", id);
 
-                var existingTimesheet = await _context.WeeklyLogs
-                    .Include(w => w.DailyLogs)
-                    .FirstOrDefaultAsync(w => w.Id == id && w.UserId == userId && !w.IsDeleted);
-
-                if (existingTimesheet == null)
-                {
-                    _logger.LogWarning("Timesheet {TimesheetId} not found for user {UserId} during delete", id, userId);
-                    
-                    return new TimesheetResult
-                    {
-                        Success = false,
-                        Message = "Timesheet not found",
-                        Errors = ["The requested timesheet does not exist or you don't have permission to delete it"]
-                    };
-                }
-
-                // Soft delete the weekly log
-                existingTimesheet.IsDeleted = true;
-                
-                // Soft delete all associated daily logs
-                foreach (var dailyLog in existingTimesheet.DailyLogs)
-                {
-                    dailyLog.IsDeleted = true;
-                }
-
-                await _context.SaveChangesAsync();
-
-                _logger.LogInformation("Successfully soft deleted timesheet {TimesheetId} for user {UserId}", id, userId);
+                // WeeklyLogService handles cascading delete of dailylogs
+                var result = await _weeklyLogService.DeleteWeeklyLogAsync(id, userId);
 
                 return new TimesheetResult
                 {
-                    Success = true,
-                    Message = "Timesheet deleted successfully!",
+                    Success = result.Success,
+                    Message = result.Message,
+                    Errors = result.Errors,
                     Data = null
                 };
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error deleting timesheet {TimesheetId} for user {UserId}", id, userId);
-                
+                _logger.LogError(ex, "Error deleting timesheet {TimesheetId}", id);
+
                 return new TimesheetResult
                 {
                     Success = false,
