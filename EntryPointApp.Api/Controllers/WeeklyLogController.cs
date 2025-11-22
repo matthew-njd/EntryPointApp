@@ -116,7 +116,7 @@ namespace EntryPointApp.Api.Controllers
                 return StatusCode(500, new ErrorResponse
                 {
                     Type = "InternalServerError",
-                    Title = "Weekly Log Retrieval Error",
+                    Title = "WeeklyLog Retrieval Error",
                     Status = 500,
                     Detail = "An unexpected error occurred while retrieving weekly logs",
                     Instance = HttpContext.Request.Path,
@@ -144,7 +144,7 @@ namespace EntryPointApp.Api.Controllers
                     {
                         Success = false,
                         Message = "Validation failed",
-                        Errors = ["Weekly log ID must be greater than 0"]
+                        Errors = ["Weeklylog ID must be greater than 0"]
                     });
                 }
 
@@ -258,7 +258,7 @@ namespace EntryPointApp.Api.Controllers
                 return StatusCode(500, new ErrorResponse
                 {
                     Type = "InternalServerError",
-                    Title = "Weekly Log Creation Error",
+                    Title = "WeeklyLog Creation Error",
                     Status = 500,
                     Detail = "An unexpected error occurred while creating the weekly log",
                     Instance = HttpContext.Request.Path,
@@ -286,7 +286,7 @@ namespace EntryPointApp.Api.Controllers
                     {
                         Success = false,
                         Message = "Validation failed",
-                        Errors = ["Weekly log ID must be greater than 0"]
+                        Errors = ["Weeklylog ID must be greater than 0"]
                     });
                 }
 
@@ -341,7 +341,7 @@ namespace EntryPointApp.Api.Controllers
                 return StatusCode(500, new ErrorResponse
                 {
                     Type = "InternalServerError",
-                    Title = "Weekly Log Update Error",
+                    Title = "WeeklyLog Update Error",
                     Status = 500,
                     Detail = "An unexpected error occurred while updating the weekly log",
                     Instance = HttpContext.Request.Path,
@@ -369,7 +369,7 @@ namespace EntryPointApp.Api.Controllers
                     {
                         Success = false,
                         Message = "Validation failed",
-                        Errors = ["Weekly log ID must be greater than 0"]
+                        Errors = ["Weeklylog ID must be greater than 0"]
                     });
                 }
 
@@ -404,13 +404,13 @@ namespace EntryPointApp.Api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unexpected error deleting weekly log {WeeklyLogId}", id);
+                _logger.LogError(ex, "Unexpected error deleting weeklylog {WeeklyLogId}", id);
                 return StatusCode(500, new ErrorResponse
                 {
                     Type = "InternalServerError",
-                    Title = "Weekly Log Deletion Error",
+                    Title = "WeeklyLog Deletion Error",
                     Status = 500,
-                    Detail = "An unexpected error occurred while deleting the weekly log",
+                    Detail = "An unexpected error occurred while deleting the weeklylog",
                     Instance = HttpContext.Request.Path,
                     TraceId = HttpContext.TraceIdentifier
                 });

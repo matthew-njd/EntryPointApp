@@ -33,7 +33,7 @@ namespace EntryPointApp.Api.Controllers
                     {
                         Success = false,
                         Message = "Validation failed",
-                        Errors = ["Weekly log ID must be greater than 0"]
+                        Errors = ["Weeklylog ID must be greater than 0"]
                     });
                 }
 
@@ -73,7 +73,7 @@ namespace EntryPointApp.Api.Controllers
                 return StatusCode(500, new ErrorResponse
                 {
                     Type = "InternalServerError",
-                    Title = "Daily Log Retrieval Error",
+                    Title = "DailyLog Retrieval Error",
                     Status = 500,
                     Detail = "An unexpected error occurred while retrieving daily logs",
                     Instance = HttpContext.Request.Path,
@@ -137,11 +137,11 @@ namespace EntryPointApp.Api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unexpected error retrieving daily log {DailyLogId}", id);
+                _logger.LogError(ex, "Unexpected error retrieving dailylog {DailyLogId}", id);
                 return StatusCode(500, new ErrorResponse
                 {
                     Type = "InternalServerError",
-                    Title = "Daily Log Retrieval Error",
+                    Title = "DailyLog Retrieval Error",
                     Status = 500,
                     Detail = "An unexpected error occurred while retrieving the daily log",
                     Instance = HttpContext.Request.Path,
@@ -168,7 +168,7 @@ namespace EntryPointApp.Api.Controllers
                     {
                         Success = false,
                         Message = "Validation failed",
-                        Errors = ["Weekly log ID must be greater than 0"]
+                        Errors = ["Weeklylog ID must be greater than 0"]
                     });
                 }
 
@@ -221,13 +221,13 @@ namespace EntryPointApp.Api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unexpected error creating daily log for weekly log {WeeklyLogId}", weeklyLogId);
+                _logger.LogError(ex, "Unexpected error creating daily log for weeklylog {WeeklyLogId}", weeklyLogId);
                 return StatusCode(500, new ErrorResponse
                 {
                     Type = "InternalServerError",
-                    Title = "Daily Log Creation Error",
+                    Title = "DailyLog Creation Error",
                     Status = 500,
-                    Detail = "An unexpected error occurred while creating the daily log",
+                    Detail = "An unexpected error occurred while creating the dailylog",
                     Instance = HttpContext.Request.Path,
                     TraceId = HttpContext.TraceIdentifier
                 });
@@ -304,13 +304,13 @@ namespace EntryPointApp.Api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unexpected error updating daily log {DailyLogId}", id);
+                _logger.LogError(ex, "Unexpected error updating dailylog {DailyLogId}", id);
                 return StatusCode(500, new ErrorResponse
                 {
                     Type = "InternalServerError",
                     Title = "Daily Log Update Error",
                     Status = 500,
-                    Detail = "An unexpected error occurred while updating the daily log",
+                    Detail = "An unexpected error occurred while updating the dailylog",
                     Instance = HttpContext.Request.Path,
                     TraceId = HttpContext.TraceIdentifier
                 });
@@ -371,13 +371,13 @@ namespace EntryPointApp.Api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unexpected error deleting daily log {DailyLogId}", id);
+                _logger.LogError(ex, "Unexpected error deleting dailylog {DailyLogId}", id);
                 return StatusCode(500, new ErrorResponse
                 {
                     Type = "InternalServerError",
-                    Title = "Daily Log Deletion Error",
+                    Title = "DailyLog Deletion Error",
                     Status = 500,
-                    Detail = "An unexpected error occurred while deleting the daily log",
+                    Detail = "An unexpected error occurred while deleting the dailylog",
                     Instance = HttpContext.Request.Path,
                     TraceId = HttpContext.TraceIdentifier
                 });

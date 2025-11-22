@@ -14,7 +14,7 @@ namespace EntryPointApp.Api.Services.WeeklyLog
         {
             try
             {
-                _logger.LogInformation("Retrieving weekly logs for user {UserId} - Page: {Page}, PageSize: {PageSize}",
+                _logger.LogInformation("Retrieving weeklylogs for user {UserId} - Page: {Page}, PageSize: {PageSize}",
                     userId, request.Page, request.PageSize);
 
                 var query = _context.WeeklyLogs
@@ -61,24 +61,24 @@ namespace EntryPointApp.Api.Services.WeeklyLog
                     HasPreviousPage = request.Page > 1
                 };
 
-                _logger.LogInformation("Successfully retrieved {Count} weekly logs for user {UserId}",
+                _logger.LogInformation("Successfully retrieved {Count} weeklylogs for user {UserId}",
                     weeklyLogs.Count, userId);
 
                 return new WeeklyLogListResult
                 {
                     Success = true,
-                    Message = "Weekly logs retrieved successfully!",
+                    Message = "Weeklylogs retrieved successfully!",
                     Data = pagedResult
                 };
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving weekly logs for user {UserId}", userId);
+                _logger.LogError(ex, "Error retrieving weeklylogs for user {UserId}", userId);
 
                 return new WeeklyLogListResult
                 {
                     Success = false,
-                    Message = "Failed to retrieve weekly logs",
+                    Message = "Failed to retrieve weeklylogs",
                     Errors = [ex.Message]
                 };
             }
@@ -88,7 +88,7 @@ namespace EntryPointApp.Api.Services.WeeklyLog
         {
             try
             {
-                _logger.LogInformation("Retrieving weekly log {WeeklyLogId} for user {UserId}", id, userId);
+                _logger.LogInformation("Retrieving weeklylog {WeeklyLogId} for user {UserId}", id, userId);
 
                 var weeklyLog = await _context.WeeklyLogs
                     .Where(w => w.Id == id && w.UserId == userId && !w.IsDeleted)
@@ -111,28 +111,28 @@ namespace EntryPointApp.Api.Services.WeeklyLog
                     return new WeeklyLogResult
                     {
                         Success = false,
-                        Message = "Weekly log not found",
-                        Errors = ["The requested weekly log does not exist or you don't have permission to access it"]
+                        Message = "Weeklylog not found",
+                        Errors = ["The requested weeklylog does not exist or you don't have permission to access it"]
                     };
                 }
 
-                _logger.LogInformation("Successfully retrieved weekly log {WeeklyLogId} for user {UserId}", id, userId);
+                _logger.LogInformation("Successfully retrieved weeklylog {WeeklyLogId} for user {UserId}", id, userId);
 
                 return new WeeklyLogResult
                 {
                     Success = true,
-                    Message = "Weekly log retrieved successfully!",
+                    Message = "Weeklylog retrieved successfully!",
                     Data = weeklyLog
                 };
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving weekly log {WeeklyLogId} for user {UserId}", id, userId);
+                _logger.LogError(ex, "Error retrieving weeklylog {WeeklyLogId} for user {UserId}", id, userId);
 
                 return new WeeklyLogResult
                 {
                     Success = false,
-                    Message = "Failed to retrieve weekly log",
+                    Message = "Failed to retrieve weeklylog",
                     Errors = [ex.Message]
                 };
             }
@@ -142,10 +142,10 @@ namespace EntryPointApp.Api.Services.WeeklyLog
         {
             try
             {
-                _logger.LogInformation("Creating weekly log for user {UserId} from {DateFrom} to {DateTo}",
+                _logger.LogInformation("Creating weeklylog for user {UserId} from {DateFrom} to {DateTo}",
                     userId, request.DateFrom, request.DateTo);
 
-                // Check for overlapping weekly logs
+                // Check for overlapping weeklylogs
                 var hasOverlap = await _context.WeeklyLogs
                     .AnyAsync(w => w.UserId == userId 
                         && !w.IsDeleted
@@ -159,7 +159,7 @@ namespace EntryPointApp.Api.Services.WeeklyLog
                     {
                         Success = false,
                         Message = "Validation failed",
-                        Errors = ["A weekly log already exists for this date range"]
+                        Errors = ["A weeklylog already exists for this date range"]
                     };
                 }
 
@@ -189,24 +189,24 @@ namespace EntryPointApp.Api.Services.WeeklyLog
                     Status = weeklyLog.Status
                 };
 
-                _logger.LogInformation("Successfully created weekly log {WeeklyLogId} for user {UserId}",
+                _logger.LogInformation("Successfully created weeklylog {WeeklyLogId} for user {UserId}",
                     weeklyLog.Id, userId);
 
                 return new WeeklyLogResult
                 {
                     Success = true,
-                    Message = "Weekly log created successfully!",
+                    Message = "Weeklylog created successfully!",
                     Data = response
                 };
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creating weekly log for user {UserId}", userId);
+                _logger.LogError(ex, "Error creating weeklylog for user {UserId}", userId);
 
                 return new WeeklyLogResult
                 {
                     Success = false,
-                    Message = "Failed to create weekly log",
+                    Message = "Failed to create weeklylog",
                     Errors = [ex.Message]
                 };
             }
@@ -216,24 +216,24 @@ namespace EntryPointApp.Api.Services.WeeklyLog
         {
             try
             {
-                _logger.LogInformation("Updating weekly log {WeeklyLogId} for user {UserId}", id, userId);
+                _logger.LogInformation("Updating weeklylog {WeeklyLogId} for user {UserId}", id, userId);
 
                 var weeklyLog = await _context.WeeklyLogs
                     .FirstOrDefaultAsync(w => w.Id == id && w.UserId == userId && !w.IsDeleted);
 
                 if (weeklyLog == null)
                 {
-                    _logger.LogWarning("Weekly log {WeeklyLogId} not found for user {UserId}", id, userId);
+                    _logger.LogWarning("Weeklylog {WeeklyLogId} not found for user {UserId}", id, userId);
 
                     return new WeeklyLogResult
                     {
                         Success = false,
-                        Message = "Weekly log not found",
-                        Errors = ["The requested weekly log does not exist or you don't have permission to update it"]
+                        Message = "Weeklylog not found",
+                        Errors = ["The requested weeklylog does not exist or you don't have permission to update it"]
                     };
                 }
 
-                // Check for overlapping weekly logs (excluding current one)
+                // Check for overlapping weeklylogs (excluding current one)
                 var hasOverlap = await _context.WeeklyLogs
                     .AnyAsync(w => w.UserId == userId 
                         && w.Id != id
@@ -248,7 +248,7 @@ namespace EntryPointApp.Api.Services.WeeklyLog
                     {
                         Success = false,
                         Message = "Validation failed",
-                        Errors = ["Another weekly log already exists for this date range"]
+                        Errors = ["Another weeklylog already exists for this date range"]
                     };
                 }
 
@@ -270,23 +270,23 @@ namespace EntryPointApp.Api.Services.WeeklyLog
                     Status = weeklyLog.Status
                 };
 
-                _logger.LogInformation("Successfully updated weekly log {WeeklyLogId} for user {UserId}", id, userId);
+                _logger.LogInformation("Successfully updated weeklylog {WeeklyLogId} for user {UserId}", id, userId);
 
                 return new WeeklyLogResult
                 {
                     Success = true,
-                    Message = "Weekly log updated successfully!",
+                    Message = "Weeklylog updated successfully!",
                     Data = response
                 };
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error updating weekly log {WeeklyLogId} for user {UserId}", id, userId);
+                _logger.LogError(ex, "Error updating weeklylog {WeeklyLogId} for user {UserId}", id, userId);
 
                 return new WeeklyLogResult
                 {
                     Success = false,
-                    Message = "Failed to update weekly log",
+                    Message = "Failed to update weeklylog",
                     Errors = [ex.Message]
                 };
             }
@@ -296,7 +296,7 @@ namespace EntryPointApp.Api.Services.WeeklyLog
         {
             try
             {
-                _logger.LogInformation("Deleting weekly log {WeeklyLogId} for user {UserId}", id, userId);
+                _logger.LogInformation("Deleting weeklylog {WeeklyLogId} for user {UserId}", id, userId);
 
                 var weeklyLog = await _context.WeeklyLogs
                     .Include(w => w.DailyLogs)
@@ -304,13 +304,13 @@ namespace EntryPointApp.Api.Services.WeeklyLog
 
                 if (weeklyLog == null)
                 {
-                    _logger.LogWarning("Weekly log {WeeklyLogId} not found for user {UserId}", id, userId);
+                    _logger.LogWarning("Weeklylog {WeeklyLogId} not found for user {UserId}", id, userId);
 
                     return new WeeklyLogResult
                     {
                         Success = false,
-                        Message = "Weekly log not found",
-                        Errors = ["The requested weekly log does not exist or you don't have permission to delete it"]
+                        Message = "Weeklylog not found",
+                        Errors = ["The requested weeklylog does not exist or you don't have permission to delete it"]
                     };
                 }
 
@@ -323,23 +323,23 @@ namespace EntryPointApp.Api.Services.WeeklyLog
 
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("Successfully deleted weekly log {WeeklyLogId} for user {UserId}", id, userId);
+                _logger.LogInformation("Successfully deleted weeklylog {WeeklyLogId} for user {UserId}", id, userId);
 
                 return new WeeklyLogResult
                 {
                     Success = true,
-                    Message = "Weekly log deleted successfully!",
+                    Message = "Weeklylog deleted successfully!",
                     Data = null
                 };
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error deleting weekly log {WeeklyLogId} for user {UserId}", id, userId);
+                _logger.LogError(ex, "Error deleting weeklylog {WeeklyLogId} for user {UserId}", id, userId);
 
                 return new WeeklyLogResult
                 {
                     Success = false,
-                    Message = "Failed to delete weekly log",
+                    Message = "Failed to delete weeklylog",
                     Errors = [ex.Message]
                 };
             }
@@ -349,7 +349,7 @@ namespace EntryPointApp.Api.Services.WeeklyLog
         {
             try
             {
-                _logger.LogInformation("Recalculating totals for weekly log {WeeklyLogId}", weeklyLogId);
+                _logger.LogInformation("Recalculating totals for weeklylog {WeeklyLogId}", weeklyLogId);
 
                 var weeklyLog = await _context.WeeklyLogs
                     .Include(w => w.DailyLogs.Where(d => !d.IsDeleted))
@@ -357,7 +357,7 @@ namespace EntryPointApp.Api.Services.WeeklyLog
 
                 if (weeklyLog == null)
                 {
-                    _logger.LogWarning("Weekly log {WeeklyLogId} not found for recalculation", weeklyLogId);
+                    _logger.LogWarning("Weeklylog {WeeklyLogId} not found for recalculation", weeklyLogId);
                     return;
                 }
 
@@ -367,12 +367,12 @@ namespace EntryPointApp.Api.Services.WeeklyLog
 
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("Successfully recalculated totals for weekly log {WeeklyLogId}: Hours={TotalHours}, Charges={TotalCharges}",
+                _logger.LogInformation("Successfully recalculated totals for weeklylog {WeeklyLogId}: Hours={TotalHours}, Charges={TotalCharges}",
                     weeklyLogId, weeklyLog.TotalHours, weeklyLog.TotalCharges);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error recalculating totals for weekly log {WeeklyLogId}", weeklyLogId);
+                _logger.LogError(ex, "Error recalculating totals for weeklylog {WeeklyLogId}", weeklyLogId);
                 throw;
             }
         }
