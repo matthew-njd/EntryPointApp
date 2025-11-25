@@ -1,4 +1,3 @@
-//Returns both WeeklyLog and their corresponding DailyLog - Depreciated into seperate services.
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -25,11 +24,11 @@ export interface ApiResponse<T> {
 @Injectable({
   providedIn: 'root',
 })
-export class TimesheetService {
+export class WeeklyLogService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:5077/api/Timesheet';
+  private apiUrl = 'http://localhost:5077/api/Weeklylog';
 
-  getTimesheets(
+  getWeeklyLogs(
     page?: number,
     pageSize?: number
   ): Observable<PagedResult<WeeklyLog>> {
@@ -49,7 +48,7 @@ export class TimesheetService {
           if (response.success && response.data) {
             return response.data;
           }
-          throw new Error(response.message || 'Failed to fetch timesheets');
+          throw new Error(response.message || 'Failed to fetch WeeklyLogs');
         })
       );
   }

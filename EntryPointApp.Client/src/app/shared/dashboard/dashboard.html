@@ -20,16 +20,16 @@
           </tr>
         </thead>
         <tbody>
-          @for (timesheet of timesheets; track timesheet.id) {
+          @for (weeklyLog of weeklyLogs; track weeklyLog.id) {
           <tr class="align-middle">
             <td>
-              {{ timesheet.dateFrom | date : "MMM d, y" }} -
-              {{ timesheet.dateTo | date : "MMM d, y" }}
+              {{ weeklyLog.dateFrom | date : "MMM d, y" }} -
+              {{ weeklyLog.dateTo | date : "MMM d, y" }}
             </td>
-            <td>{{ timesheet.totalHours }} hours</td>
-            <td>${{ timesheet.totalCharges }}</td>
-            <td [ngClass]="getStatusClass(timesheet.status)">
-              {{ timesheet.status }}
+            <td>{{ weeklyLog.totalHours }} hours</td>
+            <td>${{ weeklyLog.totalCharges }}</td>
+            <td [ngClass]="getStatusClass(weeklyLog.status)">
+              {{ weeklyLog.status }}
             </td>
             <th class="flex justify-center">
               <button class="btn btn-sm sm:btn-md btn-outline btn-secondary">

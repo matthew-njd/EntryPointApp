@@ -1,11 +1,11 @@
 import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Nav } from '../nav/nav';
-import {
-  TimesheetService,
-  PagedResult,
-} from '../../core/services/timesheet.service';
 import { WeeklyLog } from '../../core/models/weeklylog.model';
+import {
+  WeeklyLogService,
+  PagedResult,
+} from '../../core/services/weeklog.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -14,10 +14,10 @@ import { WeeklyLog } from '../../core/models/weeklylog.model';
   styleUrl: './dashboard.css',
 })
 export class Dashboard implements OnInit {
-  private timesheetService = inject(TimesheetService);
+  private weeklyLogService = inject(WeeklyLogService);
   private cdr = inject(ChangeDetectorRef);
 
-  timesheets: WeeklyLog[] = [];
+  weeklyLogs: WeeklyLog[] = [];
   pagedResult: PagedResult<WeeklyLog> | null = null;
 
   get currentPage(): number {
@@ -28,19 +28,19 @@ export class Dashboard implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadTimesheets();
+    this.loadWeeklyLogs();
   }
 
-  loadTimesheets(page?: number, pageSize?: number): void {
-    this.timesheetService.getTimesheets(page, pageSize).subscribe({
+  loadWeeklyLogs(page?: number, pageSize?: number): void {
+    this.weeklyLogService.getWeeklyLogs(page, pageSize).subscribe({
       next: (result) => {
-        console.log('Timesheets fetched:', result);
+        console.log('WeeklyLogs fetched:', result);
         this.pagedResult = result;
-        this.timesheets = result.data;
+        this.weeklyLogs = result.data;
         this.cdr.detectChanges();
       },
       error: (error) => {
-        console.error('Timesheets fetch failed:', error);
+        console.error('WeeklyLogs fetch failed:', error);
       },
     });
   }
@@ -61,7 +61,7 @@ export class Dashboard implements OnInit {
   }
 
   onPageChange(page: number): void {
-    this.loadTimesheets(page, this.pageSize);
+    this.loadWeeklyLogs(page, this.pageSize);
   }
 
   getPageNumbers(): number[] {
