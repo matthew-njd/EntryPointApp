@@ -1,4 +1,4 @@
-//Returns both WeeklyLog and their corresponding DailyLog - Depreciated into seperate services.
+//Returns both WeeklyLog and their corresponding DailyLog - Depreciated into separate services.
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
