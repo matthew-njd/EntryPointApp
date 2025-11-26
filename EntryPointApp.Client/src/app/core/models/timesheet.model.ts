@@ -1,4 +1,7 @@
-export interface WeeklyLog {
+//Depreciated model. Now separated into DailyLog and WeeklyLog
+import { DailyLog } from './dailylog.model';
+
+export interface Timesheet {
   id: number;
   userId: number;
   dateFrom: string;
@@ -9,4 +12,5 @@ export interface WeeklyLog {
   isDeleted: boolean;
   createdAt: string;
   updatedAt: string;
+  dailyLogs: DailyLog[];
 }

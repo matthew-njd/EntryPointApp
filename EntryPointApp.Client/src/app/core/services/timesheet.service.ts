@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { WeeklyLog } from '../models/weeklylog.model';
+import { Timesheet } from '../models/timesheet.model';
 
 export interface PagedResult<T> {
   data: T[];
@@ -32,7 +32,7 @@ export class TimesheetService {
   getTimesheets(
     page?: number,
     pageSize?: number
-  ): Observable<PagedResult<WeeklyLog>> {
+  ): Observable<PagedResult<Timesheet>> {
     let params = new HttpParams();
 
     if (page !== undefined) {
@@ -43,7 +43,7 @@ export class TimesheetService {
     }
 
     return this.http
-      .get<ApiResponse<PagedResult<WeeklyLog>>>(this.apiUrl, { params })
+      .get<ApiResponse<PagedResult<Timesheet>>>(this.apiUrl, { params })
       .pipe(
         map((response) => {
           if (response.success && response.data) {
