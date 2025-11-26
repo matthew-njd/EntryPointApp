@@ -34,7 +34,7 @@ export class Dashboard implements OnInit {
 
   ngOnInit(): void {
     this.loadWeeklyLogs();
-    this.LoadUserFullName();
+    this.loadUserFullName();
   }
 
   loadWeeklyLogs(page?: number, pageSize?: number): void {
@@ -65,7 +65,7 @@ export class Dashboard implements OnInit {
     });
   }
 
-  LoadUserFullName() {
+  loadUserFullName() {
     try {
       const userJson = localStorage.getItem('current_user');
       if (userJson) {
