@@ -32,7 +32,10 @@
               {{ weeklyLog.status }}
             </td>
             <th class="flex justify-center">
-              <button class="btn btn-sm sm:btn-md btn-outline btn-secondary">
+              <button
+                class="btn btn-sm sm:btn-md btn-outline btn-secondary"
+                (click)="viewDailyLogs(weeklyLog)"
+              >
                 View
               </button>
             </th>

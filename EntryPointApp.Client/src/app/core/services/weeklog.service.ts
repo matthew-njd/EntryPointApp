@@ -26,7 +26,7 @@ export interface ApiResponse<T> {
 })
 export class WeeklyLogService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:5077/api/Weeklylog';
+  private apiUrl = 'http://localhost:5077/api/weeklylog';
 
   getWeeklyLogs(
     page?: number,

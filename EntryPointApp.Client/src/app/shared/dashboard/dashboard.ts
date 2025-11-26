@@ -6,6 +6,7 @@ import {
   WeeklyLogService,
   PagedResult,
 } from '../../core/services/weeklog.service';
+import { DailyLogService } from '../../core/services/dailylog.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -15,6 +16,7 @@ import {
 })
 export class Dashboard implements OnInit {
   private weeklyLogService = inject(WeeklyLogService);
+  private dailyLogService = inject(DailyLogService);
   private cdr = inject(ChangeDetectorRef);
 
   weeklyLogs: WeeklyLog[] = [];
@@ -41,6 +43,20 @@ export class Dashboard implements OnInit {
       },
       error: (error) => {
         console.error('WeeklyLogs fetch failed:', error);
+      },
+    });
+  }
+
+  viewDailyLogs(weeklyLog: WeeklyLog): void {
+    this.dailyLogService.getDailyLogs(weeklyLog.id).subscribe({
+      next: (dailyLogs) => {
+        console.log(
+          `DailyLogs for weeklyLog[${weeklyLog.id}] fetched:`,
+          dailyLogs
+        );
+      },
+      error: (error) => {
+        console.error('Failed to fetch dailylogs:', error);
       },
     });
   }

@@ -44,8 +44,7 @@ export class Login {
     const { email, password } = this.loginForm.value;
 
     this.authService.login(email, password).subscribe({
-      next: (response) => {
-        console.log('Login successful:', response);
+      next: () => {
         this.isLoading = false;
         this.router.navigate(['/dashboard']);
       },
