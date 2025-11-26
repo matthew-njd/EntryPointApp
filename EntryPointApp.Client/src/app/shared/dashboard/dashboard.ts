@@ -7,6 +7,7 @@ import {
   PagedResult,
 } from '../../core/services/weeklog.service';
 import { DailyLogService } from '../../core/services/dailylog.service';
+import { UserResponse } from '../../core/models/auth.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -22,6 +23,8 @@ export class Dashboard implements OnInit {
   weeklyLogs: WeeklyLog[] = [];
   pagedResult: PagedResult<WeeklyLog> | null = null;
 
+  userFullName: string = '';
+
   get currentPage(): number {
     return this.pagedResult?.page ?? 1;
   }
@@ -31,6 +34,7 @@ export class Dashboard implements OnInit {
 
   ngOnInit(): void {
     this.loadWeeklyLogs();
+    this.LoadUserFullName();
   }
 
   loadWeeklyLogs(page?: number, pageSize?: number): void {
@@ -59,6 +63,18 @@ export class Dashboard implements OnInit {
         console.error('Failed to fetch dailylogs:', error);
       },
     });
+  }
+
+  LoadUserFullName() {
+    try {
+      const userJson = localStorage.getItem('current_user');
+      if (userJson) {
+        const currentUser: UserResponse = JSON.parse(userJson);
+        this.userFullName = `${currentUser.firstName} ${currentUser.lastName}`;
+      }
+    } catch (error) {
+      console.error('Failed to parse user data:', error);
+    }
   }
 
   getStatusClass(status: string | undefined): string {
