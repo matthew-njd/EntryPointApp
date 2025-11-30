@@ -8,6 +8,7 @@ import {
 } from '../../core/services/weeklog.service';
 import { DailyLogService } from '../../core/services/dailylog.service';
 import { UserResponse } from '../../core/models/auth.model';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
@@ -19,6 +20,7 @@ export class Dashboard implements OnInit {
   private weeklyLogService = inject(WeeklyLogService);
   private dailyLogService = inject(DailyLogService);
   private cdr = inject(ChangeDetectorRef);
+  private router = inject(Router);
 
   weeklyLogs: WeeklyLog[] = [];
   pagedResult: PagedResult<WeeklyLog> | null = null;
@@ -40,27 +42,12 @@ export class Dashboard implements OnInit {
   loadWeeklyLogs(page?: number, pageSize?: number): void {
     this.weeklyLogService.getWeeklyLogs(page, pageSize).subscribe({
       next: (result) => {
-        console.log('WeeklyLogs fetched:', result);
         this.pagedResult = result;
         this.weeklyLogs = result.data;
         this.cdr.detectChanges();
       },
       error: (error) => {
         console.error('WeeklyLogs fetch failed:', error);
-      },
-    });
-  }
-
-  viewDailyLogs(weeklyLog: WeeklyLog): void {
-    this.dailyLogService.getDailyLogs(weeklyLog.id).subscribe({
-      next: (dailyLogs) => {
-        console.log(
-          `DailyLogs for weeklyLog[${weeklyLog.id}] fetched:`,
-          dailyLogs
-        );
-      },
-      error: (error) => {
-        console.error('Failed to fetch dailylogs:', error);
       },
     });
   }
@@ -75,6 +62,21 @@ export class Dashboard implements OnInit {
     } catch (error) {
       console.error('Failed to parse user data:', error);
     }
+  }
+
+  viewDailyLogs(weeklyLog: WeeklyLog): void {
+    this.dailyLogService.getDailyLogs(weeklyLog.id).subscribe({
+      next: (dailyLogs) => {
+        console.log(
+          `DailyLogs for weeklyLog[${weeklyLog.id}] fetched:`,
+          dailyLogs
+        );
+        //this.router.navigate([`/dailylog/${weeklyLog.id}`]);
+      },
+      error: (error) => {
+        console.error('Failed to fetch dailylogs:', error);
+      },
+    });
   }
 
   getStatusClass(status: string | undefined): string {
