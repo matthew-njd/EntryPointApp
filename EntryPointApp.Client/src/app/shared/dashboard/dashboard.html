@@ -1,10 +1,22 @@
 <app-nav></app-nav>
 
 <div class="mt-16 sm:mt-40 max-w-4xl mx-auto px-4">
-  <div class="flex justify-between">
-    <h1 class="text-3xl">Hello, {{ userFullName }}</h1>
-    <button class="btn btn-primary btn-md">New Timesheet</button>
+  <h1 class="text-3xl">Hello, {{ userFullName }}</h1>
+  <div class="flex justify-between mt-8 mb-8">
+    <app-card title="Current Week Hours" value="21.45 Hrs"></app-card>
+    <app-card title="Current Week Charges" value="$19.64"></app-card>
+    <app-card
+      cardClasses="text-success"
+      title="Total Approved"
+      value="35"
+    ></app-card>
+    <app-card
+      cardClasses="text-info"
+      title="Total Submitted"
+      value="2"
+    ></app-card>
   </div>
+  <button class="btn btn-primary btn-md">New Timesheet</button>
   <div class="flex flex-col items-center">
     <div
       class="w-full overflow-x-auto overflow-y-auto mb-4 mt-4 rounded-box bg-base-300"
