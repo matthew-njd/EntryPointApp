@@ -9,10 +9,11 @@ import {
 import { DailyLogService } from '../../core/services/dailylog.service';
 import { UserResponse } from '../../core/models/auth.model';
 import { Router } from '@angular/router';
+import { Card } from '../../shared/card/card';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule, Nav],
+  imports: [CommonModule, Nav, Card],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })
