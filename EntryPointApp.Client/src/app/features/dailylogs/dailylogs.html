@@ -1,0 +1,102 @@
+<app-nav></app-nav>
+
+<div class="mt-16 sm:mt-40 max-w-6xl mx-auto px-4">
+  <!-- Header with back button -->
+  <div class="flex items-center gap-4 mb-6">
+    <button class="btn btn-ghost btn-sm" (click)="goBack()">← Back</button>
+    <h1 class="text-3xl">Daily Logs</h1>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading) {
+  <div class="flex justify-center items-center py-12">
+    <span class="loading loading-spinner loading-lg"></span>
+  </div>
+  }
+
+  <!-- Error State -->
+  @if (errorMessage && !isLoading) {
+  <div class="alert alert-error">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      class="stroke-current shrink-0 h-6 w-6"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+      />
+    </svg>
+    <span>{{ errorMessage }}</span>
+  </div>
+  }
+
+  <!-- Daily Logs Content -->
+  @if (!isLoading && !errorMessage) {
+
+  <!-- Summary Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+    <div class="stat bg-base-200 rounded-box">
+      <div class="stat-title">Total Hours</div>
+      <div class="stat-value text-primary">{{ getTotalHours() }}</div>
+      <div class="stat-desc">hours worked this week</div>
+    </div>
+    <div class="stat bg-base-200 rounded-box">
+      <div class="stat-title">Total Charges</div>
+      <div class="stat-value text-secondary">${{ getTotalCharges() }}</div>
+      <div class="stat-desc">expenses this week</div>
+    </div>
+    <div class="stat bg-base-200 rounded-box">
+      <div class="stat-title">Total Mileage</div>
+      <div class="stat-value">{{ getTotalMileage() }}</div>
+      <div class="stat-desc">miles driven</div>
+    </div>
+  </div>
+
+  <div class="w-full overflow-x-auto rounded-box bg-base-300">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Hours</th>
+          <th>Mileage</th>
+          <th>Toll</th>
+          <th>Parking</th>
+          <th>Other</th>
+          <th>Total Charges</th>
+          <th>Comment</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (log of dailyLogs; track log.id) {
+        <tr>
+          <td>{{ log.date | date : "EEE, MMM d, y" }}</td>
+          <td>{{ log.hoursWorked }} hrs</td>
+          <td>{{ log.mileage }} mi</td>
+          <td>${{ log.tollCharges }}</td>
+          <td>${{ log.parkingFee }}</td>
+          <td>${{ log.otherCharges }}</td>
+          <td class="font-semibold">
+            ${{ log.tollCharges + log.parkingFee + log.otherCharges }}
+          </td>
+          <td>
+            <span class="truncate max-w-xs block" [title]="log.comment">
+              {{ log.comment || "-" }}
+            </span>
+          </td>
+        </tr>
+        } @empty {
+        <tr>
+          <td colspan="8" class="text-center py-8">
+            No daily logs found for this week
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  }
+</div>
