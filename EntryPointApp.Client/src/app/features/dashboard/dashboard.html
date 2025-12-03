@@ -1,7 +1,10 @@
 <app-nav></app-nav>
 
 <div class="mt-16 sm:mt-40 max-w-4xl mx-auto px-4">
-  <h1 class="text-3xl">Hello, {{ userFullName }}</h1>
+  <div class="flex justify-between">
+    <h1 class="text-3xl">Hello, {{ userFullName }}</h1>
+    <button class="btn btn-primary btn-md">New Timesheet</button>
+  </div>
   <div class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-6 mt-6">
     <app-card
       cardClasses="text-success"
@@ -9,22 +12,21 @@
       value="{{ getTotalApproved() }}"
     ></app-card>
     <app-card
-      cardClasses="text-info"
+      cardClasses="text-warning"
       title="Total Pending"
       value="{{ getTotalPending() }}"
     ></app-card>
     <app-card
-      cardClasses="text-info"
+      cardClasses="text-error"
       title="Total Denied"
       value="{{ getTotalDenied() }}"
     ></app-card>
     <app-card
-      cardClasses="text-error"
+      cardClasses="text-info"
       title="Total Drafts"
       value="{{ getTotalDrafts() }}"
     ></app-card>
   </div>
-  <button class="btn btn-primary btn-md">New Timesheet</button>
   <div class="flex flex-col items-center">
     <div
       class="w-full overflow-x-auto overflow-y-auto mb-4 mt-4 rounded-box bg-base-300"
