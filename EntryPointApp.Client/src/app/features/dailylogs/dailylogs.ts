@@ -4,10 +4,11 @@ import { DailyLogService } from '../../core/services/dailylog.service';
 import { DailyLog } from '../../core/models/dailylog.model';
 import { Nav } from '../../shared/nav/nav';
 import { DatePipe } from '@angular/common';
+import { Card } from '../../shared/card/card';
 
 @Component({
   selector: 'app-dailylogs',
-  imports: [Nav, DatePipe],
+  imports: [Nav, DatePipe, Card],
   templateUrl: './dailylogs.html',
   styleUrl: './dailylogs.css',
 })

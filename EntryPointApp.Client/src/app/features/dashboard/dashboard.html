@@ -2,17 +2,21 @@
 
 <div class="mt-16 sm:mt-40 max-w-4xl mx-auto px-4">
   <h1 class="text-3xl">Hello, {{ userFullName }}</h1>
-  <div class="flex justify-between mt-8 mb-8">
-    <app-card title="Current Week Hours" value="21.45 Hrs"></app-card>
-    <app-card title="Current Week Charges" value="$19.64"></app-card>
+  <div class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-6 mt-6">
     <app-card
       cardClasses="text-success"
       title="Total Approved"
-      value="35"
+      value="6"
     ></app-card>
     <app-card
       cardClasses="text-info"
-      title="Total Submitted"
+      title="Total Pending"
+      value="2"
+    ></app-card>
+    <app-card cardClasses="text-info" title="Total Denied" value="1"></app-card>
+    <app-card
+      cardClasses="text-error"
+      title="Total Drafts"
       value="2"
     ></app-card>
   </div>
