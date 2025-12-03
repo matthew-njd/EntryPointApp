@@ -61,7 +61,7 @@ namespace EntryPointApp.Api.Controllers
                 if (!request.StartDate.HasValue && !request.EndDate.HasValue)
                 {
                     request.EndDate = DateOnly.FromDateTime(DateTime.Now);
-                    request.StartDate = request.EndDate.Value.AddMonths(-3);
+                    request.StartDate = request.EndDate.Value.AddMonths(-12);
 
                     _logger.LogInformation("Applied default date range for user {UserId}: {StartDate} to {EndDate}",
                         userId, request.StartDate, request.EndDate);
