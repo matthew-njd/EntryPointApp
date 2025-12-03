@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DailyLogService } from '../../core/services/dailylog.service';
 import { DailyLog } from '../../core/models/dailylog.model';
@@ -15,6 +15,7 @@ export class Dailylogs implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private dailyLogService = inject(DailyLogService);
+  private cdr = inject(ChangeDetectorRef);
 
   dailyLogs: DailyLog[] = [];
   weeklyLogId: number | null = null;
@@ -41,9 +42,10 @@ export class Dailylogs implements OnInit {
         console.log('Dailylogs loaded:', dailyLogs);
         this.dailyLogs = dailyLogs;
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: (error) => {
-        console.error('Failed to load daily logs:', error);
+        console.error('Failed to load dailylogs:', error);
         this.errorMessage = 'Failed to load dailylogs. Please try again.';
         this.isLoading = false;
       },
@@ -55,12 +57,12 @@ export class Dailylogs implements OnInit {
   }
 
   getTotalHours(): number {
-    return this.dailyLogs.reduce((sum, log) => sum + log.hoursWorked, 0);
+    return this.dailyLogs.reduce((sum, log) => sum + log.hours, 0);
   }
 
   getTotalCharges(): number {
     return this.dailyLogs.reduce(
-      (sum, log) => sum + log.tollCharges + log.parkingFee + log.otherCharges,
+      (sum, log) => sum + log.tollCharge + log.parkingFee + log.otherCharges,
       0
     );
   }

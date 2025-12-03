@@ -2,9 +2,9 @@ export interface DailyLog {
   id: number;
   weeklyLogId: number;
   date: string;
-  hoursWorked: number;
+  hours: number;
   mileage: number;
-  tollCharges: number;
+  tollCharge: number;
   parkingFee: number;
   otherCharges: number;
   comment: string;

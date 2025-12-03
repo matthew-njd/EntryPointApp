@@ -6,7 +6,6 @@ import {
   WeeklyLogService,
   PagedResult,
 } from '../../core/services/weeklog.service';
-import { DailyLogService } from '../../core/services/dailylog.service';
 import { UserResponse } from '../../core/models/auth.model';
 import { Router } from '@angular/router';
 import { Card } from '../../shared/card/card';
@@ -19,7 +18,6 @@ import { Card } from '../../shared/card/card';
 })
 export class Dashboard implements OnInit {
   private weeklyLogService = inject(WeeklyLogService);
-  private dailyLogService = inject(DailyLogService);
   private cdr = inject(ChangeDetectorRef);
   private router = inject(Router);
 

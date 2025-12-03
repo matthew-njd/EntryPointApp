@@ -11,6 +11,7 @@
           <tr>
             <th>Date</th>
             <th>Hours</th>
+            <th>Mileage</th>
             <th>Toll Charges</th>
             <th>Parking Fees</th>
             <th>Other Charges</th>
@@ -21,28 +22,19 @@
           @for (dailyLog of dailyLogs; track dailyLog.id) {
           <tr>
             <td>{{ dailyLog.date | date : "EEE, MMM d, y" }}</td>
-            <td>{{ dailyLog.hoursWorked }} hrs</td>
+            <td>{{ dailyLog.hours }} hrs</td>
             <td>{{ dailyLog.mileage }} mi</td>
-            <td>${{ dailyLog.tollCharges }}</td>
+            <td>${{ dailyLog.tollCharge }}</td>
             <td>${{ dailyLog.parkingFee }}</td>
             <td>${{ dailyLog.otherCharges }}</td>
-            <td class="font-semibold">
-              ${{
-                dailyLog.tollCharges +
-                  dailyLog.parkingFee +
-                  dailyLog.otherCharges
-              }}
-            </td>
             <td>
-              <span class="truncate max-w-xs block" [title]="dailyLog.comment">
-                {{ dailyLog.comment || "-" }}
-              </span>
+              {{ dailyLog.comment || "-" }}
             </td>
           </tr>
           } @empty {
           <tr>
-            <td colspan="8" class="text-center py-8">
-              No daily logs found for this week
+            <td colspan="4" class="text-center py-8">
+              No dailylogs found for this week
             </td>
           </tr>
           }
