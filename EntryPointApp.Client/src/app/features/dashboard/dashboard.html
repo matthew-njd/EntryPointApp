@@ -48,7 +48,7 @@
               {{ weeklyLog.dateFrom | date : "MMM d, y" }} -
               {{ weeklyLog.dateTo | date : "MMM d, y" }}
             </td>
-            <td>{{ weeklyLog.totalHours }} hours</td>
+            <td>{{ weeklyLog.totalHours }} hrs</td>
             <td>${{ weeklyLog.totalCharges }}</td>
             <td [ngClass]="getStatusClass(weeklyLog.status)">
               {{ weeklyLog.status }}
