@@ -82,6 +82,23 @@ export class Dashboard implements OnInit {
     }
   }
 
+  //TODO: Only displays totals for current page. Need to add summary to API
+  getTotalApproved(): number {
+    return this.weeklyLogs.filter((log) => log.status === 'Approved').length;
+  }
+
+  getTotalPending(): number {
+    return this.weeklyLogs.filter((log) => log.status === 'Pending').length;
+  }
+
+  getTotalDenied(): number {
+    return this.weeklyLogs.filter((log) => log.status === 'Denied').length;
+  }
+
+  getTotalDrafts(): number {
+    return this.weeklyLogs.filter((log) => log.status === 'Draft').length;
+  }
+
   onPageChange(page: number): void {
     this.loadWeeklyLogs(page, this.pageSize);
   }
@@ -93,12 +110,10 @@ export class Dashboard implements OnInit {
     const current = this.currentPage;
     const pages: number[] = [];
 
-    // Show max 5 page buttons at a time
     const maxButtons = 5;
     let startPage = Math.max(1, current - Math.floor(maxButtons / 2));
     let endPage = Math.min(totalPages, startPage + maxButtons - 1);
 
-    // Adjust start page if we're near the end
     if (endPage - startPage < maxButtons - 1) {
       startPage = Math.max(1, endPage - maxButtons + 1);
     }

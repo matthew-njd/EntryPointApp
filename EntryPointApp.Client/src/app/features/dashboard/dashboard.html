@@ -6,18 +6,22 @@
     <app-card
       cardClasses="text-success"
       title="Total Approved"
-      value="6"
+      value="{{ getTotalApproved() }}"
     ></app-card>
     <app-card
       cardClasses="text-info"
       title="Total Pending"
-      value="2"
+      value="{{ getTotalPending() }}"
     ></app-card>
-    <app-card cardClasses="text-info" title="Total Denied" value="1"></app-card>
+    <app-card
+      cardClasses="text-info"
+      title="Total Denied"
+      value="{{ getTotalDenied() }}"
+    ></app-card>
     <app-card
       cardClasses="text-error"
       title="Total Drafts"
-      value="2"
+      value="{{ getTotalDrafts() }}"
     ></app-card>
   </div>
   <button class="btn btn-primary btn-md">New Timesheet</button>
