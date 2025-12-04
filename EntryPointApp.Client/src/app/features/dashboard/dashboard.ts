@@ -23,7 +23,8 @@ export class Dashboard implements OnInit {
 
   weeklyLogs: WeeklyLog[] = [];
   pagedResult: PagedResult<WeeklyLog> | null = null;
-
+  isLoading = true;
+  errorMessage = '';
   userFullName: string = '';
 
   get currentPage(): number {
@@ -39,14 +40,18 @@ export class Dashboard implements OnInit {
   }
 
   loadWeeklyLogs(page?: number, pageSize?: number): void {
+    this.isLoading = true;
     this.weeklyLogService.getWeeklyLogs(page, pageSize).subscribe({
       next: (result) => {
         this.pagedResult = result;
         this.weeklyLogs = result.data;
+        this.isLoading = false;
         this.cdr.detectChanges();
       },
       error: (error) => {
         console.error('WeeklyLogs fetch failed:', error);
+        this.errorMessage = 'Failed to load weeeklylogs. Please try again.';
+        this.isLoading = false;
       },
     });
   }
@@ -70,9 +75,9 @@ export class Dashboard implements OnInit {
   getStatusClass(status: string | undefined): string {
     switch (status) {
       case 'Draft':
-        return 'text-info';
-      case 'Pending':
         return 'text-warning';
+      case 'Pending':
+        return 'text-info';
       case 'Approved':
         return 'text-success';
       case 'Denied':
