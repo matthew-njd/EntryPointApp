@@ -1,1 +1,24 @@
-<p>register works!</p>
+<div class="mt-36">
+  <h2 class="text-3xl text-center mb-4">EntryPoint, a Timesheet App</h2>
+  <fieldset
+    class="fieldset bg-base-200 border-base-300 rounded-box w-md mx-auto border p-4"
+  >
+    <legend class="fieldset-legend">Register</legend>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <label class="label">First Name</label>
+      <input type="text" class="input w-full" placeholder="First Name" />
+
+      <label class="label">Last Name</label>
+      <input type="text" class="input w-full" placeholder="Last Name" />
+
+      <label class="label">Email</label>
+      <input type="email" class="input w-full" placeholder="Email" />
+
+      <label class="label">Password</label>
+      <input type="password" class="input w-full" placeholder="Password" />
+    </form>
+
+    <button class="btn btn-neutral mt-4">Register</button>
+  </fieldset>
+</div>
