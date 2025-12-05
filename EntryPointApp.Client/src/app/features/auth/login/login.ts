@@ -70,4 +70,8 @@ export class Login {
   get password() {
     return this.loginForm.get('password');
   }
+
+  goToRegisterPage(): void {
+    this.router.navigate(['/register']);
+  }
 }

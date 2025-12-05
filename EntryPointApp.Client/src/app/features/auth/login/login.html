@@ -1,5 +1,5 @@
 <div class="mt-36">
-  <h2 class="text-3xl text-center mb-4">EntryPoint a Timesheet App</h2>
+  <h2 class="text-3xl text-center mb-4">EntryPoint, a Timesheet App</h2>
   <fieldset
     class="fieldset bg-base-200 border-base-300 rounded-box w-md mx-auto border p-4"
   >
@@ -54,5 +54,18 @@
         Logging in... } @else { Login }
       </button>
     </form>
+  </fieldset>
+
+  <fieldset
+    class="fieldset bg-base-200 border-base-300 rounded-box w-md mx-auto border p-4"
+  >
+    <legend class="fieldset-legend">Create Account</legend>
+    <button
+      type="submit"
+      class="btn btn-neutral w-full"
+      (click)="goToRegisterPage()"
+    >
+      Register
+    </button>
   </fieldset>
 </div>
