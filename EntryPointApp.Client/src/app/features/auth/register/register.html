@@ -6,19 +6,89 @@
     <legend class="fieldset-legend">Register</legend>
 
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      @if (errorMessage) {
+      <div class="alert alert-error mb-4">
+        <span>{{ errorMessage }}</span>
+      </div>
+      }
+
       <label class="label">First Name</label>
-      <input type="text" class="input w-full" placeholder="First Name" />
+      <input
+        type="text"
+        class="input w-full"
+        placeholder="First Name"
+        formControlName="firstName"
+        [class.input-error]="firstName?.invalid && firstName?.touched"
+      />
+      @if (firstName?.invalid && firstName?.touched) {
+      <div class="text-error text-sm mt-1">
+        <span>First name is required</span>
+      </div>
+      }
 
-      <label class="label">Last Name</label>
-      <input type="text" class="input w-full" placeholder="Last Name" />
+      <label class="label mt-4">Last Name</label>
+      <input
+        type="text"
+        class="input w-full"
+        placeholder="Last Name"
+        formControlName="lastName"
+        [class.input-error]="lastName?.invalid && lastName?.touched"
+      />
+      @if (lastName?.invalid && lastName?.touched) {
+      <div class="text-error text-sm mt-1">
+        <span>Last name is required</span>
+      </div>
+      }
 
-      <label class="label">Email</label>
-      <input type="email" class="input w-full" placeholder="Email" />
+      <label class="label mt-4">Email</label>
+      <input
+        type="email"
+        class="input w-full"
+        placeholder="Email"
+        formControlName="email"
+        [class.input-error]="email?.invalid && email?.touched"
+      />
+      @if (email?.invalid && email?.touched) {
+      <div class="text-error text-sm mt-1">
+        @if (email?.errors?.['required']) {
+        <span>Email is required</span>
+        } @if (email?.errors?.['email']) {
+        <span>Invalid email format</span>
+        }
+      </div>
+      }
 
-      <label class="label">Password</label>
-      <input type="password" class="input w-full" placeholder="Password" />
+      <label class="label mt-4">Password</label>
+      <input
+        type="password"
+        class="input w-full"
+        placeholder="Password"
+        formControlName="password"
+        [class.input-error]="password?.invalid && password?.touched"
+      />
+      @if (password?.invalid && password?.touched) {
+      <div class="text-error text-sm mt-1">
+        <span>Password is required</span>
+      </div>
+      }
+
+      <label class="label mt-4">Confirm Password</label>
+      <input
+        type="password"
+        class="input w-full"
+        placeholder="Password"
+        formControlName="confirmPassword"
+        [class.input-error]="
+          confirmPassword?.invalid && confirmPassword?.touched
+        "
+      />
+      @if (confirmPassword?.invalid && confirmPassword?.touched) {
+      <div class="text-error text-sm mt-1">
+        <span>Password does not match</span>
+      </div>
+      }
     </form>
 
-    <button class="btn btn-neutral mt-4">Register</button>
+    <button class="btn btn-neutral mt-4" (click)="onSubmit()">Register</button>
   </fieldset>
 </div>
