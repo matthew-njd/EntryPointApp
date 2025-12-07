@@ -10,6 +10,22 @@ export interface LoginResponse {
   user: UserResponse;
 }
 
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  confirmPassword: string;
+  role: number;
+  firstName: string;
+  lastName: string;
+}
+
+export interface RegisterResponse {
+  accessToken: string;
+  refreshToken: string;
+  expiresAt: string;
+  user: UserResponse;
+}
+
 export interface UserResponse {
   id: number;
   email: string;
