@@ -8,6 +8,8 @@ import {
   LoginResponse,
   ApiResponse,
   UserResponse,
+  RegisterRequest,
+  RegisterResponse,
 } from '../models/auth.model';
 
 @Injectable({
@@ -30,9 +32,7 @@ export class AuthService {
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
 
-  login(email: string, password: string): Observable<LoginResponse> {
-    const loginRequest: LoginRequest = { email, password };
-
+  login(loginRequest: LoginRequest): Observable<LoginResponse> {
     return this.http
       .post<ApiResponse<LoginResponse>>(`${this.apiUrl}/login`, loginRequest)
       .pipe(
@@ -43,6 +43,25 @@ export class AuthService {
             return response.data;
           }
           throw new Error(response.message || 'Login failed');
+        }),
+        catchError(this.handleError)
+      );
+  }
+
+  register(registerRequest: RegisterRequest): Observable<RegisterResponse> {
+    return this.http
+      .post<ApiResponse<RegisterResponse>>(
+        `${this.apiUrl}/register`,
+        registerRequest
+      )
+      .pipe(
+        map((response) => {
+          if (response.success && response.data) {
+            this.storeAuthData(response.data);
+            this.currentUserSubject.next(response.data.user);
+            return response.data;
+          }
+          throw new Error(response.message || 'Registration failed');
         }),
         catchError(this.handleError)
       );

@@ -8,6 +8,7 @@ import {
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { LoginRequest } from '../../../core/models/auth.model';
 
 @Component({
   selector: 'app-login',
@@ -41,9 +42,12 @@ export class Login {
 
     this.isLoading = true;
 
-    const { email, password } = this.loginForm.value;
+    const loginRequest: LoginRequest = {
+      email: this.loginForm.value.email,
+      password: this.loginForm.value.password,
+    };
 
-    this.authService.login(email, password).subscribe({
+    this.authService.login(loginRequest).subscribe({
       next: () => {
         this.isLoading = false;
         this.router.navigate(['/dashboard']);

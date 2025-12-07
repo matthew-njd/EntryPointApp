@@ -7,6 +7,9 @@ import {
   AbstractControl,
   ValidationErrors,
 } from '@angular/forms';
+import { AuthService } from '../../../core/services/auth.service';
+import { Router } from '@angular/router';
+import { RegisterRequest } from '../../../core/models/auth.model';
 
 @Component({
   selector: 'app-register',
@@ -16,9 +19,12 @@ import {
 })
 export class Register {
   private fb = inject(FormBuilder);
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
   registerForm: FormGroup;
   errorMessage = '';
+  isSubmitting = false;
 
   constructor() {
     this.registerForm = this.fb.group(
@@ -28,6 +34,7 @@ export class Register {
         email: ['', [Validators.required, Validators.email]],
         password: ['', [Validators.required]],
         confirmPassword: ['', [Validators.required]],
+        role: ['User'],
       },
       {
         validators: this.passwordMatchValidator,
@@ -62,9 +69,30 @@ export class Register {
       return;
     }
 
-    const { firstName, lastName, email, password, confirmPassword } =
-      this.registerForm.value;
-    console.log(firstName, lastName, email, password, confirmPassword);
+    this.isSubmitting = true;
+
+    const registerRequest: RegisterRequest = {
+      firstName: this.registerForm.value.firstName,
+      lastName: this.registerForm.value.lastName,
+      email: this.registerForm.value.email,
+      password: this.registerForm.value.password,
+      confirmPassword: this.registerForm.value.confirmPassword,
+      role: this.registerForm.value.role,
+    };
+
+    this.authService.register(registerRequest).subscribe({
+      next: (response) => {
+        console.log('Registration successful', response);
+        this.router.navigate(['/dashboard']);
+      },
+      error: (error) => {
+        this.errorMessage = error.message;
+        this.isSubmitting = false;
+      },
+      complete: () => {
+        this.isSubmitting = false;
+      },
+    });
   }
 
   private markFormGroupTouched(formGroup: FormGroup): void {
