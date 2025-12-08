@@ -9,7 +9,7 @@ import {
 } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
 import { Router } from '@angular/router';
-import { RegisterRequest } from '../../../core/models/auth.model';
+import { RegisterRequest, UserRole } from '../../../core/models/auth.model';
 
 @Component({
   selector: 'app-register',
@@ -34,7 +34,7 @@ export class Register {
         email: ['', [Validators.required, Validators.email]],
         password: ['', [Validators.required]],
         confirmPassword: ['', [Validators.required]],
-        role: ['User'],
+        role: [UserRole.User],
       },
       {
         validators: this.passwordMatchValidator,

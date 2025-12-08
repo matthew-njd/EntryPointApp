@@ -14,7 +14,7 @@ export interface RegisterRequest {
   email: string;
   password: string;
   confirmPassword: string;
-  role: string;
+  role: number;
   firstName: string;
   lastName: string;
 }
@@ -49,4 +49,10 @@ export interface ErrorResponse {
   detail: string;
   instance: string;
   traceId: string;
+}
+
+export enum UserRole {
+  User = 0,
+  Manager = 1,
+  Admin = 2,
 }
