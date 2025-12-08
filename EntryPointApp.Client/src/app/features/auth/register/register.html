@@ -87,8 +87,12 @@
         <span>Password does not match</span>
       </div>
       }
-    </form>
 
-    <button class="btn btn-neutral mt-4" (click)="onSubmit()">Register</button>
+      <button type="submit" class="btn btn-neutral mt-4" [disabled]="isLoading">
+        @if (isLoading) {
+        <span class="loading loading-spinner loading-md"></span>
+        Registering... } @else { Register }
+      </button>
+    </form>
   </fieldset>
 </div>

@@ -23,6 +23,7 @@ export class Register {
   private router = inject(Router);
 
   registerForm: FormGroup;
+  isLoading = false;
   errorMessage = '';
   isSubmitting = false;
 
@@ -69,6 +70,7 @@ export class Register {
       return;
     }
 
+    this.isLoading = true;
     this.isSubmitting = true;
 
     const registerRequest: RegisterRequest = {
@@ -81,12 +83,13 @@ export class Register {
     };
 
     this.authService.register(registerRequest).subscribe({
-      next: (response) => {
-        console.log('Registration successful', response);
+      next: () => {
+        this.isLoading = false;
         this.router.navigate(['/dashboard']);
       },
       error: (error) => {
         this.errorMessage = error.message;
+        this.isLoading = false;
         this.isSubmitting = false;
       },
       complete: () => {
