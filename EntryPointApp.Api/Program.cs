@@ -5,8 +5,10 @@ using EntryPointApp.Api.Middleware;
 using EntryPointApp.Api.Models.Configuration;
 using EntryPointApp.Api.Services.Authentication;
 using EntryPointApp.Api.Services.DailyLog;
+using EntryPointApp.Api.Services.Email;
 using EntryPointApp.Api.Services.Timesheet;
 using EntryPointApp.Api.Services.WeeklyLog;
+using Mailjet.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -119,6 +121,17 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddAuthorization(AuthorizationPolicies.ConfigurePolicies);
+
+builder.Services.AddHttpClient<IMailjetClient, MailjetClient>(client =>
+{
+    client.SetDefaultSettings();
+    client.UseBasicAuthentication(
+        builder.Configuration["MailJet:ApiKey"],
+        builder.Configuration["MailJet:ApiSecret"]
+    );
+});
+
+builder.Services.AddScoped<IEmailService, MailJetEmailService>();
 
 var app = builder.Build();
 

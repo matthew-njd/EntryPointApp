@@ -1,7 +1,10 @@
+using System.Security.Cryptography;
+using System.Text;
 using EntryPointApp.Api.Data.Context;
 using EntryPointApp.Api.Models.Configuration;
 using EntryPointApp.Api.Models.Dtos.Authentication;
 using EntryPointApp.Api.Models.Dtos.Users;
+using EntryPointApp.Api.Services.Email;
 using EntryPointApp.Api.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -12,11 +15,15 @@ namespace EntryPointApp.Api.Services.Authentication
         ApplicationDbContext context,
         IJwtService jwtService,
         IOptions<JwtSettings> jwtSettings,
+        IConfiguration configuration,
+        IEmailService emailService,
         ILogger<AuthenticationService> logger) : IAuthenticationService
     {
         private readonly ApplicationDbContext _context = context;
         private readonly IJwtService _jwtService = jwtService;
         private readonly JwtSettings _jwtSettings = jwtSettings.Value;
+        private readonly IEmailService _emailService = emailService;
+        private readonly IConfiguration _configuration = configuration;
         private readonly ILogger<AuthenticationService> _logger = logger;
 
         public async Task<RegisterAuthResult> RegisterAsync(RegisterRequest request)
@@ -114,7 +121,7 @@ namespace EntryPointApp.Api.Services.Authentication
                 };
             }
         }
-        
+
         public async Task<LoginAuthResult> LoginAsync(LoginRequest request)
         {
             try
@@ -312,47 +319,47 @@ namespace EntryPointApp.Api.Services.Authentication
         public async Task<bool> RevokeAllTokensAsync(int userId)
         {
             try
+            {
+                var user = await _context.Users
+                    .Include(u => u.RefreshTokens)
+                    .FirstOrDefaultAsync(u => u.Id == userId);
+
+                if (user == null)
                 {
-                    var user = await _context.Users
-                        .Include(u => u.RefreshTokens)
-                        .FirstOrDefaultAsync(u => u.Id == userId);
-
-                    if (user == null)
-                    {
-                        _logger.LogWarning("User {UserId} not found for token revocation", userId);
-                        return false;
-                    }
-
-                    var activeTokens = user.RefreshTokens
-                        .Where(t => !t.IsRevoked)
-                        .ToList();
-
-                    if (activeTokens.Count == 0)
-                    {
-                        _logger.LogInformation("No active tokens found for user {UserId}", userId);
-                        return true;
-                    }
-
-                    foreach (var token in activeTokens)
-                    {
-                        token.IsRevoked = true;
-                        token.RevokedAt = DateTime.UtcNow;
-                    }
-
-                    await _context.SaveChangesAsync();
-                    
-                    _logger.LogInformation("Successfully revoked {TokenCount} tokens for user {UserId}", 
-                        activeTokens.Count, userId);
-                    
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error revoking all tokens for user: {UserId}", userId);
+                    _logger.LogWarning("User {UserId} not found for token revocation", userId);
                     return false;
                 }
+
+                var activeTokens = user.RefreshTokens
+                    .Where(t => !t.IsRevoked)
+                    .ToList();
+
+                if (activeTokens.Count == 0)
+                {
+                    _logger.LogInformation("No active tokens found for user {UserId}", userId);
+                    return true;
+                }
+
+                foreach (var token in activeTokens)
+                {
+                    token.IsRevoked = true;
+                    token.RevokedAt = DateTime.UtcNow;
+                }
+
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("Successfully revoked {TokenCount} tokens for user {UserId}",
+                    activeTokens.Count, userId);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error revoking all tokens for user: {UserId}", userId);
+                return false;
+            }
         }
-        
+
         public async Task<User?> GetUserByEmailAsync(string email)
         {
             return await _context.Users
@@ -373,6 +380,134 @@ namespace EntryPointApp.Api.Services.Authentication
         public string HashPassword(string password)
         {
             return BCrypt.Net.BCrypt.HashPassword(password);
+        }
+
+        public async Task<ForgotPasswordAuthResult> ForgotPasswordAsync(ForgotPasswordRequest request)
+        {
+            try
+            {
+                var user = await _context.Users
+                    .FirstOrDefaultAsync(u => u.Email.ToLower() == request.Email.ToLower());
+
+                if (user == null || !user.IsActive)
+                {
+                    _logger.LogInformation("Password reset requested for non-existent or inactive email: {Email}", request.Email);
+                    return new ForgotPasswordAuthResult
+                    {
+                        Success = true,
+                        Message = "If an account with that email exists, a password reset link has been sent."
+                    };
+                }
+
+                var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+
+                user.PasswordResetToken = Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(token)));
+                user.PasswordResetTokenExpiry = DateTime.UtcNow.AddHours(1);
+                user.UpdatedAt = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
+
+                var frontendUrl = _configuration["Frontend:Url"] ?? "http://localhost:4200";
+                var resetLink = $"{frontendUrl}/reset-password?token={Uri.EscapeDataString(token)}&email={Uri.EscapeDataString(user.Email)}";
+
+                var emailSent = await _emailService.SendPasswordResetEmailAsync(user.Email, resetLink);
+
+                if (!emailSent)
+                {
+                    _logger.LogError("Failed to send password reset email to {Email}", user.Email);
+                }
+
+                return new ForgotPasswordAuthResult
+                {
+                    Success = true,
+                    Message = "If an account with that email exists, a password reset link has been sent."
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in ForgotPasswordAsync for email: {Email}", request.Email);
+                return new ForgotPasswordAuthResult
+                {
+                    Success = false,
+                    Message = "An error occurred while processing your request.",
+                    Errors = ["Internal server error"]
+                };
+            }
+        }
+
+        public async Task<ResetPasswordAuthResult> ResetPasswordAsync(ResetPasswordRequest request)
+        {
+            try
+            {
+                var user = await _context.Users
+                    .FirstOrDefaultAsync(u => u.Email.ToLower() == request.Email.ToLower());
+
+                if (user == null || !user.IsActive)
+                {
+                    return new ResetPasswordAuthResult
+                    {
+                        Success = false,
+                        Message = "Invalid password reset request.",
+                        Errors = ["Invalid or expired reset token"]
+                    };
+                }
+
+                if (string.IsNullOrEmpty(user.PasswordResetToken) ||
+                    user.PasswordResetTokenExpiry == null ||
+                    user.PasswordResetTokenExpiry < DateTime.UtcNow)
+                {
+                    return new ResetPasswordAuthResult
+                    {
+                        Success = false,
+                        Message = "Password reset token has expired or is invalid.",
+                        Errors = ["Please request a new password reset link"]
+                    };
+                }
+
+                var hashedProvidedToken = Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(request.Token)));
+                if (user.PasswordResetToken != hashedProvidedToken)
+                {
+                    _logger.LogWarning("Invalid password reset token attempt for user: {Email}", user.Email);
+                    return new ResetPasswordAuthResult
+                    {
+                        Success = false,
+                        Message = "Invalid password reset request.",
+                        Errors = ["Invalid reset token"]
+                    };
+                }
+
+                user.PasswordHash = HashPassword(request.NewPassword);
+
+                user.PasswordResetToken = null;
+                user.PasswordResetTokenExpiry = null;
+                user.UpdatedAt = DateTime.UtcNow;
+
+                var refreshTokens = await _context.RefreshTokens
+                    .Where(rt => rt.UserId == user.Id)
+                    .ToListAsync();
+
+                _context.RefreshTokens.RemoveRange(refreshTokens);
+
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("Password reset successful for user: {Email}", user.Email);
+
+                return new ResetPasswordAuthResult
+                {
+                    Success = true,
+                    Message = "Password has been reset successfully. You can now login with your new password."
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in ResetPasswordAsync for email: {Email}", request.Email);
+                return new ResetPasswordAuthResult
+                {
+                    Success = false,
+                    Message = "An error occurred while resetting your password.",
+                    Errors = ["Internal server error"]
+                };
+            }
         }
     }
 }

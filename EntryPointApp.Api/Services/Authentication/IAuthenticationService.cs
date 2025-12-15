@@ -15,5 +15,7 @@ namespace EntryPointApp.Api.Services.Authentication
         Task<User?> GetUserByIdAsync(int id);
         bool VerifyPassword(string password, string hashedPassword);
         string HashPassword(string password);
+        Task<ForgotPasswordAuthResult> ForgotPasswordAsync(ForgotPasswordRequest request);
+        Task<ResetPasswordAuthResult> ResetPasswordAsync(ResetPasswordRequest request);
     }
 }

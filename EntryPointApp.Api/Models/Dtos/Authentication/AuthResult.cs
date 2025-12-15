@@ -24,6 +24,16 @@ namespace EntryPointApp.Api.Models.Dtos.Authentication
 
     public class AuthResult : BaseAuthResult
     {
-        
+
+    }
+
+    public class ForgotPasswordAuthResult : BaseAuthResult
+    {
+
+    }
+
+    public class ResetPasswordAuthResult : BaseAuthResult
+    {
+
     }
 }

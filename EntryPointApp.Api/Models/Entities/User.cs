@@ -28,6 +28,11 @@ namespace EntryPointApp.Api.Models.Entities
 
         public bool IsManager { get; set; } = false;
 
+        [StringLength(256)]
+        public string? PasswordResetToken { get; set; }
+
+        public DateTime? PasswordResetTokenExpiry { get; set; }
+
         public bool IsActive { get; set; } = true;
 
         // Navigation properties

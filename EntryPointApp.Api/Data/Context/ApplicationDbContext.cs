@@ -29,6 +29,8 @@ namespace EntryPointApp.Api.Data.Context
                 entity.Property(e => e.Email).IsRequired();
                 entity.Property(e => e.PasswordHash).IsRequired();
                 entity.Property(e => e.Role).HasConversion<string>();
+                entity.Property(e => e.PasswordResetToken).HasMaxLength(256);
+                entity.HasIndex(e => e.PasswordResetToken);
                 entity.HasOne(e => e.Manager)
                     .WithMany(m => m.ManagedUsers)
                     .HasForeignKey(e => e.ManagerId)
@@ -72,7 +74,7 @@ namespace EntryPointApp.Api.Data.Context
                entity.HasIndex(e => new { e.UserId, e.DateFrom, e.DateTo });
            });
         }
-        
+
         private void ConfigureDailyLog(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<DailyLog>(entity =>
