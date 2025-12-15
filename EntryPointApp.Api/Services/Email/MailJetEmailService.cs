@@ -73,7 +73,7 @@ namespace EntryPointApp.Api.Services.Email
                                         <p style='font-size:12px; color:#9aa3ad; line-height:1.5;'>
                                             If the button doesn't work, copy and paste this link into your browser:
                                             <br />
-                                            <a href='{resetLink}' style='color:#2436c8; word-break:break-all;'>
+                                            <a href='{resetLink}' style='color:#1c4e80; word-break:break-all;'>
                                                 {resetLink}
                                             </a>
                                         </p>
