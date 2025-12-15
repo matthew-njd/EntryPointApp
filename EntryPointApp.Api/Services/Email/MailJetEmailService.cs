@@ -28,57 +28,81 @@ namespace EntryPointApp.Api.Services.Email
                 var fromName = _configuration["MailJet:FromName"] ?? "EntryPoint App";
 
                 var email = new TransactionalEmailBuilder()
-                    .WithFrom(new SendContact(fromEmail, fromName))
-                    .WithTo(new SendContact(toEmail))
-                    .WithSubject("Password Reset Request")
-                    .WithHtmlPart($@"
-                        <html>
-                        <body style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
-                            <div style='max-width: 600px; margin: 0 auto; padding: 20px;'>
-                                <h2 style='color: #2c3e50;'>Password Reset Request</h2>
-                                <p>You have requested to reset your password for your EntryPoint App account.</p>
-                                <p>Click the button below to reset your password:</p>
-                                <div style='text-align: center; margin: 30px 0;'>
-                                    <a href='{resetLink}' 
-                                       style='background-color: #3498db; 
-                                              color: white; 
-                                              padding: 12px 30px; 
-                                              text-decoration: none; 
-                                              border-radius: 5px;
-                                              display: inline-block;'>
-                                        Reset Password
-                                    </a>
-                                </div>
-                                <p style='color: #7f8c8d; font-size: 14px;'>
-                                    This link will expire in 1 hour for security reasons.
-                                </p>
-                                <p style='color: #7f8c8d; font-size: 14px;'>
-                                    If you didn't request this password reset, please ignore this email. 
-                                    Your password will remain unchanged.
-                                </p>
-                                <hr style='border: none; border-top: 1px solid #ecf0f1; margin: 20px 0;'>
-                                <p style='color: #95a5a6; font-size: 12px;'>
-                                    If the button doesn't work, copy and paste this link into your browser:<br>
-                                    <a href='{resetLink}' style='color: #3498db;'>{resetLink}</a>
-                                </p>
-                            </div>
-                        </body>
-                        </html>
-                    ")
-                    .WithTextPart($@"
-                        Password Reset Request
-                        
-                        You have requested to reset your password for your EntryPoint App account.
-                        
-                        Click the link below to reset your password:
-                        {resetLink}
-                        
-                        This link will expire in 1 hour for security reasons.
-                        
-                        If you didn't request this password reset, please ignore this email. 
-                        Your password will remain unchanged.
-                    ")
-                    .Build();
+                            .WithFrom(new SendContact(fromEmail, fromName))
+                            .WithTo(new SendContact(toEmail))
+                            .WithSubject("Reset your password")
+                            .WithHtmlPart($@"
+                                <html>
+                                <body style='margin:0; padding:0; background-color:#f4f6f8; font-family: Arial, Helvetica, sans-serif;'>
+                                    <div style='max-width:600px; margin:40px auto; background-color:#ffffff; padding:32px; border-radius:6px; text-align:center;'>
+
+                                        <!-- Title -->
+                                        <h1 style='margin:0 0 16px 0; font-size:26px; color:#1f2a44; font-weight:bold;'>
+                                            Reset your password
+                                        </h1>
+
+                                        <!-- Body text -->
+                                        <p style='margin:0 0 30px 0; font-size:15px; color:#5f6b7a; line-height:1.6;'>
+                                            You have requested to reset your password for your EntryPoint App account.<br>
+                                            If you did not make this request, please ignore this email.
+                                        </p>
+
+                                        <!-- Button -->
+                                        <a href='{resetLink}'
+                                        style='display:inline-block;
+                                                background-color:#1c4e80;
+                                                color:#ffffff;
+                                                text-decoration:none;
+                                                padding:14px 36px;
+                                                font-size:15px;
+                                                font-weight:bold;
+                                                border-radius:4px;'>
+                                            Reset your password
+                                        </a>
+
+                                        <!-- Spacer -->
+                                        <div style='height:40px;'></div>
+
+                                        <!-- Expiry notice -->
+                                        <p style='font-size:12px; color:#9aa3ad; line-height:1.5; margin:0 0 10px 0;'>
+                                            This password reset link will expire in 1 hour.<br>
+                                            If you didn't request this password reset, please ignore this email. Your password will remain unchanged.
+                                        </p>
+
+                                        <!-- Fallback link -->
+                                        <p style='font-size:12px; color:#9aa3ad; line-height:1.5;'>
+                                            If the button doesn't work, copy and paste this link into your browser:
+                                            <br />
+                                            <a href='{resetLink}' style='color:#2436c8; word-break:break-all;'>
+                                                {resetLink}
+                                            </a>
+                                        </p>
+
+                                        <hr style='border:none; border-top:1px solid #e6e9ec; margin:30px 0;' />
+
+                                        <!-- Footer -->
+                                        <p style='font-size:11px; color:#b0b7c3; margin:0;'>
+                                            © {DateTime.Now.Year} The Postcard Factory. All rights reserved.
+                                        </p>
+
+                                    </div>
+                                </body>
+                                </html>
+                            ")
+                            .WithTextPart($@"
+                                Password Reset Request
+
+                                You have requested to reset your password for your EntryPoint App account.
+
+                                Click the link below to reset your password:
+                                {resetLink}
+
+                                This link will expire in 1 hour for security reasons.
+
+                                If you didn't request this password reset, please ignore this email.
+                                Your password will remain unchanged.
+                            ")
+                            .Build();
 
                 var response = await _mailjetClient.SendTransactionalEmailAsync(email);
 
