@@ -25,7 +25,6 @@ export class Register {
   registerForm: FormGroup;
   isLoading = false;
   errorMessage = '';
-  isSubmitting = false;
 
   constructor() {
     this.registerForm = this.fb.group(
@@ -44,34 +43,23 @@ export class Register {
   }
 
   private passwordMatchValidator(
-    control: AbstractControl
+    group: AbstractControl
   ): ValidationErrors | null {
-    const password = control.get('password');
-    const confirmPassword = control.get('confirmPassword');
+    const password = group.get('password')?.value;
+    const confirmPassword = group.get('confirmPassword')?.value;
 
-    if (!password || !confirmPassword) {
-      return null;
-    }
-
-    if (confirmPassword.value === '') {
-      return null;
-    }
-
-    return password.value === confirmPassword.value
-      ? null
-      : { passwordMismatch: true };
+    return password === confirmPassword ? null : { passwordMismatch: true };
   }
 
   onSubmit(): void {
     this.errorMessage = '';
 
     if (this.registerForm.invalid) {
-      this.markFormGroupTouched(this.registerForm);
+      this.registerForm.markAllAsTouched();
       return;
     }
 
     this.isLoading = true;
-    this.isSubmitting = true;
 
     const registerRequest: RegisterRequest = {
       firstName: this.registerForm.value.firstName,
@@ -90,18 +78,7 @@ export class Register {
       error: (error) => {
         this.errorMessage = error.message;
         this.isLoading = false;
-        this.isSubmitting = false;
       },
-      complete: () => {
-        this.isSubmitting = false;
-      },
-    });
-  }
-
-  private markFormGroupTouched(formGroup: FormGroup): void {
-    Object.keys(formGroup.controls).forEach((key) => {
-      const control = formGroup.get(key);
-      control?.markAsTouched();
     });
   }
 
@@ -123,12 +100,5 @@ export class Register {
 
   get confirmPassword() {
     return this.registerForm.get('confirmPassword');
-  }
-
-  get passwordsDoNotMatch(): boolean {
-    return (
-      this.registerForm.hasError('passwordMismatch') &&
-      this.confirmPassword?.touched === true
-    );
   }
 }

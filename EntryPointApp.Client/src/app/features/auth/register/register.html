@@ -76,15 +76,21 @@
       <input
         type="password"
         class="input w-full"
-        placeholder="Password"
+        placeholder="Confirm Password"
         formControlName="confirmPassword"
         [class.input-error]="
-          confirmPassword?.invalid && confirmPassword?.touched
+          (confirmPassword?.invalid && confirmPassword?.touched) ||
+          (registerForm.errors?.['passwordMismatch'] && confirmPassword?.touched)
         "
       />
-      @if (confirmPassword?.invalid && confirmPassword?.touched) {
+      @if (confirmPassword?.touched) {
       <div class="text-error text-sm mt-1">
-        <span>Password does not match</span>
+        @if (confirmPassword?.errors?.['required']) {
+        <span>Please confirm your password</span>
+        } @if (registerForm.errors?.['passwordMismatch'] &&
+        !confirmPassword?.errors?.['required']) {
+        <span>Passwords do not match</span>
+        }
       </div>
       }
 
