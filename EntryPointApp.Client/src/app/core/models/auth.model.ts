@@ -10,6 +10,17 @@ export interface LoginResponse {
   user: UserResponse;
 }
 
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ResetPasswordRequest {
+  email: string;
+  token: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
 export interface RegisterRequest {
   email: string;
   password: string;

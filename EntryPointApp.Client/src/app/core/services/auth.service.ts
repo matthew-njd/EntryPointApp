@@ -10,6 +10,8 @@ import {
   UserResponse,
   RegisterRequest,
   RegisterResponse,
+  ForgotPasswordRequest,
+  ResetPasswordRequest,
 } from '../models/auth.model';
 
 @Injectable({
@@ -43,6 +45,35 @@ export class AuthService {
             return response.data;
           }
           throw new Error(response.message || 'Login failed');
+        }),
+        catchError(this.handleError)
+      );
+  }
+
+  forgotPassword(email: string): Observable<string> {
+    const request: ForgotPasswordRequest = { email };
+    return this.http
+      .post<ApiResponse<void>>(`${this.apiUrl}/forgot-password`, request)
+      .pipe(
+        map((response) => {
+          if (response.success) {
+            return response.message;
+          }
+          throw new Error(response.message || 'Failed to send reset email');
+        }),
+        catchError(this.handleError)
+      );
+  }
+
+  resetPassword(resetRequest: ResetPasswordRequest): Observable<string> {
+    return this.http
+      .post<ApiResponse<void>>(`${this.apiUrl}/reset-password`, resetRequest)
+      .pipe(
+        map((response) => {
+          if (response.success) {
+            return response.message;
+          }
+          throw new Error(response.message || 'Failed to reset password');
         }),
         catchError(this.handleError)
       );
