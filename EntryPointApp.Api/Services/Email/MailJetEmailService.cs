@@ -58,7 +58,7 @@ namespace EntryPointApp.Api.Services.Email
                                                 font-weight:bold;
                                                 border-radius:4px;'>
                                             Reset your password
-                                        </a>
+                                        </a><br>
 
                                         <!-- Spacer -->
                                         <div style='height:40px;'></div>
