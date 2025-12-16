@@ -38,6 +38,11 @@
         formControlName="password"
         [class.input-error]="password?.invalid && password?.touched"
       />
+      <a
+        class="label flex justify-end hover:underline cursor-pointer"
+        [routerLink]="['/forgot-password']"
+        >Forgot Password?</a
+      >
       @if (password?.invalid && password?.touched) {
       <div class="text-error text-sm mt-1">
         <span>Password is required</span>
