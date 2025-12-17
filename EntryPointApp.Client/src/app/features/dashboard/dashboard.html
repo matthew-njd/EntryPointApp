@@ -1,41 +1,43 @@
 <app-nav></app-nav>
 
 <div class="mt-16 sm:mt-40 max-w-4xl mx-auto px-4">
-  @if (isLoading) {
+  @if (service.isLoading()) {
   <div class="flex justify-center items-center py-20">
     <span class="loading loading-spinner loading-xl"></span>
   </div>
-  } @else if (errorMessage) {
+  } @else if (service.error()) {
   <div class="alert alert-error mb-4">
-    <span>{{ errorMessage }}</span>
+    <span>{{ service.error() }}</span>
   </div>
   } @else {
   <div class="flex justify-between">
     <h1 class="text-3xl">Hello, {{ userFullName }}</h1>
     <button class="btn btn-primary btn-md">New Timesheet</button>
   </div>
+
   <div class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-6 mt-6">
     <app-card
       cardClasses="text-success"
       title="Total Approved"
-      value="{{ getTotalApproved() }}"
+      value="{{ totalApproved() }}"
     ></app-card>
     <app-card
       cardClasses="text-info"
       title="Total Pending"
-      value="{{ getTotalPending() }}"
+      value="{{ totalPending() }}"
     ></app-card>
     <app-card
       cardClasses="text-error"
       title="Total Denied"
-      value="{{ getTotalDenied() }}"
+      value="{{ totalDenied() }}"
     ></app-card>
     <app-card
       cardClasses="text-warning"
       title="Total Drafts"
-      value="{{ getTotalDrafts() }}"
+      value="{{ totalDrafts() }}"
     ></app-card>
   </div>
+
   <div class="flex flex-col items-center">
     <div
       class="w-full overflow-x-auto overflow-y-auto mb-4 mt-4 rounded-box bg-base-300"
@@ -51,7 +53,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (weeklyLog of weeklyLogs; track weeklyLog.id) {
+          @for (weeklyLog of service.weeklyLogs(); track weeklyLog.id) {
           <tr class="align-middle">
             <td>
               {{ weeklyLog.dateFrom | date : "MMM d, y" }} -
@@ -65,7 +67,7 @@
             <th class="flex justify-center">
               <button
                 class="btn btn-sm sm:btn-md btn-outline btn-secondary"
-                (click)="viewDailyLogs(weeklyLog)"
+                (click)="viewDailyLogs(weeklyLog.id)"
               >
                 View
               </button>
@@ -81,20 +83,20 @@
     </div>
 
     <!-- Pagination -->
-    @if (pagedResult && pagedResult.totalPages > 1) {
+    @if (service.totalPages() > 1) {
     <div class="join mb-8">
       <button
         class="join-item btn btn-square"
-        [disabled]="!pagedResult.hasPreviousPage"
-        (click)="onPageChange(currentPage - 1)"
+        [disabled]="service.page() === 1"
+        (click)="onPageChange(service.page() - 1)"
       >
         «
       </button>
 
-      @for (pageNum of getPageNumbers(); track pageNum) {
+      @for (pageNum of pageNumbers(); track pageNum) {
       <button
         class="join-item btn btn-square"
-        [class.btn-active]="pageNum === currentPage"
+        [class.btn-active]="pageNum === service.page()"
         (click)="onPageChange(pageNum)"
       >
         {{ pageNum }}
@@ -103,8 +105,8 @@
 
       <button
         class="join-item btn btn-square"
-        [disabled]="!pagedResult.hasNextPage"
-        (click)="onPageChange(currentPage + 1)"
+        [disabled]="service.page() === service.totalPages()"
+        (click)="onPageChange(service.page() + 1)"
       >
         »
       </button>

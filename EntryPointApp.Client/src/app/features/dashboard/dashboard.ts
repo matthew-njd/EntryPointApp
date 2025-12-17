@@ -1,75 +1,77 @@
-import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
+import { Component, computed, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Nav } from '../../shared/nav/nav';
-import { WeeklyLog } from '../../core/models/weeklylog.model';
-import {
-  WeeklyLogService,
-  PagedResult,
-} from '../../core/services/weeklog.service';
-import { UserResponse } from '../../core/models/auth.model';
-import { Router } from '@angular/router';
 import { Card } from '../../shared/card/card';
+import { WeeklyLogService } from '../../core/services/weeklog.service';
+import { Router } from '@angular/router';
+import { UserResponse } from '../../core/models/auth.model';
 
 @Component({
   selector: 'app-dashboard',
+  standalone: true,
   imports: [CommonModule, Nav, Card],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })
-export class Dashboard implements OnInit {
-  private weeklyLogService = inject(WeeklyLogService);
-  private cdr = inject(ChangeDetectorRef);
+export class Dashboard {
+  public service = inject(WeeklyLogService);
   private router = inject(Router);
 
-  weeklyLogs: WeeklyLog[] = [];
-  pagedResult: PagedResult<WeeklyLog> | null = null;
-  isLoading = true;
-  errorMessage = '';
-  userFullName: string = '';
+  userFullName = '';
 
-  get currentPage(): number {
-    return this.pagedResult?.page ?? 1;
-  }
-  get pageSize(): number {
-    return this.pagedResult?.pageSize ?? 10;
-  }
-
-  ngOnInit(): void {
-    this.loadWeeklyLogs();
+  constructor() {
     this.loadUserFullName();
   }
 
-  loadWeeklyLogs(page?: number, pageSize?: number): void {
-    this.isLoading = true;
-    this.weeklyLogService.getWeeklyLogs(page, pageSize).subscribe({
-      next: (result) => {
-        this.pagedResult = result;
-        this.weeklyLogs = result.data;
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      },
-      error: (error) => {
-        console.error('WeeklyLogs fetch failed:', error);
-        this.errorMessage = 'Failed to load weeeklylogs. Please try again.';
-        this.isLoading = false;
-      },
-    });
-  }
+  totalApproved = computed(
+    () =>
+      this.service.weeklyLogs().filter((log) => log.status === 'Approved')
+        .length
+  );
 
-  loadUserFullName() {
-    try {
-      const userJson = localStorage.getItem('current_user');
-      if (userJson) {
-        const currentUser: UserResponse = JSON.parse(userJson);
-        this.userFullName = `${currentUser.firstName} ${currentUser.lastName}`;
-      }
-    } catch (error) {
-      console.error('Failed to parse user data:', error);
+  totalPending = computed(
+    () =>
+      this.service.weeklyLogs().filter((log) => log.status === 'Pending').length
+  );
+
+  totalDenied = computed(
+    () =>
+      this.service.weeklyLogs().filter((log) => log.status === 'Denied').length
+  );
+
+  totalDrafts = computed(
+    () =>
+      this.service.weeklyLogs().filter((log) => log.status === 'Draft').length
+  );
+
+  pageNumbers = computed(() => {
+    const totalPages = this.service.totalPages();
+    const current = this.service.page();
+    const pages: number[] = [];
+    const maxButtons = 5;
+
+    let startPage = Math.max(1, current - Math.floor(maxButtons / 2));
+    let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+
+    if (endPage - startPage < maxButtons - 1) {
+      startPage = Math.max(1, endPage - maxButtons + 1);
     }
+
+    for (let i = startPage; i <= endPage; i++) pages.push(i);
+
+    return pages;
+  });
+
+  loadEffect = effect(() => {
+    this.service.loadWeeklyLogs(this.service.page(), this.service.pageSize());
+  });
+
+  viewDailyLogs(logId: number) {
+    this.router.navigate(['/dashboard/week', logId]);
   }
 
-  viewDailyLogs(weeklyLog: WeeklyLog): void {
-    this.router.navigate(['/dashboard/week', weeklyLog.id]);
+  onPageChange(page: number) {
+    this.service.loadWeeklyLogs(page, this.service.pageSize());
   }
 
   getStatusClass(status: string | undefined): string {
@@ -87,46 +89,15 @@ export class Dashboard implements OnInit {
     }
   }
 
-  //TODO: Only displays totals for current page. Need to add summary to API
-  getTotalApproved(): number {
-    return this.weeklyLogs.filter((log) => log.status === 'Approved').length;
-  }
-
-  getTotalPending(): number {
-    return this.weeklyLogs.filter((log) => log.status === 'Pending').length;
-  }
-
-  getTotalDenied(): number {
-    return this.weeklyLogs.filter((log) => log.status === 'Denied').length;
-  }
-
-  getTotalDrafts(): number {
-    return this.weeklyLogs.filter((log) => log.status === 'Draft').length;
-  }
-
-  onPageChange(page: number): void {
-    this.loadWeeklyLogs(page, this.pageSize);
-  }
-
-  getPageNumbers(): number[] {
-    if (!this.pagedResult) return [];
-
-    const totalPages = this.pagedResult.totalPages;
-    const current = this.currentPage;
-    const pages: number[] = [];
-
-    const maxButtons = 5;
-    let startPage = Math.max(1, current - Math.floor(maxButtons / 2));
-    let endPage = Math.min(totalPages, startPage + maxButtons - 1);
-
-    if (endPage - startPage < maxButtons - 1) {
-      startPage = Math.max(1, endPage - maxButtons + 1);
+  private loadUserFullName() {
+    try {
+      const userJson = localStorage.getItem('current_user');
+      if (userJson) {
+        const user: UserResponse = JSON.parse(userJson);
+        this.userFullName = `${user.firstName} ${user.lastName}`;
+      }
+    } catch (err) {
+      console.error('Failed to parse user data', err);
     }
-
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(i);
-    }
-
-    return pages;
   }
 }
