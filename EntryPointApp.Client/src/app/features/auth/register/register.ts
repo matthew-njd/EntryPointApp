@@ -24,6 +24,7 @@ export class Register {
 
   registerForm: FormGroup;
   isLoading = false;
+  successMessage = '';
   errorMessage = '';
 
   constructor() {
@@ -52,6 +53,7 @@ export class Register {
   }
 
   onSubmit(): void {
+    this.successMessage = '';
     this.errorMessage = '';
 
     if (this.registerForm.invalid) {
@@ -71,8 +73,9 @@ export class Register {
     };
 
     this.authService.register(registerRequest).subscribe({
-      next: () => {
+      next: (response) => {
         this.isLoading = false;
+        this.successMessage = response.message;
         this.router.navigate(['/dashboard']);
       },
       error: (error) => {

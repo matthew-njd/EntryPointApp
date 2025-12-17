@@ -34,7 +34,7 @@ export class AuthService {
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
 
-  login(loginRequest: LoginRequest): Observable<LoginResponse> {
+  login(loginRequest: LoginRequest): Observable<ApiResponse<LoginResponse>> {
     return this.http
       .post<ApiResponse<LoginResponse>>(`${this.apiUrl}/login`, loginRequest)
       .pipe(
@@ -42,7 +42,7 @@ export class AuthService {
           if (response.success && response.data) {
             this.storeAuthData(response.data);
             this.currentUserSubject.next(response.data.user);
-            return response.data;
+            return response;
           }
           throw new Error(response.message || 'Login failed');
         }),
@@ -79,7 +79,9 @@ export class AuthService {
       );
   }
 
-  register(registerRequest: RegisterRequest): Observable<RegisterResponse> {
+  register(
+    registerRequest: RegisterRequest
+  ): Observable<ApiResponse<RegisterResponse>> {
     return this.http
       .post<ApiResponse<RegisterResponse>>(
         `${this.apiUrl}/register`,
@@ -90,7 +92,7 @@ export class AuthService {
           if (response.success && response.data) {
             this.storeAuthData(response.data);
             this.currentUserSubject.next(response.data.user);
-            return response.data;
+            return response;
           }
           throw new Error(response.message || 'Registration failed');
         }),

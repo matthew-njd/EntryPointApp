@@ -23,6 +23,7 @@ export class Login {
 
   loginForm: FormGroup;
   isLoading = false;
+  successMessage = '';
   errorMessage = '';
 
   constructor() {
@@ -33,6 +34,7 @@ export class Login {
   }
 
   onSubmit(): void {
+    this.successMessage = '';
     this.errorMessage = '';
 
     if (this.loginForm.invalid) {
@@ -48,8 +50,9 @@ export class Login {
     };
 
     this.authService.login(loginRequest).subscribe({
-      next: () => {
+      next: (response) => {
         this.isLoading = false;
+        this.successMessage = response.message;
         this.router.navigate(['/dashboard']);
       },
       error: (error) => {
