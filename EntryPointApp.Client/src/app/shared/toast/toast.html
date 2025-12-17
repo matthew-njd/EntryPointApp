@@ -1,0 +1,21 @@
+@for (toast of toasts(); track toast.id) {
+<div class="toast toast-top toast-center z-50">
+  @if (toast.type === 'success') {
+  <div class="alert alert-success">
+    <span>{{ toast.message }}</span>
+  </div>
+  } @if (toast.type === 'error') {
+  <div class="alert alert-error">
+    <span>{{ toast.message }}</span>
+  </div>
+  } @if (toast.type === 'warning') {
+  <div class="alert alert-warning">
+    <span>{{ toast.message }}</span>
+  </div>
+  } @if (toast.type === 'info') {
+  <div class="alert alert-info">
+    <span>{{ toast.message }}</span>
+  </div>
+  }
+</div>
+}

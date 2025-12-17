@@ -6,20 +6,6 @@
     <legend class="fieldset-legend">Login</legend>
 
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-      @if (successMessage) {
-      <div class="toast toast-top toast-center">
-        <div class="alert alert-success mb-4">
-          <span>{{ successMessage }}</span>
-        </div>
-      </div>
-      } @if (errorMessage) {
-      <div class="toast toast-top toast-center">
-        <div class="alert alert-error mb-4">
-          <span>{{ errorMessage }}</span>
-        </div>
-      </div>
-      }
-
       <label class="label">Email*</label>
       <input
         type="email"

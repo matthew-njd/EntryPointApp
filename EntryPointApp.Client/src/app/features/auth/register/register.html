@@ -6,20 +6,6 @@
     <legend class="fieldset-legend">Register</legend>
 
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-      @if (successMessage) {
-      <div class="toast toast-top toast-center">
-        <div class="alert alert-success mb-4">
-          <span>{{ successMessage }}</span>
-        </div>
-      </div>
-      } @if (errorMessage) {
-      <div class="toast toast-top toast-center">
-        <div class="alert alert-error mb-4">
-          <span>{{ errorMessage }}</span>
-        </div>
-      </div>
-      }
-
       <label class="label">First Name*</label>
       <input
         type="text"

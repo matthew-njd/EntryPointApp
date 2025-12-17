@@ -9,6 +9,7 @@ import {
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { LoginRequest } from '../../../core/models/auth.model';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-login',
@@ -19,12 +20,11 @@ import { LoginRequest } from '../../../core/models/auth.model';
 export class Login {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
+  private toastService = inject(ToastService);
   private router = inject(Router);
 
   loginForm: FormGroup;
   isLoading = false;
-  successMessage = '';
-  errorMessage = '';
 
   constructor() {
     this.loginForm = this.fb.group({
@@ -34,9 +34,6 @@ export class Login {
   }
 
   onSubmit(): void {
-    this.successMessage = '';
-    this.errorMessage = '';
-
     if (this.loginForm.invalid) {
       this.markFormGroupTouched(this.loginForm);
       return;
@@ -52,17 +49,17 @@ export class Login {
     this.authService.login(loginRequest).subscribe({
       next: (response) => {
         this.isLoading = false;
-        this.successMessage = response.message;
+        this.toastService.success(response.message);
         this.router.navigate(['/dashboard']);
       },
       error: (error) => {
-        console.error('Login error:', error);
-        this.errorMessage = error.message || 'Login failed. Please try again.';
+        this.toastService.error(error.message);
         this.isLoading = false;
       },
     });
   }
 
+  //check reset-password component to update this
   private markFormGroupTouched(formGroup: FormGroup): void {
     Object.keys(formGroup.controls).forEach((key) => {
       const control = formGroup.get(key);

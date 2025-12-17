@@ -10,6 +10,7 @@ import {
 import { AuthService } from '../../../core/services/auth.service';
 import { Router } from '@angular/router';
 import { RegisterRequest, UserRole } from '../../../core/models/auth.model';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-register',
@@ -20,12 +21,11 @@ import { RegisterRequest, UserRole } from '../../../core/models/auth.model';
 export class Register {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
+  private toastService = inject(ToastService);
   private router = inject(Router);
 
   registerForm: FormGroup;
   isLoading = false;
-  successMessage = '';
-  errorMessage = '';
 
   constructor() {
     this.registerForm = this.fb.group(
@@ -53,9 +53,6 @@ export class Register {
   }
 
   onSubmit(): void {
-    this.successMessage = '';
-    this.errorMessage = '';
-
     if (this.registerForm.invalid) {
       this.registerForm.markAllAsTouched();
       return;
@@ -75,11 +72,11 @@ export class Register {
     this.authService.register(registerRequest).subscribe({
       next: (response) => {
         this.isLoading = false;
-        this.successMessage = response.message;
+        this.toastService.success(response.message);
         this.router.navigate(['/dashboard']);
       },
       error: (error) => {
-        this.errorMessage = error.message;
+        this.toastService.error(error.message);
         this.isLoading = false;
       },
     });
