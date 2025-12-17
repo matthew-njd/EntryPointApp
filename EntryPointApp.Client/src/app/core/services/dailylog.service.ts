@@ -1,6 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { inject, Injectable, signal } from '@angular/core';
 import { DailyLog } from '../models/dailylog.model';
 
 export interface ApiResponse<T> {
@@ -10,22 +9,45 @@ export interface ApiResponse<T> {
   errors?: string[];
 }
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class DailyLogService {
   private http = inject(HttpClient);
 
-  getDailyLogs(weeklyLogId: number): Observable<DailyLog[]> {
+  private _dailyLogs = signal<DailyLog[]>([]);
+  private _isLoading = signal(false);
+  private _error = signal<string | null>(null);
+
+  readonly dailyLogs = this._dailyLogs.asReadonly();
+  readonly isLoading = this._isLoading.asReadonly();
+  readonly error = this._error.asReadonly();
+
+  loadDailyLogs(weeklyLogId: number) {
+    this._isLoading.set(true);
+    this._error.set(null);
+
     const apiUrl = `http://localhost:5077/api/weeklylogs/${weeklyLogId}/dailylog`;
 
-    return this.http.get<ApiResponse<DailyLog[]>>(apiUrl).pipe(
-      map((response) => {
+    this.http.get<ApiResponse<DailyLog[]>>(apiUrl).subscribe({
+      next: (response) => {
         if (response.success && response.data) {
-          return response.data;
+          this._dailyLogs.set(response.data);
+        } else {
+          this._error.set(response.message || 'Failed to fetch DailyLogs');
+          this._dailyLogs.set([]);
         }
-        throw new Error(response.message || 'Failed to fetch DailyLogs');
-      })
-    );
+        this._isLoading.set(false);
+      },
+      error: (err) => {
+        console.error(err);
+        this._error.set('Failed to fetch DailyLogs');
+        this._dailyLogs.set([]);
+        this._isLoading.set(false);
+      },
+    });
+  }
+
+  clear() {
+    this._dailyLogs.set([]);
+    this._error.set(null);
   }
 }
