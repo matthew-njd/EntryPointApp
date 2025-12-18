@@ -35,7 +35,7 @@ export class Login {
 
   onSubmit(): void {
     if (this.loginForm.invalid) {
-      this.markFormGroupTouched(this.loginForm);
+      this.loginForm.markAllAsTouched();
       return;
     }
 
@@ -56,14 +56,6 @@ export class Login {
         this.toastService.error(error.message);
         this.isLoading = false;
       },
-    });
-  }
-
-  //check reset-password component to update this
-  private markFormGroupTouched(formGroup: FormGroup): void {
-    Object.keys(formGroup.controls).forEach((key) => {
-      const control = formGroup.get(key);
-      control?.markAsTouched();
     });
   }
 
