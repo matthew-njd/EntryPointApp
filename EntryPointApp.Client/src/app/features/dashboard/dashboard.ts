@@ -5,11 +5,12 @@ import { Card } from '../../shared/card/card';
 import { WeeklyLogService } from '../../core/services/weeklog.service';
 import { Router } from '@angular/router';
 import { UserResponse } from '../../core/models/auth.model';
+import { Footer } from '../../shared/footer/footer';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, Nav, Card],
+  imports: [CommonModule, Nav, Card, Footer],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })

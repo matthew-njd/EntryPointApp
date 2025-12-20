@@ -5,11 +5,12 @@ import { DailyLogService } from '../../core/services/dailylog.service';
 import { Nav } from '../../shared/nav/nav';
 import { DatePipe } from '@angular/common';
 import { Card } from '../../shared/card/card';
+import { Footer } from '../../shared/footer/footer';
 
 @Component({
   selector: 'app-dailylogs',
   standalone: true,
-  imports: [Nav, DatePipe, Card],
+  imports: [Nav, DatePipe, Card, Footer],
   templateUrl: './dailylogs.html',
   styleUrl: './dailylogs.css',
 })

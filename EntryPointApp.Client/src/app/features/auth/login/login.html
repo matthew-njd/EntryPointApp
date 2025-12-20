@@ -32,11 +32,11 @@
         formControlName="password"
         [class.input-error]="password?.invalid && password?.touched"
       />
-      <a
-        class="label flex justify-end hover:underline cursor-pointer"
-        [routerLink]="['/forgot-password']"
-        >Forgot Password?</a
-      >
+      <div class="flex justify-end">
+        <a class="link link-hover" [routerLink]="['/forgot-password']"
+          >Forgot Password?</a
+        >
+      </div>
       @if (password?.invalid && password?.touched) {
       <div class="text-error text-sm mt-1">
         <span>Password is required</span>
@@ -67,4 +67,12 @@
       Register
     </button>
   </fieldset>
+  <button></button>
+  <div class="w-md mx-auto">
+    <a
+      class="btn btn-soft btn-xs btn-secondary"
+      href="mailto:it@pcfsouvenirs.com"
+      >Support</a
+    >
+  </div>
 </div>
