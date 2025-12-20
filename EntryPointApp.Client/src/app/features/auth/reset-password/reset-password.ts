@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -11,6 +11,7 @@ import {
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { ResetPasswordRequest } from '../../../core/models/auth.model';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-reset-password',
@@ -21,8 +22,10 @@ import { ResetPasswordRequest } from '../../../core/models/auth.model';
 export class ResetPassword implements OnInit {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
+  private toastService = inject(ToastService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private cdr = inject(ChangeDetectorRef);
 
   resetPasswordForm: FormGroup;
   isSubmitting = false;
@@ -98,6 +101,7 @@ export class ResetPassword implements OnInit {
     }
 
     this.isSubmitting = true;
+    this.cdr.detectChanges();
     this.errorMessage = '';
     this.successMessage = '';
 
@@ -111,7 +115,7 @@ export class ResetPassword implements OnInit {
     this.authService.resetPassword(resetRequest).subscribe({
       next: (message) => {
         this.isSubmitting = false;
-        this.successMessage = message;
+        this.toastService.success(message);
 
         setTimeout(() => {
           this.router.navigate(['/login']);
@@ -119,7 +123,8 @@ export class ResetPassword implements OnInit {
       },
       error: (error) => {
         this.isSubmitting = false;
-        this.errorMessage = error.message;
+        this.cdr.detectChanges();
+        this.toastService.error(error);
       },
     });
   }

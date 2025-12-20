@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -8,6 +8,7 @@ import {
 import { AuthService } from '../../../core/services/auth.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-forgot-password',
@@ -18,6 +19,8 @@ import { RouterModule } from '@angular/router';
 export class ForgotPassword {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
+  private toastService = inject(ToastService);
+  private cdr = inject(ChangeDetectorRef);
 
   forgotPasswordForm: FormGroup;
   isSubmitting = false;
@@ -43,18 +46,21 @@ export class ForgotPassword {
     this.isSubmitting = true;
     this.errorMessage = '';
     this.successMessage = '';
+    this.cdr.detectChanges();
 
     const email = this.forgotPasswordForm.value.email;
 
     this.authService.forgotPassword(email).subscribe({
       next: (message) => {
         this.isSubmitting = false;
-        this.successMessage = message;
+        this.cdr.detectChanges();
+        this.toastService.success(message);
         this.forgotPasswordForm.reset();
       },
       error: (error) => {
         this.isSubmitting = false;
-        this.errorMessage = error.message;
+        this.cdr.detectChanges();
+        this.toastService.error(error);
       },
     });
   }

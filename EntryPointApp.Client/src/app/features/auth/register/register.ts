@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -23,6 +23,7 @@ export class Register {
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
 
   registerForm: FormGroup;
   isLoading = false;
@@ -59,6 +60,7 @@ export class Register {
     }
 
     this.isLoading = true;
+    this.cdr.detectChanges();
 
     const registerRequest: RegisterRequest = {
       firstName: this.registerForm.value.firstName,
@@ -76,8 +78,9 @@ export class Register {
         this.router.navigate(['/dashboard']);
       },
       error: (error) => {
-        this.toastService.error(error.message);
         this.isLoading = false;
+        this.cdr.detectChanges();
+        this.toastService.error(error.message);
       },
     });
   }

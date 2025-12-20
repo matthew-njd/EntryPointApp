@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
@@ -22,6 +22,7 @@ export class Login {
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
 
   loginForm: FormGroup;
   isLoading = false;
@@ -40,6 +41,7 @@ export class Login {
     }
 
     this.isLoading = true;
+    this.cdr.detectChanges();
 
     const loginRequest: LoginRequest = {
       email: this.loginForm.value.email,
@@ -53,8 +55,9 @@ export class Login {
         this.router.navigate(['/dashboard']);
       },
       error: (error) => {
-        this.toastService.error(error.message);
         this.isLoading = false;
+        this.cdr.detectChanges();
+        this.toastService.error(error.message);
       },
     });
   }
