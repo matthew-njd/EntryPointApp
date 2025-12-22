@@ -1,5 +1,3 @@
-using EntryPointApp.Api.Models.Dtos.Common;
-
 namespace EntryPointApp.Api.Models.Dtos.DailyLog
 {
     public class BaseDailyLogResult

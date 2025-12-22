@@ -15,10 +15,9 @@ namespace EntryPointApp.Api.Services.DailyLog
         {
             try
             {
-                _logger.LogInformation("Retrieving dailylogs for weeklylog {WeeklyLogId} and user {UserId}", 
+                _logger.LogInformation("Retrieving dailylogs for weeklylog {WeeklyLogId} and user {UserId}",
                     weeklyLogId, userId);
 
-                // Verify weeklylog exists and belongs to user
                 var weeklyLogExists = await _weeklyLogService.WeeklyLogExistsAsync(weeklyLogId, userId);
                 if (!weeklyLogExists)
                 {
@@ -46,7 +45,7 @@ namespace EntryPointApp.Api.Services.DailyLog
                     })
                     .ToListAsync();
 
-                _logger.LogInformation("Successfully retrieved {Count} dailylogs for weeklylog {WeeklyLogId}", 
+                _logger.LogInformation("Successfully retrieved {Count} dailylogs for weeklylog {WeeklyLogId}",
                     dailyLogs.Count, weeklyLogId);
 
                 return new DailyLogListResult
@@ -73,13 +72,13 @@ namespace EntryPointApp.Api.Services.DailyLog
         {
             try
             {
-                _logger.LogInformation("Retrieving dailylog {DailyLogId} for weeklylog {WeeklyLogId} and user {UserId}", 
+                _logger.LogInformation("Retrieving dailylog {DailyLogId} for weeklylog {WeeklyLogId} and user {UserId}",
                     id, weeklyLogId, userId);
 
                 var dailyLog = await _context.DailyLogs
-                    .Where(d => d.Id == id 
-                        && d.WeeklyLogId == weeklyLogId 
-                        && d.UserId == userId 
+                    .Where(d => d.Id == id
+                        && d.WeeklyLogId == weeklyLogId
+                        && d.UserId == userId
                         && !d.IsDeleted)
                     .Select(d => new DailyLogResponse
                     {
@@ -96,7 +95,7 @@ namespace EntryPointApp.Api.Services.DailyLog
 
                 if (dailyLog == null)
                 {
-                    _logger.LogWarning("Dailylog {DailyLogId} not found for weeklylog {WeeklyLogId}", 
+                    _logger.LogWarning("Dailylog {DailyLogId} not found for weeklylog {WeeklyLogId}",
                         id, weeklyLogId);
 
                     return new DailyLogResult
@@ -133,10 +132,9 @@ namespace EntryPointApp.Api.Services.DailyLog
         {
             try
             {
-                _logger.LogInformation("Creating dailylog for weeklylog {WeeklyLogId} and user {UserId}", 
+                _logger.LogInformation("Creating dailylog for weeklylog {WeeklyLogId} and user {UserId}",
                     weeklyLogId, userId);
 
-                // Verify weeklylog exists and belongs to user
                 var weeklyLog = await _context.WeeklyLogs
                     .FirstOrDefaultAsync(w => w.Id == weeklyLogId && w.UserId == userId && !w.IsDeleted);
 
@@ -150,7 +148,6 @@ namespace EntryPointApp.Api.Services.DailyLog
                     };
                 }
 
-                // Validate date is within weeklylog range
                 if (request.Date < weeklyLog.DateFrom || request.Date > weeklyLog.DateTo)
                 {
                     return new DailyLogResult
@@ -161,10 +158,9 @@ namespace EntryPointApp.Api.Services.DailyLog
                     };
                 }
 
-                // Check for duplicate date in this weeklylog
                 var duplicateExists = await _context.DailyLogs
-                    .AnyAsync(d => d.WeeklyLogId == weeklyLogId 
-                        && d.Date == request.Date 
+                    .AnyAsync(d => d.WeeklyLogId == weeklyLogId
+                        && d.Date == request.Date
                         && !d.IsDeleted);
 
                 if (duplicateExists)
@@ -195,7 +191,6 @@ namespace EntryPointApp.Api.Services.DailyLog
                 _context.DailyLogs.Add(dailyLog);
                 await _context.SaveChangesAsync();
 
-                // Recalculate weeklylog totals
                 await _weeklyLogService.RecalculateWeeklyTotalsAsync(weeklyLogId);
 
                 var response = new DailyLogResponse
@@ -210,7 +205,7 @@ namespace EntryPointApp.Api.Services.DailyLog
                     Comment = dailyLog.Comment
                 };
 
-                _logger.LogInformation("Successfully created dailylog {DailyLogId} for weeklylog {WeeklyLogId}", 
+                _logger.LogInformation("Successfully created dailylog {DailyLogId} for weeklylog {WeeklyLogId}",
                     dailyLog.Id, weeklyLogId);
 
                 return new DailyLogResult
@@ -237,18 +232,18 @@ namespace EntryPointApp.Api.Services.DailyLog
         {
             try
             {
-                _logger.LogInformation("Updating dailylog {DailyLogId} for weeklylog {WeeklyLogId}", 
+                _logger.LogInformation("Updating dailylog {DailyLogId} for weeklylog {WeeklyLogId}",
                     id, weeklyLogId);
 
                 var dailyLog = await _context.DailyLogs
-                    .FirstOrDefaultAsync(d => d.Id == id 
-                        && d.WeeklyLogId == weeklyLogId 
-                        && d.UserId == userId 
+                    .FirstOrDefaultAsync(d => d.Id == id
+                        && d.WeeklyLogId == weeklyLogId
+                        && d.UserId == userId
                         && !d.IsDeleted);
 
                 if (dailyLog == null)
                 {
-                    _logger.LogWarning("Dailylog {DailyLogId} not found for weeklylog {WeeklyLogId}", 
+                    _logger.LogWarning("Dailylog {DailyLogId} not found for weeklylog {WeeklyLogId}",
                         id, weeklyLogId);
 
                     return new DailyLogResult
@@ -259,7 +254,6 @@ namespace EntryPointApp.Api.Services.DailyLog
                     };
                 }
 
-                // Get weeklylog to validate date range
                 var weeklyLog = await _context.WeeklyLogs
                     .FirstOrDefaultAsync(w => w.Id == weeklyLogId && !w.IsDeleted);
 
@@ -273,7 +267,6 @@ namespace EntryPointApp.Api.Services.DailyLog
                     };
                 }
 
-                // Validate date is within weeklylog range
                 if (request.Date < weeklyLog.DateFrom || request.Date > weeklyLog.DateTo)
                 {
                     return new DailyLogResult
@@ -284,10 +277,9 @@ namespace EntryPointApp.Api.Services.DailyLog
                     };
                 }
 
-                // Check for duplicate date (excluding current log)
                 var duplicateExists = await _context.DailyLogs
-                    .AnyAsync(d => d.WeeklyLogId == weeklyLogId 
-                        && d.Date == request.Date 
+                    .AnyAsync(d => d.WeeklyLogId == weeklyLogId
+                        && d.Date == request.Date
                         && d.Id != id
                         && !d.IsDeleted);
 
@@ -312,7 +304,6 @@ namespace EntryPointApp.Api.Services.DailyLog
 
                 await _context.SaveChangesAsync();
 
-                // Recalculate weeklylog totals
                 await _weeklyLogService.RecalculateWeeklyTotalsAsync(weeklyLogId);
 
                 var response = new DailyLogResponse
@@ -353,18 +344,18 @@ namespace EntryPointApp.Api.Services.DailyLog
         {
             try
             {
-                _logger.LogInformation("Deleting dailylog {DailyLogId} for weeklylog {WeeklyLogId}", 
+                _logger.LogInformation("Deleting dailylog {DailyLogId} for weeklylog {WeeklyLogId}",
                     id, weeklyLogId);
 
                 var dailyLog = await _context.DailyLogs
-                    .FirstOrDefaultAsync(d => d.Id == id 
-                        && d.WeeklyLogId == weeklyLogId 
-                        && d.UserId == userId 
+                    .FirstOrDefaultAsync(d => d.Id == id
+                        && d.WeeklyLogId == weeklyLogId
+                        && d.UserId == userId
                         && !d.IsDeleted);
 
                 if (dailyLog == null)
                 {
-                    _logger.LogWarning("Dailylog {DailyLogId} not found for weeklylog {WeeklyLogId}", 
+                    _logger.LogWarning("Dailylog {DailyLogId} not found for weeklylog {WeeklyLogId}",
                         id, weeklyLogId);
 
                     return new DailyLogResult
@@ -375,11 +366,9 @@ namespace EntryPointApp.Api.Services.DailyLog
                     };
                 }
 
-                // Soft delete
                 dailyLog.IsDeleted = true;
                 await _context.SaveChangesAsync();
 
-                // Recalculate weeklylog totals
                 await _weeklyLogService.RecalculateWeeklyTotalsAsync(weeklyLogId);
 
                 _logger.LogInformation("Successfully deleted dailylog {DailyLogId}", id);
