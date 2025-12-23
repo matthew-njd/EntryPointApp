@@ -104,4 +104,8 @@ export class Register {
   get confirmPassword() {
     return this.registerForm.get('confirmPassword');
   }
+
+  goBack() {
+    this.router.navigate(['/login']);
+  }
 }

@@ -7,7 +7,7 @@ import {
 } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
@@ -20,6 +20,7 @@ export class ForgotPassword {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
+  private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
 
   forgotPasswordForm: FormGroup;
@@ -63,5 +64,9 @@ export class ForgotPassword {
         this.toastService.error(error);
       },
     });
+  }
+
+  goBack() {
+    this.router.navigate(['/login']);
   }
 }
