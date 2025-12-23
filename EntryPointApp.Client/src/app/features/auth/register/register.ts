@@ -27,6 +27,8 @@ export class Register {
 
   registerForm: FormGroup;
   isLoading = false;
+  showPassword = false;
+  showConfirmPassword = false;
 
   constructor() {
     this.registerForm = this.fb.group(
@@ -34,7 +36,14 @@ export class Register {
         firstName: ['', [Validators.required]],
         lastName: ['', [Validators.required]],
         email: ['', [Validators.required, Validators.email]],
-        password: ['', [Validators.required]],
+        password: [
+          '',
+          [
+            Validators.required,
+            Validators.minLength(8),
+            this.passwordValidator,
+          ],
+        ],
         confirmPassword: ['', [Validators.required]],
         role: [UserRole.User],
       },
@@ -51,6 +60,20 @@ export class Register {
     const confirmPassword = group.get('confirmPassword')?.value;
 
     return password === confirmPassword ? null : { passwordMismatch: true };
+  }
+
+  private passwordValidator(control: AbstractControl): ValidationErrors | null {
+    const value = control.value;
+    if (!value) return null;
+
+    const hasUpperCase = /[A-Z]/.test(value);
+    const hasLowerCase = /[a-z]/.test(value);
+    const hasNumber = /\d/.test(value);
+    const hasSpecialChar = /[\W_]/.test(value);
+
+    const valid = hasUpperCase && hasLowerCase && hasNumber && hasSpecialChar;
+
+    return valid ? null : { passwordStrength: true };
   }
 
   onSubmit(): void {
@@ -103,6 +126,14 @@ export class Register {
 
   get confirmPassword() {
     return this.registerForm.get('confirmPassword');
+  }
+
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+  }
+
+  toggleConfirmPasswordVisibility() {
+    this.showConfirmPassword = !this.showConfirmPassword;
   }
 
   goBack() {

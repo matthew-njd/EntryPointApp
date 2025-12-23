@@ -26,6 +26,7 @@ export class Login {
 
   loginForm: FormGroup;
   isLoading = false;
+  showPassword = false;
 
   constructor() {
     this.loginForm = this.fb.group({
@@ -72,5 +73,9 @@ export class Login {
 
   goToRegisterPage(): void {
     this.router.navigate(['/register']);
+  }
+
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
   }
 }

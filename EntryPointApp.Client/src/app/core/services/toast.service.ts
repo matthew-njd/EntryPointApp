@@ -17,15 +17,15 @@ export class ToastService {
     this.show('success', message, duration);
   }
 
-  error(message: string, duration = 3000) {
+  error(message: string, duration = 5000) {
     this.show('error', message, duration);
   }
 
-  info(message: string, duration = 3000) {
+  info(message: string, duration = 5000) {
     this.show('info', message, duration);
   }
 
-  warning(message: string, duration = 3000) {
+  warning(message: string, duration = 5000) {
     this.show('warning', message, duration);
   }
 

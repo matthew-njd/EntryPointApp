@@ -29,8 +29,9 @@ export class ResetPassword implements OnInit {
 
   resetPasswordForm: FormGroup;
   isSubmitting = false;
-  successMessage = '';
-  errorMessage = '';
+  showPassword = false;
+  showConfirmPassword = false;
+
   email = '';
   token = '';
 
@@ -57,8 +58,9 @@ export class ResetPassword implements OnInit {
       this.token = params['token'] || '';
 
       if (!this.email || !this.token) {
-        this.errorMessage =
-          'Invalid reset link. Please request a new password reset.';
+        this.toastService.error(
+          'Invalid reset link. Please request a new password reset.'
+        );
       }
     });
   }
@@ -102,8 +104,6 @@ export class ResetPassword implements OnInit {
 
     this.isSubmitting = true;
     this.cdr.detectChanges();
-    this.errorMessage = '';
-    this.successMessage = '';
 
     const resetRequest: ResetPasswordRequest = {
       email: this.email,
@@ -127,5 +127,13 @@ export class ResetPassword implements OnInit {
         this.toastService.error(error);
       },
     });
+  }
+
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+  }
+
+  toggleConfirmPasswordVisibility() {
+    this.showConfirmPassword = !this.showConfirmPassword;
   }
 }

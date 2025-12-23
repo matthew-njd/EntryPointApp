@@ -25,8 +25,6 @@ export class ForgotPassword {
 
   forgotPasswordForm: FormGroup;
   isSubmitting = false;
-  successMessage = '';
-  errorMessage = '';
 
   constructor() {
     this.forgotPasswordForm = this.fb.group({
@@ -45,8 +43,6 @@ export class ForgotPassword {
     }
 
     this.isSubmitting = true;
-    this.errorMessage = '';
-    this.successMessage = '';
     this.cdr.detectChanges();
 
     const email = this.forgotPasswordForm.value.email;
@@ -54,9 +50,11 @@ export class ForgotPassword {
     this.authService.forgotPassword(email).subscribe({
       next: (message) => {
         this.isSubmitting = false;
-        this.cdr.detectChanges();
         this.toastService.success(message);
-        this.forgotPasswordForm.reset();
+
+        setTimeout(() => {
+          this.router.navigate(['/login']);
+        }, 3000);
       },
       error: (error) => {
         this.isSubmitting = false;
