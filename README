@@ -1,1 +1,28 @@
-Timesheet management app.
+# EntryPoint – A Timesheet App
+
+EntryPoint is a modern timesheet management application designed to help users track their work hours, mileage, and expenses on a weekly and daily basis. The app provides a seamless experience for employees and managers to log, review, and manage timesheets efficiently.
+
+## Features
+
+- **User Authentication:** Secure registration, login, password reset, and forgot password flows.
+- **Dashboard:** Overview of weekly logs, including total hours, charges, and timesheet statuses (Draft, Pending, Approved, Denied).
+- **Weekly Logs:** Users can view, create, and manage weekly timesheets, including summaries of hours and charges.
+- **Daily Logs:** Detailed daily entries for hours worked, mileage, tolls, parking, and other charges.
+- **Role Management:** Supports different user roles (User, Manager, Admin) with appropriate access controls.
+- **Responsive UI:** Built with Angular and styled for usability on desktop and mobile devices.
+- **Notifications:** Toast notifications for user feedback on actions and errors.
+- **Security:** Implements JWT-based authentication and security headers for safe API access.
+- **API Backend:** ASP.NET Core Web API with Entity Framework Core for data persistence and business logic.
+
+## Technologies Used
+
+- **Frontend:** Angular, RxJS, Angular Forms, Angular Router
+- **Backend:** ASP.NET Core, Entity Framework Core, SQLite
+- **Authentication:** JWT (JSON Web Tokens)
+- **Email:** MailJet integration for password reset and notifications
+
+## TODO
+
+- **DailyLog:** Create, Update, and Delete functionality (frontend).
+- **WeeklyLog:** Create, Update, and Delete functionality (frontend).
+- **Manager Role:** Ability to approve rep's timesheet which then sends an email to HR.
