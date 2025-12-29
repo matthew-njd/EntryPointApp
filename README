@@ -23,6 +23,6 @@ EntryPoint is a modern timesheet management application designed to help users t
 
 ## TODO
 
-- **DailyLog:** Create, Update, and Delete functionality (frontend).
-- **WeeklyLog:** Create, Update, and Delete functionality (frontend).
+- **Daily Log:** Create, Update, and Delete functionality (frontend).
+- **Weekly Log:** Create, Update, and Delete functionality (frontend).
 - **Manager Role:** Ability to approve rep's timesheet which then sends an email to HR.
