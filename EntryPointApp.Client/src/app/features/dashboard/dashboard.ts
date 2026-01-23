@@ -27,22 +27,23 @@ export class Dashboard {
   totalApproved = computed(
     () =>
       this.service.weeklyLogs().filter((log) => log.status === 'Approved')
-        .length
+        .length,
   );
 
   totalPending = computed(
     () =>
-      this.service.weeklyLogs().filter((log) => log.status === 'Pending').length
+      this.service.weeklyLogs().filter((log) => log.status === 'Pending')
+        .length,
   );
 
   totalDenied = computed(
     () =>
-      this.service.weeklyLogs().filter((log) => log.status === 'Denied').length
+      this.service.weeklyLogs().filter((log) => log.status === 'Denied').length,
   );
 
   totalDrafts = computed(
     () =>
-      this.service.weeklyLogs().filter((log) => log.status === 'Draft').length
+      this.service.weeklyLogs().filter((log) => log.status === 'Draft').length,
   );
 
   pageNumbers = computed(() => {
@@ -69,6 +70,10 @@ export class Dashboard {
 
   viewDailyLogs(logId: number) {
     this.router.navigate(['/dashboard/week', logId]);
+  }
+
+  createNewTimesheet() {
+    this.router.navigate(['/dashboard/create-timesheet']);
   }
 
   onPageChange(page: number) {

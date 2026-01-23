@@ -1,6 +1,6 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { WeeklyLog } from '../models/weeklylog.model';
+import { WeeklyLog, WeeklyLogRequest } from '../models/weeklylog.model';
 
 export interface PagedResult<T> {
   data: T[];
@@ -39,7 +39,7 @@ export class WeeklyLogService {
   readonly pageSize = this._pageSize.asReadonly();
 
   readonly totalPages = computed(() =>
-    Math.ceil(this._totalCount() / this._pageSize())
+    Math.ceil(this._totalCount() / this._pageSize()),
   );
 
   loadWeeklyLogs(page?: number, pageSize?: number) {
@@ -75,6 +75,13 @@ export class WeeklyLogService {
           this._isLoading.set(false);
         },
       });
+  }
+
+  createWeeklyLog(request: WeeklyLogRequest) {
+    this._isLoading.set(true);
+    this._error.set(null);
+
+    return this.http.post<ApiResponse<WeeklyLog>>(this.apiUrl, request);
   }
 
   clear() {

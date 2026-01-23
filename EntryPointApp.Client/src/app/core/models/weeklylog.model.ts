@@ -10,3 +10,8 @@ export interface WeeklyLog {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface WeeklyLogRequest {
+  dateFrom: string;
+  dateTo: string;
+}

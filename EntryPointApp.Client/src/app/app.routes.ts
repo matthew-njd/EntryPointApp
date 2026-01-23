@@ -7,6 +7,7 @@ import { Dailylogs } from './features/dailylogs/dailylogs';
 import { Register } from './features/auth/register/register';
 import { ForgotPassword } from './features/auth/forgot-password/forgot-password';
 import { ResetPassword } from './features/auth/reset-password/reset-password';
+import { CreateTimesheet } from './features/create-timesheet/create-timesheet';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
@@ -14,6 +15,11 @@ export const routes: Routes = [
   { path: 'reset-password', component: ResetPassword },
   { path: 'register', component: Register },
   { path: 'dashboard', component: Dashboard, canActivate: [authGuard] },
+  {
+    path: 'dashboard/create-timesheet',
+    component: CreateTimesheet,
+    canActivate: [authGuard],
+  },
   {
     path: 'dashboard/week/:id',
     component: Dailylogs,
