@@ -2,7 +2,20 @@
   <h2 class="text-3xl text-center mb-4">EntryPoint, a Timesheet App</h2>
 
   <div class="w-md mx-auto mt-8">
-    <button class="btn btn-sm btn-primary" (click)="goBack()">Back</button>
+    <button class="btn btn-sm btn-primary" (click)="goBack()">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+      >
+        <path
+          fill="currentColor"
+          d="m7.825 13l4.9 4.9q.3.3.288.7t-.313.7q-.3.275-.7.288t-.7-.288l-6.6-6.6q-.15-.15-.213-.325T4.426 12t.063-.375t.212-.325l6.6-6.6q.275-.275.688-.275t.712.275q.3.3.3.713t-.3.712L7.825 11H19q.425 0 .713.288T20 12t-.288.713T19 13z"
+        />
+      </svg>
+      Back
+    </button>
   </div>
 
   <fieldset
@@ -20,9 +33,9 @@
         [class.input-error]="firstName?.invalid && firstName?.touched"
       />
       @if (firstName?.invalid && firstName?.touched) {
-      <div class="text-error text-sm mt-1">
-        <span>First name is required</span>
-      </div>
+        <div class="text-error text-sm mt-1">
+          <span>First name is required</span>
+        </div>
       }
 
       <label class="label mt-4">Last Name*</label>
@@ -34,9 +47,9 @@
         [class.input-error]="lastName?.invalid && lastName?.touched"
       />
       @if (lastName?.invalid && lastName?.touched) {
-      <div class="text-error text-sm mt-1">
-        <span>Last name is required</span>
-      </div>
+        <div class="text-error text-sm mt-1">
+          <span>Last name is required</span>
+        </div>
       }
 
       <label class="label mt-4">Email*</label>
@@ -48,13 +61,14 @@
         [class.input-error]="email?.invalid && email?.touched"
       />
       @if (email?.invalid && email?.touched) {
-      <div class="text-error text-sm mt-1">
-        @if (email?.errors?.['required']) {
-        <span>Email is required</span>
-        } @if (email?.errors?.['email']) {
-        <span>Invalid email format</span>
-        }
-      </div>
+        <div class="text-error text-sm mt-1">
+          @if (email?.errors?.["required"]) {
+            <span>Email is required</span>
+          }
+          @if (email?.errors?.["email"]) {
+            <span>Invalid email format</span>
+          }
+        </div>
       }
 
       <label class="label mt-4">Password*</label>
@@ -72,56 +86,58 @@
           (click)="togglePasswordVisibility()"
         >
           @if (showPassword) {
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="w-5 h-5"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"
-            />
-          </svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-5 h-5"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"
+              />
+            </svg>
           } @else {
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="w-5 h-5"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
-            />
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-            />
-          </svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-5 h-5"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
+              />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+            </svg>
           }
         </button>
       </div>
       @if (password?.invalid && password?.touched) {
-      <div class="text-error text-sm mt-1">
-        @if (password?.errors?.['required']) {
-        <span>Password is required. </span>
-        } @if (password?.errors?.['minlength']) {
-        <span>Password must be at least 8 characters. </span>
-        } @if (password?.errors?.['passwordStrength']) {
-        <span
-          >Password must contain uppercase, lowercase, number, and special
-          character.
-        </span>
-        }
-      </div>
+        <div class="text-error text-sm mt-1">
+          @if (password?.errors?.["required"]) {
+            <span>Password is required. </span>
+          }
+          @if (password?.errors?.["minlength"]) {
+            <span>Password must be at least 8 characters. </span>
+          }
+          @if (password?.errors?.["passwordStrength"]) {
+            <span
+              >Password must contain uppercase, lowercase, number, and special
+              character.
+            </span>
+          }
+        </div>
       }
 
       <label class="label mt-4">Confirm Password*</label>
@@ -132,9 +148,10 @@
           placeholder="Confirm Password"
           formControlName="confirmPassword"
           [class.input-error]="
-          (confirmPassword?.invalid && confirmPassword?.touched) ||
-          (registerForm.errors?.['passwordMismatch'] && confirmPassword?.touched)
-        "
+            (confirmPassword?.invalid && confirmPassword?.touched) ||
+            (registerForm.errors?.['passwordMismatch'] &&
+              confirmPassword?.touched)
+          "
         />
         <button
           type="button"
@@ -142,52 +159,55 @@
           (click)="toggleConfirmPasswordVisibility()"
         >
           @if (showConfirmPassword) {
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="w-5 h-5"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"
-            />
-          </svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-5 h-5"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"
+              />
+            </svg>
           } @else {
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="w-5 h-5"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
-            />
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-            />
-          </svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-5 h-5"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
+              />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+            </svg>
           }
         </button>
       </div>
       @if (confirmPassword?.touched) {
-      <div class="text-error text-sm mt-1">
-        @if (confirmPassword?.errors?.['required']) {
-        <span>Please confirm your password</span>
-        } @if (registerForm.errors?.['passwordMismatch'] &&
-        !confirmPassword?.errors?.['required']) {
-        <span>Passwords do not match</span>
-        }
-      </div>
+        <div class="text-error text-sm mt-1">
+          @if (confirmPassword?.errors?.["required"]) {
+            <span>Please confirm your password</span>
+          }
+          @if (
+            registerForm.errors?.["passwordMismatch"] &&
+            !confirmPassword?.errors?.["required"]
+          ) {
+            <span>Passwords do not match</span>
+          }
+        </div>
       }
 
       <button
@@ -196,8 +216,11 @@
         [disabled]="isLoading"
       >
         @if (isLoading) {
-        <span class="loading loading-spinner loading-md"></span>
-        Registering... } @else { Register }
+          <span class="loading loading-spinner loading-md"></span>
+          Registering...
+        } @else {
+          Register
+        }
       </button>
     </form>
   </fieldset>
