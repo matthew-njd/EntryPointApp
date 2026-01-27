@@ -78,9 +78,6 @@ export class WeeklyLogService {
   }
 
   createWeeklyLog(request: WeeklyLogRequest) {
-    this._isLoading.set(true);
-    this._error.set(null);
-
     return this.http.post<ApiResponse<WeeklyLog>>(this.apiUrl, request);
   }
 

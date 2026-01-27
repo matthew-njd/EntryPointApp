@@ -19,12 +19,12 @@
 
     <h1 class="text-3xl mb-6">Create New Timesheet</h1>
 
-    <fieldset
-      class="fieldset bg-base-200 border-base-300 rounded-box border p-6"
-    >
-      <legend class="fieldset-legend">Timesheet Details</legend>
+    <form [formGroup]="timesheetForm" (ngSubmit)="onSubmit()">
+      <fieldset
+        class="fieldset bg-base-200 border-base-300 rounded-box border p-6 mb-6"
+      >
+        <legend class="fieldset-legend">Week Selection</legend>
 
-      <form [formGroup]="timesheetForm" (ngSubmit)="onSubmit()">
         <div class="mb-6 flex gap-4">
           <div class="flex-1">
             <label class="label">
@@ -58,30 +58,144 @@
             />
           </div>
         </div>
+      </fieldset>
 
-        <div class="flex gap-2">
-          <button
-            type="submit"
-            class="btn btn-neutral flex-1"
-            [disabled]="isLoading()"
-          >
-            @if (isLoading()) {
-              <span class="loading loading-spinner loading-md"></span>
-              Creating...
-            } @else {
-              Create Timesheet
+      <!-- Daily Entries -->
+      @if (dayForms().length > 0) {
+        <fieldset
+          class="fieldset bg-base-200 border-base-300 rounded-box border p-6 mb-6"
+        >
+          <legend class="fieldset-legend">Daily Entries</legend>
+
+          <div class="text-sm text-base-content/60 mb-4">
+            Fill out the days you worked. You can enter data for 1-7 days.
+          </div>
+
+          <div class="space-y-6">
+            @for (day of dayForms(); track day.date) {
+              <div class="bg-base-100 rounded-lg p-4 border border-base-300">
+                <h3 class="font-semibold mb-3">
+                  {{ day.dayName }}, {{ day.date | date: "MMM d, y" }}
+                </h3>
+
+                <div
+                  [formGroup]="day.formGroup"
+                  class="grid grid-cols-2 sm:grid-cols-3 gap-3"
+                >
+                  <div>
+                    <label class="label py-1">
+                      <span class="label-text text-xs">Hours</span>
+                    </label>
+                    <input
+                      type="number"
+                      class="input input-sm w-full"
+                      formControlName="hours"
+                      step="0.5"
+                      min="0"
+                      max="24"
+                      placeholder="0"
+                    />
+                  </div>
+
+                  <div>
+                    <label class="label py-1">
+                      <span class="label-text text-xs">Mileage</span>
+                    </label>
+                    <input
+                      type="number"
+                      class="input input-sm w-full"
+                      formControlName="mileage"
+                      step="0.1"
+                      min="0"
+                      placeholder="0"
+                    />
+                  </div>
+
+                  <div>
+                    <label class="label py-1">
+                      <span class="label-text text-xs">Toll Charge</span>
+                    </label>
+                    <input
+                      type="number"
+                      class="input input-sm w-full"
+                      formControlName="tollCharge"
+                      step="0.01"
+                      min="0"
+                      placeholder="0.00"
+                    />
+                  </div>
+
+                  <div>
+                    <label class="label py-1">
+                      <span class="label-text text-xs">Parking Fee</span>
+                    </label>
+                    <input
+                      type="number"
+                      class="input input-sm w-full"
+                      formControlName="parkingFee"
+                      step="0.01"
+                      min="0"
+                      placeholder="0.00"
+                    />
+                  </div>
+
+                  <div>
+                    <label class="label py-1">
+                      <span class="label-text text-xs">Other Charges</span>
+                    </label>
+                    <input
+                      type="number"
+                      class="input input-sm w-full"
+                      formControlName="otherCharges"
+                      step="0.01"
+                      min="0"
+                      placeholder="0.00"
+                    />
+                  </div>
+
+                  <div class="col-span-2 sm:col-span-3">
+                    <label class="label py-1">
+                      <span class="label-text text-xs">Comment</span>
+                    </label>
+                    <textarea
+                      class="textarea textarea-sm w-full"
+                      formControlName="comment"
+                      rows="2"
+                      maxlength="500"
+                      placeholder="Optional notes..."
+                    ></textarea>
+                  </div>
+                </div>
+              </div>
             }
-          </button>
-          <button
-            type="button"
-            class="btn btn-ghost"
-            (click)="goBack()"
-            [disabled]="isLoading()"
-          >
-            Cancel
-          </button>
-        </div>
-      </form>
-    </fieldset>
+          </div>
+        </fieldset>
+      }
+
+      <div class="flex gap-2">
+        <button
+          type="submit"
+          class="btn btn-neutral flex-1"
+          [disabled]="isLoading()"
+        >
+          @if (isLoading()) {
+            <span class="loading loading-spinner loading-md"></span>
+            Creating...
+          } @else {
+            Create Timesheet
+          }
+        </button>
+        <button
+          type="button"
+          class="btn btn-ghost"
+          (click)="goBack()"
+          [disabled]="isLoading()"
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
   </div>
+
+  <app-footer class="mt-8"></app-footer>
 </div>
