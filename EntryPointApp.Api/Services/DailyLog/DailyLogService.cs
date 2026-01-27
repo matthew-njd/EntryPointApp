@@ -228,6 +228,122 @@ namespace EntryPointApp.Api.Services.DailyLog
             }
         }
 
+        public async Task<DailyLogListResult> CreateDailyLogsBatchAsync(int weeklyLogId, List<DailyLogRequest> requests, int userId)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                _logger.LogInformation("Creating {Count} dailylogs for weeklylog {WeeklyLogId} and user {UserId}",
+                    requests.Count, weeklyLogId, userId);
+
+                var weeklyLog = await _context.WeeklyLogs
+                    .FirstOrDefaultAsync(w => w.Id == weeklyLogId && w.UserId == userId && !w.IsDeleted);
+
+                if (weeklyLog == null)
+                {
+                    return new DailyLogListResult
+                    {
+                        Success = false,
+                        Message = "Weeklylog not found",
+                        Errors = ["The requested weeklylog does not exist or you don't have permission to access it"]
+                    };
+                }
+
+                var responses = new List<DailyLogResponse>();
+                var errors = new List<string>();
+
+                foreach (var request in requests)
+                {
+                    if (request.Date < weeklyLog.DateFrom || request.Date > weeklyLog.DateTo)
+                    {
+                        errors.Add($"Date {request.Date} is outside the weeklylog date range ({weeklyLog.DateFrom} to {weeklyLog.DateTo})");
+                        continue;
+                    }
+
+                    var duplicateExists = await _context.DailyLogs
+                        .AnyAsync(d => d.WeeklyLogId == weeklyLogId && d.Date == request.Date && !d.IsDeleted);
+
+                    if (duplicateExists)
+                    {
+                        errors.Add($"A daily log already exists for date {request.Date}");
+                        continue;
+                    }
+
+                    if (requests.Count(r => r.Date == request.Date) > 1)
+                    {
+                        errors.Add($"Duplicate date {request.Date} in request");
+                        continue;
+                    }
+
+                    var dailyLog = new Models.Entities.DailyLog
+                    {
+                        UserId = userId,
+                        WeeklyLogId = weeklyLogId,
+                        Date = request.Date,
+                        Hours = request.Hours,
+                        Mileage = request.Mileage,
+                        TollCharge = request.TollCharge,
+                        ParkingFee = request.ParkingFee,
+                        OtherCharges = request.OtherCharges,
+                        Comment = request.Comment ?? string.Empty,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    };
+
+                    _context.DailyLogs.Add(dailyLog);
+                    await _context.SaveChangesAsync();
+
+                    responses.Add(new DailyLogResponse
+                    {
+                        Id = dailyLog.Id,
+                        Date = dailyLog.Date,
+                        Hours = dailyLog.Hours,
+                        Mileage = dailyLog.Mileage,
+                        TollCharge = dailyLog.TollCharge,
+                        ParkingFee = dailyLog.ParkingFee,
+                        OtherCharges = dailyLog.OtherCharges,
+                        Comment = dailyLog.Comment
+                    });
+                }
+
+                if (errors.Any())
+                {
+                    await transaction.RollbackAsync();
+                    return new DailyLogListResult
+                    {
+                        Success = false,
+                        Message = "Some daily logs could not be created",
+                        Errors = errors
+                    };
+                }
+
+                await _weeklyLogService.RecalculateWeeklyTotalsAsync(weeklyLogId);
+                await transaction.CommitAsync();
+
+                _logger.LogInformation("Successfully created {Count} dailylogs for weeklylog {WeeklyLogId}",
+                    responses.Count, weeklyLogId);
+
+                return new DailyLogListResult
+                {
+                    Success = true,
+                    Message = $"{responses.Count} daily log(s) created successfully!",
+                    Data = responses
+                };
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, "Error creating daily logs batch for weeklylog {WeeklyLogId}", weeklyLogId);
+
+                return new DailyLogListResult
+                {
+                    Success = false,
+                    Message = "Failed to create daily logs",
+                    Errors = [ex.Message]
+                };
+            }
+        }
+
         public async Task<DailyLogResult> UpdateDailyLogAsync(int id, int weeklyLogId, DailyLogRequest request, int userId)
         {
             try

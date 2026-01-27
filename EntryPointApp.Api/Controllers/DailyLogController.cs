@@ -235,6 +235,108 @@ namespace EntryPointApp.Api.Controllers
         }
 
         /// <summary>
+        /// Create multiple dailylogs for a weeklylog in a single request
+        /// </summary>
+        [HttpPost("batch")]
+        [Authorize]
+        [ProducesResponseType(typeof(ApiResponse<List<DailyLogResponse>>), 201)]
+        [ProducesResponseType(typeof(ApiResponse), 400)]
+        [ProducesResponseType(typeof(ErrorResponse), 500)]
+        public async Task<IActionResult> CreateDailyLogsBatch([FromRoute] int weeklyLogId, [FromBody] List<DailyLogRequest> requests)
+        {
+            try
+            {
+                if (weeklyLogId <= 0)
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Validation failed",
+                        Errors = ["Weeklylog ID must be greater than 0"]
+                    });
+                }
+
+                if (requests == null || requests.Count == 0)
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Validation failed",
+                        Errors = ["At least one daily log is required"]
+                    });
+                }
+
+                if (requests.Count > 7)
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Validation failed",
+                        Errors = ["Cannot create more than 7 daily logs at once"]
+                    });
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList();
+
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Validation failed",
+                        Errors = errors
+                    });
+                }
+
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Invalid user context",
+                        Errors = ["Unable to identify user"]
+                    });
+                }
+
+                var result = await _dailyLogService.CreateDailyLogsBatchAsync(weeklyLogId, requests, userId);
+
+                if (!result.Success)
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = result.Message,
+                        Errors = result.Errors
+                    });
+                }
+
+                return Created($"/api/weeklylogs/{weeklyLogId}/dailylog", new ApiResponse<List<DailyLogResponse>>
+                {
+                    Success = true,
+                    Message = result.Message,
+                    Data = result.Data
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error creating daily logs batch for weeklylog {WeeklyLogId}", weeklyLogId);
+                return StatusCode(500, new ErrorResponse
+                {
+                    Type = "InternalServerError",
+                    Title = "DailyLog Batch Creation Error",
+                    Status = 500,
+                    Detail = "An unexpected error occurred while creating the daily logs",
+                    Instance = HttpContext.Request.Path,
+                    TraceId = HttpContext.TraceIdentifier
+                });
+            }
+        }
+
+        /// <summary>
         /// Update an existing dailylog
         /// </summary>
         [HttpPut("{id}")]

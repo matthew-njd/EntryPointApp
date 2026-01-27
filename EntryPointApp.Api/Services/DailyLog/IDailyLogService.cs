@@ -10,6 +10,8 @@ namespace EntryPointApp.Api.Services.DailyLog
 
         Task<DailyLogResult> CreateDailyLogAsync(int weeklyLogId, DailyLogRequest request, int userId);
 
+        Task<DailyLogListResult> CreateDailyLogsBatchAsync(int weeklyLogId, List<DailyLogRequest> requests, int userId);
+
         Task<DailyLogResult> UpdateDailyLogAsync(int id, int weeklyLogId, DailyLogRequest request, int userId);
 
         Task<DailyLogResult> DeleteDailyLogAsync(int id, int weeklyLogId, int userId);
