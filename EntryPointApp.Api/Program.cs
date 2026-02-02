@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json.Serialization;
 using EntryPointApp.Api.Data.Context;
 using EntryPointApp.Api.Extensions;
 using EntryPointApp.Api.Middleware;
@@ -15,7 +16,12 @@ using Microsoft.IdentityModel.Tokens;
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
+    
 builder.Services.AddEndpointsApiExplorer();
 
 // builder.Services.AddSwaggerGen(c =>
