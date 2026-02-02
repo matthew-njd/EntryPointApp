@@ -1,6 +1,7 @@
 using EntryPointApp.Api.Data.Context;
 using EntryPointApp.Api.Models.Dtos.Common;
 using EntryPointApp.Api.Models.Dtos.WeeklyLog;
+using EntryPointApp.Api.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace EntryPointApp.Api.Services.WeeklyLog
@@ -170,7 +171,7 @@ namespace EntryPointApp.Api.Services.WeeklyLog
                     DateTo = request.DateTo,
                     TotalHours = 0,
                     TotalCharges = 0,
-                    Status = request.Status ?? "Draft",
+                    Status = TimesheetStatus.Draft,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 };
@@ -254,7 +255,6 @@ namespace EntryPointApp.Api.Services.WeeklyLog
 
                 weeklyLog.DateFrom = request.DateFrom;
                 weeklyLog.DateTo = request.DateTo;
-                weeklyLog.Status = request.Status ?? weeklyLog.Status;
                 weeklyLog.UpdatedAt = DateTime.UtcNow;
 
                 await _context.SaveChangesAsync();
@@ -381,6 +381,58 @@ namespace EntryPointApp.Api.Services.WeeklyLog
         {
             return await _context.WeeklyLogs
                 .AnyAsync(w => w.Id == weeklyLogId && w.UserId == userId && !w.IsDeleted);
+        }
+
+        public async Task<WeeklyLogResult> UpdateStatusAsync(int weeklyLogId, TimesheetStatus newStatus, int userId)
+        {
+            var weeklyLog = await _context.WeeklyLogs
+                .FirstOrDefaultAsync(w => w.Id == weeklyLogId && w.UserId == userId && !w.IsDeleted);
+                
+            if (weeklyLog == null)
+            {
+                return new WeeklyLogResult 
+                { 
+                    Success = false, 
+                    Message = "Timesheet not found" 
+                };
+            }
+            
+            if (!IsValidStatusTransition(weeklyLog.Status, newStatus))
+            {
+                return new WeeklyLogResult 
+                { 
+                    Success = false, 
+                    Message = $"Cannot change status from {weeklyLog.Status} to {newStatus}" 
+                };
+            }
+            
+            weeklyLog.Status = newStatus;
+            weeklyLog.UpdatedAt = DateTime.UtcNow;
+            
+            await _context.SaveChangesAsync();
+            
+            return new WeeklyLogResult 
+            { 
+                Success = true, 
+                Message = "Status updated successfully" 
+            };
+        }
+
+        private bool IsValidStatusTransition(TimesheetStatus current, TimesheetStatus next)
+        {
+            return (current, next) switch
+            {
+                (TimesheetStatus.Draft, TimesheetStatus.Pending) => true,
+                
+                (TimesheetStatus.Pending, TimesheetStatus.Approved) => true,
+                (TimesheetStatus.Pending, TimesheetStatus.Denied) => true,
+                
+                (TimesheetStatus.Denied, TimesheetStatus.Draft) => true,
+                
+                var (a, b) when a == b => true,
+
+                _ => false
+            };
         }
     }
 }

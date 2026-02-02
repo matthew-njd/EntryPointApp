@@ -1,5 +1,6 @@
 using EntryPointApp.Api.Models.Dtos.Common;
 using EntryPointApp.Api.Models.Dtos.WeeklyLog;
+using EntryPointApp.Api.Models.Enums;
 
 namespace EntryPointApp.Api.Services.WeeklyLog
 {
@@ -18,5 +19,7 @@ namespace EntryPointApp.Api.Services.WeeklyLog
         Task RecalculateWeeklyTotalsAsync(int weeklyLogId);
 
         Task<bool> WeeklyLogExistsAsync(int weeklyLogId, int userId);
+
+        Task<WeeklyLogResult> UpdateStatusAsync(int weeklyLogId, TimesheetStatus newStatus, int userId);
     }
 }

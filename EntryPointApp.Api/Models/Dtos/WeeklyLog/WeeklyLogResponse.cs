@@ -1,3 +1,5 @@
+using EntryPointApp.Api.Models.Enums;
+
 namespace EntryPointApp.Api.Models.Dtos.WeeklyLog
 {
     public class WeeklyLogResponse
@@ -8,6 +10,6 @@ namespace EntryPointApp.Api.Models.Dtos.WeeklyLog
         public DateOnly DateTo { get; set; }
         public decimal TotalHours { get; set; }
         public decimal TotalCharges { get; set; }
-        public string Status { get; set; } = string.Empty;
+        public TimesheetStatus Status { get; set; }
     }
 }

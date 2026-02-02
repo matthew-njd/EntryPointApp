@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using EntryPointApp.Api.Models.Enums;
 
 namespace EntryPointApp.Api.Models.Dtos.WeeklyLog
 {
@@ -10,8 +11,7 @@ namespace EntryPointApp.Api.Models.Dtos.WeeklyLog
         [Required(ErrorMessage = "End date is required.")]
         public DateOnly DateTo { get; set; }
 
-        [MaxLength(50, ErrorMessage = "Status cannot exceed 50 characters.")]
-        public string? Status { get; set; }
+        public TimesheetStatus Status { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {

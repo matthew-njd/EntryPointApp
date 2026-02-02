@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using EntryPointApp.Api.Models.Enums;
 
 namespace EntryPointApp.Api.Models.Entities
 {
@@ -16,7 +17,7 @@ namespace EntryPointApp.Api.Models.Entities
 
         public decimal TotalCharges { get; set; }
 
-        public string Status { get; set; } = string.Empty;
+        public TimesheetStatus Status { get; set; } = TimesheetStatus.Draft;
 
         public bool IsDeleted { get; set; } = false;
 

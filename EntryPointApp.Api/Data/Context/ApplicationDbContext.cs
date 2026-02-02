@@ -65,11 +65,13 @@ namespace EntryPointApp.Api.Data.Context
                entity.Property(e => e.DateTo).IsRequired();
                entity.Property(e => e.TotalHours).HasPrecision(5, 2);
                entity.Property(e => e.TotalCharges).HasPrecision(8, 2);
-               entity.Property(e => e.Status).HasMaxLength(50);
+               entity.Property(e => e.Status)
+                    .HasConversion<string>()
+                    .HasMaxLength(20);
                entity.HasOne(e => e.User)
-                   .WithMany(u => u.WeeklyLogs)
-                   .HasForeignKey(e => e.UserId)
-                   .OnDelete(DeleteBehavior.Cascade);
+                    .WithMany(u => u.WeeklyLogs)
+                    .HasForeignKey(e => e.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
                entity.HasIndex(e => e.UserId);
                entity.HasIndex(e => new { e.UserId, e.DateFrom, e.DateTo });
            });

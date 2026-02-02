@@ -416,5 +416,25 @@ namespace EntryPointApp.Api.Controllers
                 });
             }
         }
+
+        [HttpPatch("{id}/status")]
+        [Authorize]
+        public async Task<IActionResult> UpdateStatus([FromRoute] int id, [FromBody] UpdateStatusRequest request)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdClaim, out int userId))
+            {
+                return Unauthorized();
+            }
+            
+            var result = await _weeklyLogService.UpdateStatusAsync(id, request.Status, userId);
+            
+            if (!result.Success)
+            {
+                return BadRequest(new ApiResponse { Success = false, Message = result.Message });
+            }
+            
+            return Ok(new ApiResponse { Success = true, Message = result.Message });
+        }
     }
 }
