@@ -485,5 +485,100 @@ namespace EntryPointApp.Api.Controllers
                 });
             }
         }
+
+        /// <summary>
+        /// Update multiple dailylogs for a weeklylog (sync operation)
+        /// Creates new logs, updates existing ones, and removes logs not in the request
+        /// </summary>
+        [HttpPut]
+        [Authorize]
+        [ProducesResponseType(typeof(ApiResponse<List<DailyLogResponse>>), 200)]
+        [ProducesResponseType(typeof(ApiResponse), 400)]
+        [ProducesResponseType(typeof(ApiResponse), 403)]
+        [ProducesResponseType(typeof(ApiResponse), 404)]
+        [ProducesResponseType(typeof(ErrorResponse), 500)]
+        public async Task<IActionResult> UpdateDailyLogs([FromRoute] int weeklyLogId, [FromBody] UpdateDailyLogsRequest request)
+        {
+            try
+            {
+                if (weeklyLogId <= 0)
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Validation failed",
+                        Errors = ["Weeklylog ID must be greater than 0"]
+                    });
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList();
+
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Validation failed",
+                        Errors = errors
+                    });
+                }
+
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Invalid user context",
+                        Errors = ["Unable to identify user"]
+                    });
+                }
+
+                var result = await _dailyLogService.UpdateDailyLogsAsync(weeklyLogId, request, userId);
+
+                if (!result.Success)
+                {
+                    if (result.Errors?.Any(e => e.Contains("Draft status")) == true)
+                    {
+                        return StatusCode(403, new ApiResponse
+                        {
+                            Success = false,
+                            Message = result.Message,
+                            Errors = result.Errors
+                        });
+                    }
+
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = result.Message,
+                        Errors = result.Errors
+                    });
+                }
+
+                return Ok(new ApiResponse<List<DailyLogResponse>>
+                {
+                    Success = true,
+                    Message = result.Message,
+                    Data = result.Data
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error updating daily logs for weeklylog {WeeklyLogId}", weeklyLogId);
+                return StatusCode(500, new ErrorResponse
+                {
+                    Type = "InternalServerError",
+                    Title = "DailyLog Update Error",
+                    Status = 500,
+                    Detail = "An unexpected error occurred while updating the daily logs",
+                    Instance = HttpContext.Request.Path,
+                    TraceId = HttpContext.TraceIdentifier
+                });
+            }
+        }
     }
 }

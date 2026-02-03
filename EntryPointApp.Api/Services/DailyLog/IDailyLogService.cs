@@ -15,5 +15,7 @@ namespace EntryPointApp.Api.Services.DailyLog
         Task<DailyLogResult> UpdateDailyLogAsync(int id, int weeklyLogId, DailyLogRequest request, int userId);
 
         Task<DailyLogResult> DeleteDailyLogAsync(int id, int weeklyLogId, int userId);
+
+        Task<DailyLogListResult> UpdateDailyLogsAsync(int weeklyLogId, UpdateDailyLogsRequest request, int userId);
     }
 }
