@@ -1,6 +1,5 @@
 using System.Text;
 using System.Text.Json.Serialization;
-using EntryPointApp.Api.Converters;
 using EntryPointApp.Api.Data.Context;
 using EntryPointApp.Api.Extensions;
 using EntryPointApp.Api.Middleware;
@@ -21,7 +20,6 @@ builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-        options.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
     });
     
 builder.Services.AddEndpointsApiExplorer();
