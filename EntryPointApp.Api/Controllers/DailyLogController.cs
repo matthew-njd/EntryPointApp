@@ -555,7 +555,7 @@ namespace EntryPointApp.Api.Controllers
                     {
                         Success = false,
                         Message = result.Message,
-                        Errors = result.Errors
+                        Errors = result.Errors ?? []
                     });
                 }
 
