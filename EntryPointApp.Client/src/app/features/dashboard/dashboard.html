@@ -13,7 +13,7 @@
     } @else {
       <div class="flex justify-between">
         <h1 class="text-3xl">Hello, {{ userFullName }}</h1>
-        <button class="btn btn-primary btn-md" (click)="createNewTimesheet()">
+        <button class="btn btn-primary btn-sm" (click)="createNewTimesheet()">
           New Timesheet
         </button>
       </div>
@@ -69,13 +69,48 @@
                   <td [ngClass]="getStatusClass(weeklyLog.status)">
                     {{ weeklyLog.status }}
                   </td>
-                  <th class="flex justify-center">
+                  <th class="flex justify-center gap-2">
                     <button
                       class="btn btn-sm sm:btn-md btn-outline btn-secondary"
                       (click)="viewDailyLogs(weeklyLog.id)"
                     >
-                      View
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 14 14"
+                      >
+                        <g
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <path
+                            d="M13.23 6.33a1 1 0 0 1 0 1.34C12.18 8.8 9.79 11 7 11S1.82 8.8.77 7.67a1 1 0 0 1 0-1.34C1.82 5.2 4.21 3 7 3s5.18 2.2 6.23 3.33Z"
+                          />
+                          <circle cx="7" cy="7" r="2" />
+                        </g>
+                      </svg>
                     </button>
+                    @if (weeklyLog.status === "Draft") {
+                      <button
+                        class="btn btn-sm sm:btn-md btn-outline btn-primary"
+                        (click)="editTimesheet(weeklyLog.id)"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            fill="currentColor"
+                            d="M5 19h1.425L16.2 9.225L14.775 7.8L5 17.575zm-2 2v-4.25L16.2 3.575q.3-.275.663-.425t.762-.15t.775.15t.65.45L20.425 5q.3.275.438.65T21 6.4q0 .4-.137.763t-.438.662L7.25 21zM19 6.4L17.6 5zm-3.525 2.125l-.7-.725L16.2 9.225z"
+                          />
+                        </svg>
+                      </button>
+                    }
                   </th>
                 </tr>
               } @empty {

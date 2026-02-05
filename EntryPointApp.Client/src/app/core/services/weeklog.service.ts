@@ -1,6 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { WeeklyLog, WeeklyLogRequest } from '../models/weeklylog.model';
+import { Observable } from 'rxjs';
 
 export interface PagedResult<T> {
   data: T[];
@@ -75,6 +76,10 @@ export class WeeklyLogService {
           this._isLoading.set(false);
         },
       });
+  }
+
+  getWeeklyLogById(id: number): Observable<ApiResponse<WeeklyLog>> {
+    return this.http.get<ApiResponse<WeeklyLog>>(`${this.apiUrl}/${id}`);
   }
 
   createWeeklyLog(request: WeeklyLogRequest) {

@@ -72,6 +72,10 @@ export class Dashboard {
     this.router.navigate(['/dashboard/week', logId]);
   }
 
+  editTimesheet(logId: number) {
+    this.router.navigate(['/dashboard/week', logId, 'edit']);
+  }
+
   createNewTimesheet() {
     this.router.navigate(['/dashboard/create-timesheet']);
   }

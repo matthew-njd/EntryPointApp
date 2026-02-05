@@ -1,0 +1,199 @@
+<div class="flex flex-col min-h-screen">
+  <div class="grow mt-16 sm:mt-40 max-w-2xl mx-auto px-4 w-full">
+    @if (isLoadingData()) {
+      <div class="flex justify-center items-center py-20">
+        <span class="loading loading-spinner loading-xl"></span>
+      </div>
+    } @else {
+      <div class="mb-8">
+        <button class="btn btn-sm btn-primary" (click)="goBack()">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="m7.825 13l4.9 4.9q.3.3.288.7t-.313.7q-.3.275-.7.288t-.7-.288l-6.6-6.6q-.15-.15-.213-.325T4.426 12t.063-.375t.212-.325l6.6-6.6q.275-.275.688-.275t.712.275q.3.3.3.713t-.3.712L7.825 11H19q.425 0 .713.288T20 12t-.288.713T19 13z"
+            />
+          </svg>
+          Back
+        </button>
+      </div>
+
+      <h1 class="text-3xl mb-6">Edit Timesheet</h1>
+
+      @if (weeklyLog()) {
+        <form (ngSubmit)="onSubmit()">
+          <fieldset
+            class="fieldset bg-base-200 border-base-300 rounded-box border p-6 mb-6"
+          >
+            <legend class="fieldset-legend">Week</legend>
+
+            <div class="mb-4">
+              <div class="text-sm text-base-content/60">
+                {{ weeklyLog()!.dateFrom | date: "MMM d, y" }} -
+                {{ weeklyLog()!.dateTo | date: "MMM d, y" }}
+              </div>
+              <div class="text-xs text-base-content/50 mt-1">
+                Week dates cannot be changed
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- Daily Entries -->
+          @if (dayForms().length > 0) {
+            <fieldset
+              class="fieldset bg-base-200 border-base-300 rounded-box border p-6 mb-6"
+            >
+              <legend class="fieldset-legend">Daily Entries</legend>
+
+              <div class="text-sm text-base-content/60 mb-4">
+                Update your work days or mark days as off. All days will be
+                saved.
+              </div>
+
+              <div class="space-y-6">
+                @for (day of dayForms(); track day.date) {
+                  <div
+                    class="bg-base-100 rounded-lg p-4 border border-base-300"
+                  >
+                    <div class="flex justify-between items-center mb-3">
+                      <h3 class="font-semibold">
+                        {{ day.dayName }}, {{ day.date | date: "MMM d, y" }}
+                      </h3>
+
+                      <label class="label cursor-pointer gap-2">
+                        <span class="label-text text-sm">Day Off</span>
+                        <input
+                          type="checkbox"
+                          class="checkbox checkbox-sm"
+                          [formControl]="$any(day.formGroup.get('isDayOff'))"
+                        />
+                      </label>
+                    </div>
+
+                    <div
+                      [formGroup]="day.formGroup"
+                      class="grid grid-cols-2 sm:grid-cols-3 gap-3"
+                    >
+                      <div>
+                        <label class="label py-1">
+                          <span class="label-text text-xs">Hours</span>
+                        </label>
+                        <input
+                          type="number"
+                          class="input input-sm w-full"
+                          formControlName="hours"
+                          step="0.5"
+                          min="0"
+                          max="24"
+                          placeholder="0"
+                        />
+                      </div>
+
+                      <div>
+                        <label class="label py-1">
+                          <span class="label-text text-xs">Mileage</span>
+                        </label>
+                        <input
+                          type="number"
+                          class="input input-sm w-full"
+                          formControlName="mileage"
+                          step="0.1"
+                          min="0"
+                          placeholder="0"
+                        />
+                      </div>
+
+                      <div>
+                        <label class="label py-1">
+                          <span class="label-text text-xs">Toll Charge</span>
+                        </label>
+                        <input
+                          type="number"
+                          class="input input-sm w-full"
+                          formControlName="tollCharge"
+                          step="0.01"
+                          min="0"
+                          placeholder="0.00"
+                        />
+                      </div>
+
+                      <div>
+                        <label class="label py-1">
+                          <span class="label-text text-xs">Parking Fee</span>
+                        </label>
+                        <input
+                          type="number"
+                          class="input input-sm w-full"
+                          formControlName="parkingFee"
+                          step="0.01"
+                          min="0"
+                          placeholder="0.00"
+                        />
+                      </div>
+
+                      <div>
+                        <label class="label py-1">
+                          <span class="label-text text-xs">Other Charges</span>
+                        </label>
+                        <input
+                          type="number"
+                          class="input input-sm w-full"
+                          formControlName="otherCharges"
+                          step="0.01"
+                          min="0"
+                          placeholder="0.00"
+                        />
+                      </div>
+
+                      <div class="col-span-2 sm:col-span-3">
+                        <label class="label py-1">
+                          <span class="label-text text-xs">Comment</span>
+                        </label>
+                        <textarea
+                          class="textarea textarea-sm w-full"
+                          formControlName="comment"
+                          rows="2"
+                          maxlength="500"
+                          placeholder="Optional notes..."
+                        ></textarea>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            </fieldset>
+          }
+
+          <div class="flex gap-2">
+            <button
+              type="submit"
+              class="btn btn-neutral flex-1"
+              [disabled]="isLoading()"
+            >
+              @if (isLoading()) {
+                <span class="loading loading-spinner loading-md"></span>
+                Saving...
+              } @else {
+                Save Changes
+              }
+            </button>
+            <button
+              type="button"
+              class="btn btn-ghost"
+              (click)="goBack()"
+              [disabled]="isLoading()"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      }
+    }
+  </div>
+
+  <app-footer class="mt-8"></app-footer>
+</div>

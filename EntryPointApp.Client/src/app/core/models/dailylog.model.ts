@@ -19,3 +19,18 @@ export interface DailyLogRequest {
   otherCharges: number;
   comment: string;
 }
+
+export interface DailyLogUpdateItem {
+  id?: number | null;
+  date: string;
+  hours: number;
+  mileage: number;
+  tollCharge: number;
+  parkingFee: number;
+  otherCharges: number;
+  comment: string;
+}
+
+export interface UpdateDailyLogsRequest {
+  dailyLogs: DailyLogUpdateItem[];
+}

@@ -1,6 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
-import { DailyLog, DailyLogRequest } from '../models/dailylog.model';
+import {
+  DailyLog,
+  DailyLogRequest,
+  UpdateDailyLogsRequest,
+} from '../models/dailylog.model';
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -49,6 +53,11 @@ export class DailyLogService {
   createDailyLogsBatch(weeklyLogId: number, requests: DailyLogRequest[]) {
     const apiUrl = `http://localhost:5077/api/weeklylogs/${weeklyLogId}/dailylog/batch`;
     return this.http.post<ApiResponse<DailyLog[]>>(apiUrl, requests);
+  }
+
+  updateDailyLogs(weeklyLogId: number, request: UpdateDailyLogsRequest) {
+    const apiUrl = `http://localhost:5077/api/weeklylogs/${weeklyLogId}/dailylog`;
+    return this.http.put<ApiResponse<DailyLog[]>>(apiUrl, request);
   }
 
   clear() {

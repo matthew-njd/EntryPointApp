@@ -8,6 +8,7 @@ import { Register } from './features/auth/register/register';
 import { ForgotPassword } from './features/auth/forgot-password/forgot-password';
 import { ResetPassword } from './features/auth/reset-password/reset-password';
 import { CreateTimesheet } from './features/create-timesheet/create-timesheet';
+import { EditTimesheet } from './features/edit-timesheet/edit-timesheet';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
@@ -23,6 +24,11 @@ export const routes: Routes = [
   {
     path: 'dashboard/week/:id',
     component: Dailylogs,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'dashboard/week/:id/edit',
+    component: EditTimesheet,
     canActivate: [authGuard],
   },
   { path: '', canActivate: [redirectGuard], children: [] },
