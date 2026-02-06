@@ -42,7 +42,7 @@ export class Dailylogs {
           this.isLoadingWeeklyLog.set(false);
         },
         error: (err) => {
-          console.error('Failed to load weekly log', err);
+          console.error('Failed to load weeklylog', err);
           this.isLoadingWeeklyLog.set(false);
         },
       });
@@ -50,11 +50,17 @@ export class Dailylogs {
   });
 
   totalHours = computed(() =>
-    this.service.dailyLogs().reduce((sum, log) => sum + log.hours, 0),
+    this.service
+      .dailyLogs()
+      .reduce((sum, log) => sum + log.hours, 0)
+      .toFixed(2),
   );
 
   totalMileage = computed(() =>
-    this.service.dailyLogs().reduce((sum, log) => sum + log.mileage, 0),
+    this.service
+      .dailyLogs()
+      .reduce((sum, log) => sum + log.mileage, 0)
+      .toFixed(2),
   );
 
   totalCharges = computed(() =>
@@ -63,7 +69,8 @@ export class Dailylogs {
       .reduce(
         (sum, log) => sum + log.tollCharge + log.parkingFee + log.otherCharges,
         0,
-      ),
+      )
+      .toFixed(2),
   );
 
   editTimesheet() {
