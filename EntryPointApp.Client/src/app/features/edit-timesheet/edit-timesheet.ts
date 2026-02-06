@@ -47,10 +47,15 @@ export class EditTimesheet {
   private cdr = inject(ChangeDetectorRef);
 
   weeklyLogId = toSignal(this.route.paramMap);
+  timesheetForm: FormGroup;
   isLoading = signal(false);
   isLoadingData = signal(true);
   weeklyLog = signal<WeeklyLog | null>(null);
   dayForms = signal<DayForm[]>([]);
+
+  constructor() {
+    this.timesheetForm = this.fb.group({});
+  }
 
   loadEffect = effect(() => {
     const id = this.weeklyLogId()?.get('id');
