@@ -655,6 +655,17 @@ namespace EntryPointApp.Api.Services.DailyLog
                     }
                 }
 
+                var allDaysFilled = request.DailyLogs.Count == 7 && 
+                    request.DailyLogs.All(d => d.Hours > 0 || d.Comment == "Day off");
+
+                if (allDaysFilled && weeklyLog.Status == Models.Enums.TimesheetStatus.Draft)
+                {
+                    weeklyLog.Status = Models.Enums.TimesheetStatus.Pending;
+                    weeklyLog.UpdatedAt = DateTime.UtcNow;
+                    
+                    _logger.LogInformation("Weeklylog {WeeklyLogId} status changed to Pending (all days filled)", weeklyLogId);
+                }
+
                 var logsToDelete = existingDailyLogs
                     .Where(d => !processedIds.Contains(d.Id))
                     .ToList();
@@ -671,7 +682,7 @@ namespace EntryPointApp.Api.Services.DailyLog
                     return new DailyLogListResult
                     {
                         Success = false,
-                        Message = "Some daily logs could not be updated",
+                        Message = "Some dailylogs could not be updated",
                         Errors = errors
                     };
                 }
@@ -680,7 +691,7 @@ namespace EntryPointApp.Api.Services.DailyLog
                 await _weeklyLogService.RecalculateWeeklyTotalsAsync(weeklyLogId);
                 await transaction.CommitAsync();
 
-                _logger.LogInformation("Successfully updated daily logs for weeklylog {WeeklyLogId}. Created/Updated: {Count}, Deleted: {DeletedCount}",
+                _logger.LogInformation("Successfully updated dailylogs for weeklylog {WeeklyLogId}. Created/Updated: {Count}, Deleted: {DeletedCount}",
                     weeklyLogId, responses.Count, logsToDelete.Count);
 
                 return new DailyLogListResult
