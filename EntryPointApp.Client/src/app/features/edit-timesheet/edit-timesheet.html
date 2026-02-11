@@ -49,9 +49,16 @@
             >
               <legend class="fieldset-legend">Daily Entries</legend>
 
-              <div class="text-sm text-base-content/60 mb-4">
-                Update your work days or mark days as off. All days will be
-                saved.
+              <div class="flex justify-between items-center mb-4">
+                <div class="text-sm text-base-content/60">
+                  Update your work days or mark days as off.
+                </div>
+                <div class="text-sm font-semibold">
+                  Days Completed: {{ filledDaysCount() }}/7
+                  @if (allDaysFilled()) {
+                    <span class="text-success ml-2">✓ Ready to submit</span>
+                  }
+                </div>
               </div>
 
               <div class="space-y-6">
@@ -176,9 +183,11 @@
             >
               @if (isLoading()) {
                 <span class="loading loading-spinner loading-md"></span>
-                Saving...
+                {{
+                  allDaysFilled() ? "Submitting for Approval..." : "Saving..."
+                }}
               } @else {
-                Save Changes
+                {{ allDaysFilled() ? "Submit for Approval" : "Save Changes" }}
               }
             </button>
             <button

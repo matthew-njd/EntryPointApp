@@ -67,16 +67,35 @@
         >
           <legend class="fieldset-legend">Daily Entries</legend>
 
-          <div class="text-sm text-base-content/60 mb-4">
-            Fill out the days you worked. You can enter data for 1-7 days.
+          <div class="flex justify-between items-center mb-4">
+            <div class="text-sm text-base-content/60">
+              Fill out your work days or mark days as off.
+            </div>
+            <div class="text-sm font-semibold">
+              Days Completed: {{ filledDaysCount() }}/7
+              @if (allDaysFilled()) {
+                <span class="text-success ml-2">✓ Ready to submit</span>
+              }
+            </div>
           </div>
 
           <div class="space-y-6">
             @for (day of dayForms(); track day.date) {
               <div class="bg-base-100 rounded-lg p-4 border border-base-300">
-                <h3 class="font-semibold mb-3">
-                  {{ day.dayName }}, {{ day.date | date: "MMM d, y" }}
-                </h3>
+                <div class="flex justify-between items-center mb-3">
+                  <h3 class="font-semibold">
+                    {{ day.dayName }}, {{ day.date | date: "MMM d, y" }}
+                  </h3>
+
+                  <label class="label cursor-pointer gap-2">
+                    <span class="label-text text-sm">Day Off</span>
+                    <input
+                      type="checkbox"
+                      class="checkbox checkbox-sm"
+                      [formControl]="$any(day.formGroup.get('isDayOff'))"
+                    />
+                  </label>
+                </div>
 
                 <div
                   [formGroup]="day.formGroup"
@@ -180,9 +199,9 @@
         >
           @if (isLoading()) {
             <span class="loading loading-spinner loading-md"></span>
-            Creating...
+            {{ allDaysFilled() ? "Submitting for Approval..." : "Creating..." }}
           } @else {
-            Create Timesheet
+            {{ allDaysFilled() ? "Submit for Approval" : "Create Timesheet" }}
           }
         </button>
         <button

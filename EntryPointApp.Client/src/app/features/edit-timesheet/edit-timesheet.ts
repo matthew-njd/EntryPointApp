@@ -4,6 +4,7 @@ import {
   inject,
   signal,
   effect,
+  computed,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -52,6 +53,19 @@ export class EditTimesheet {
   isLoadingData = signal(true);
   weeklyLog = signal<WeeklyLog | null>(null);
   dayForms = signal<DayForm[]>([]);
+  formChangeTrigger = signal(0);
+
+  filledDaysCount = computed(() => {
+    this.formChangeTrigger();
+    return this.dayForms().filter((day) => {
+      const values = day.formGroup.getRawValue();
+      return values.hours > 0 || values.comment?.toLowerCase() === 'day off';
+    }).length;
+  });
+
+  allDaysFilled = computed(() => {
+    return this.filledDaysCount() === 7;
+  });
 
   constructor() {
     this.timesheetForm = this.fb.group({});
@@ -127,7 +141,7 @@ export class EditTimesheet {
 
       const existingLog = existingLogs.find((log) => log.date === dateStr);
 
-      const isDayOff = existingLog?.comment === 'Day off';
+      const isDayOff = existingLog?.comment?.toLowerCase() === 'day off';
 
       forms.push({
         dayName,
@@ -164,9 +178,15 @@ export class EditTimesheet {
 
       const lastForm = forms[forms.length - 1];
       lastForm.formGroup.get('isDayOff')?.valueChanges.subscribe((isDayOff) => {
-        this.handleDayOffChange(lastForm.formGroup, isDayOff);
+        this.handleDayOffChange(lastForm.formGroup, isDayOff ?? false);
       });
     }
+
+    forms.forEach((form) => {
+      form.formGroup.valueChanges.subscribe(() => {
+        this.formChangeTrigger.update((v) => v + 1);
+      });
+    });
 
     this.dayForms.set(forms);
   }

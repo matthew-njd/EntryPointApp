@@ -1,4 +1,10 @@
-import { ChangeDetectorRef, Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
@@ -38,6 +44,19 @@ export class CreateTimesheet {
   isLoading = signal(false);
   calculatedDateTo = signal<string>('');
   dayForms = signal<DayForm[]>([]);
+  formChangeTrigger = signal(0);
+
+  filledDaysCount = computed(() => {
+    this.formChangeTrigger();
+    return this.dayForms().filter((day) => {
+      const values = day.formGroup.getRawValue();
+      return values.hours > 0 || values.comment?.toLowerCase() === 'day off';
+    }).length;
+  });
+
+  allDaysFilled = computed(() => {
+    return this.filledDaysCount() === 7;
+  });
 
   constructor() {
     this.timesheetForm = this.fb.group({
@@ -78,23 +97,60 @@ export class CreateTimesheet {
       const dateStr = currentDate.toISOString().split('T')[0];
       const dayName = dayNames[currentDate.getDay()];
 
+      const formGroup = this.fb.group({
+        isDayOff: [false],
+        hours: [0, [Validators.min(0), Validators.max(24)]],
+        mileage: [0, [Validators.min(0)]],
+        tollCharge: [0, [Validators.min(0)]],
+        parkingFee: [0, [Validators.min(0)]],
+        otherCharges: [0, [Validators.min(0)]],
+        comment: ['', [Validators.maxLength(500)]],
+      });
+
       forms.push({
         dayName,
         date: dateStr,
-        formGroup: this.fb.group({
-          hours: [0, [Validators.min(0), Validators.max(24)]],
-          mileage: [0, [Validators.min(0)]],
-          tollCharge: [0, [Validators.min(0)]],
-          parkingFee: [0, [Validators.min(0)]],
-          otherCharges: [0, [Validators.min(0)]],
-          comment: ['', [Validators.maxLength(500)]],
-        }),
+        formGroup,
+      });
+
+      formGroup.get('isDayOff')?.valueChanges.subscribe((isDayOff) => {
+        this.handleDayOffChange(formGroup, isDayOff ?? false);
       });
     }
+
+    forms.forEach((form) => {
+      form.formGroup.valueChanges.subscribe(() => {
+        this.formChangeTrigger.update((v) => v + 1);
+      });
+    });
 
     this.dayForms.set(forms);
   }
 
+  handleDayOffChange(formGroup: FormGroup, isDayOff: boolean): void {
+    if (isDayOff) {
+      formGroup.get('hours')?.setValue(0);
+      formGroup.get('hours')?.disable();
+      formGroup.get('mileage')?.setValue(0);
+      formGroup.get('mileage')?.disable();
+      formGroup.get('tollCharge')?.setValue(0);
+      formGroup.get('tollCharge')?.disable();
+      formGroup.get('parkingFee')?.setValue(0);
+      formGroup.get('parkingFee')?.disable();
+      formGroup.get('otherCharges')?.setValue(0);
+      formGroup.get('otherCharges')?.disable();
+      formGroup.get('comment')?.setValue('Day off');
+      formGroup.get('comment')?.disable();
+    } else {
+      formGroup.get('hours')?.enable();
+      formGroup.get('mileage')?.enable();
+      formGroup.get('tollCharge')?.enable();
+      formGroup.get('parkingFee')?.enable();
+      formGroup.get('otherCharges')?.enable();
+      formGroup.get('comment')?.setValue('');
+      formGroup.get('comment')?.enable();
+    }
+  }
   onSubmit(): void {
     if (this.timesheetForm.invalid) {
       this.timesheetForm.markAllAsTouched();
