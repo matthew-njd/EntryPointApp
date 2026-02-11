@@ -318,7 +318,23 @@ namespace EntryPointApp.Api.Services.DailyLog
                 }
 
                 await _weeklyLogService.RecalculateWeeklyTotalsAsync(weeklyLogId);
+
+                var allDaysFilled = responses.Count == 7 && responses.All(r => 
+                    r.Hours > 0 || r.Comment.Equals("Day off", StringComparison.OrdinalIgnoreCase)
+                );
+
+                if (allDaysFilled && weeklyLog.Status == Models.Enums.TimesheetStatus.Draft)
+                {
+                    weeklyLog.Status = Models.Enums.TimesheetStatus.Pending;
+                    weeklyLog.UpdatedAt = DateTime.UtcNow;
+                    await _context.SaveChangesAsync();
+                    
+                    _logger.LogInformation("WeeklyLog {WeeklyLogId} status changed to Pending (all 7 days filled)", weeklyLogId);
+                }
+
                 await transaction.CommitAsync();
+
+                var statusMessage = allDaysFilled ? " Timesheet submitted for approval!" : "";
 
                 _logger.LogInformation("Successfully created {Count} dailylogs for weeklylog {WeeklyLogId}",
                     responses.Count, weeklyLogId);
@@ -655,17 +671,6 @@ namespace EntryPointApp.Api.Services.DailyLog
                     }
                 }
 
-                var allDaysFilled = request.DailyLogs.Count == 7 && 
-                    request.DailyLogs.All(d => d.Hours > 0 || d.Comment == "Day off");
-
-                if (allDaysFilled && weeklyLog.Status == Models.Enums.TimesheetStatus.Draft)
-                {
-                    weeklyLog.Status = Models.Enums.TimesheetStatus.Pending;
-                    weeklyLog.UpdatedAt = DateTime.UtcNow;
-                    
-                    _logger.LogInformation("Weeklylog {WeeklyLogId} status changed to Pending (all days filled)", weeklyLogId);
-                }
-
                 var logsToDelete = existingDailyLogs
                     .Where(d => !processedIds.Contains(d.Id))
                     .ToList();
@@ -689,9 +694,25 @@ namespace EntryPointApp.Api.Services.DailyLog
 
                 await _context.SaveChangesAsync();
                 await _weeklyLogService.RecalculateWeeklyTotalsAsync(weeklyLogId);
+
+                var allDaysFilled = responses.Count == 7 && responses.All(r => 
+                    r.Hours > 0 || r.Comment.Equals("Day off", StringComparison.OrdinalIgnoreCase)
+                );
+
+                if (allDaysFilled && weeklyLog.Status == Models.Enums.TimesheetStatus.Draft)
+                {
+                    weeklyLog.Status = Models.Enums.TimesheetStatus.Pending;
+                    weeklyLog.UpdatedAt = DateTime.UtcNow;
+                    await _context.SaveChangesAsync();
+                    
+                    _logger.LogInformation("WeeklyLog {WeeklyLogId} status changed to Pending (all 7 days filled)", weeklyLogId);
+                }
+
                 await transaction.CommitAsync();
 
-                _logger.LogInformation("Successfully updated dailylogs for weeklylog {WeeklyLogId}. Created/Updated: {Count}, Deleted: {DeletedCount}",
+                var statusMessage = allDaysFilled ? " Timesheet submitted for approval!" : "";
+                
+                _logger.LogInformation("Successfully updated daily logs for weeklylog {WeeklyLogId}. Created/Updated: {Count}, Deleted: {DeletedCount}",
                     weeklyLogId, responses.Count, logsToDelete.Count);
 
                 return new DailyLogListResult
