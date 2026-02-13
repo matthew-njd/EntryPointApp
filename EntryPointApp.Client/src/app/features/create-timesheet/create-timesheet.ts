@@ -151,15 +151,10 @@ export class CreateTimesheet {
       formGroup.get('comment')?.enable();
     }
   }
+
   onSubmit(): void {
     if (this.timesheetForm.invalid) {
       this.timesheetForm.markAllAsTouched();
-      return;
-    }
-
-    const filledDays = this.getFilledDays();
-    if (filledDays.length === 0) {
-      this.toastService.error('Please enter data for at least one day');
       return;
     }
 
@@ -176,15 +171,30 @@ export class CreateTimesheet {
         if (weeklyLogResponse.success && weeklyLogResponse.data) {
           const weeklyLogId = weeklyLogResponse.data.id;
 
-          const dailyLogRequests: DailyLogRequest[] = filledDays.map((day) => ({
-            date: day.date,
-            hours: day.formGroup.value.hours,
-            mileage: day.formGroup.value.mileage,
-            tollCharge: day.formGroup.value.tollCharge,
-            parkingFee: day.formGroup.value.parkingFee,
-            otherCharges: day.formGroup.value.otherCharges,
-            comment: day.formGroup.value.comment || '',
-          }));
+          const dailyLogRequests: DailyLogRequest[] = this.dayForms().map(
+            (day) => {
+              const isDayOff = day.formGroup.get('isDayOff')?.value;
+              return {
+                date: day.date,
+                hours: isDayOff ? 0 : day.formGroup.get('hours')?.value || 0,
+                mileage: isDayOff
+                  ? 0
+                  : day.formGroup.get('mileage')?.value || 0,
+                tollCharge: isDayOff
+                  ? 0
+                  : day.formGroup.get('tollCharge')?.value || 0,
+                parkingFee: isDayOff
+                  ? 0
+                  : day.formGroup.get('parkingFee')?.value || 0,
+                otherCharges: isDayOff
+                  ? 0
+                  : day.formGroup.get('otherCharges')?.value || 0,
+                comment: isDayOff
+                  ? 'Day off'
+                  : day.formGroup.get('comment')?.value || '',
+              };
+            },
+          );
 
           this.dailyLogService
             .createDailyLogsBatch(weeklyLogId, dailyLogRequests)
@@ -192,7 +202,7 @@ export class CreateTimesheet {
               next: (dailyLogResponse) => {
                 this.isLoading.set(false);
                 if (dailyLogResponse.success) {
-                  this.toastService.success('Timesheet created successfully!');
+                  this.toastService.success(dailyLogResponse.message);
                   this.router.navigate(['/dashboard/week', weeklyLogId]);
                 } else {
                   this.toastService.error(
@@ -222,20 +232,6 @@ export class CreateTimesheet {
           error.error?.message || 'Failed to create timesheet',
         );
       },
-    });
-  }
-
-  getFilledDays(): DayForm[] {
-    return this.dayForms().filter((day) => {
-      const values = day.formGroup.value;
-      return (
-        values.hours > 0 ||
-        values.mileage > 0 ||
-        values.tollCharge > 0 ||
-        values.parkingFee > 0 ||
-        values.otherCharges > 0 ||
-        values.comment.trim() !== ''
-      );
     });
   }
 
