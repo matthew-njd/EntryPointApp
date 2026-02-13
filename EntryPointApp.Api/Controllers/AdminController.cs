@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using EntryPointApp.Api.Models.Common;
 using EntryPointApp.Api.Models.Dtos.Users;
 using EntryPointApp.Api.Services.Admin;
@@ -25,6 +26,8 @@ namespace EntryPointApp.Api.Controllers
         {
             try
             {
+                var adminId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
                 var result = await _adminService.GetAllUsersAsync();
 
                 if (!result.Success)
@@ -36,6 +39,8 @@ namespace EntryPointApp.Api.Controllers
                         Errors = result.Errors
                     });
                 }
+
+                _logger.LogInformation("Admin {AdminId} retrieved all users", adminId);
 
                 return Ok(new ApiResponse<List<UserDto>>
                 {
@@ -71,6 +76,8 @@ namespace EntryPointApp.Api.Controllers
         {
             try
             {
+                var adminId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
                 if (userId <= 0)
                 {
                     return BadRequest(new ApiResponse
@@ -92,6 +99,8 @@ namespace EntryPointApp.Api.Controllers
                         Errors = result.Errors
                     });
                 }
+
+                _logger.LogInformation("Admin {AdminId} retrieved user {UserId}", adminId, userId);
 
                 return Ok(new ApiResponse<UserDto>
                 {
@@ -127,6 +136,8 @@ namespace EntryPointApp.Api.Controllers
         {
             try
             {
+                var adminId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
                 if (userId <= 0)
                 {
                     return BadRequest(new ApiResponse
@@ -156,13 +167,15 @@ namespace EntryPointApp.Api.Controllers
 
                 if (!result.Success)
                 {
-                    return BadRequest(new ApiResponse
+                    return NotFound(new ApiResponse
                     {
                         Success = false,
                         Message = result.Message,
                         Errors = result.Errors
                     });
                 }
+
+                _logger.LogInformation("Admin {AdminId} updated role for user {UserId} to {Role}", adminId, userId, request.Role);
 
                 return Ok(new ApiResponse<UserDto>
                 {
@@ -198,6 +211,8 @@ namespace EntryPointApp.Api.Controllers
         {
             try
             {
+                var adminId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
                 if (userId <= 0)
                 {
                     return BadRequest(new ApiResponse
@@ -227,13 +242,15 @@ namespace EntryPointApp.Api.Controllers
 
                 if (!result.Success)
                 {
-                    return BadRequest(new ApiResponse
+                    return NotFound(new ApiResponse
                     {
                         Success = false,
                         Message = result.Message,
                         Errors = result.Errors
                     });
                 }
+
+                _logger.LogInformation("Admin {AdminId} assigned manager {ManagerId} to user {UserId}", adminId, request.ManagerId, userId);
 
                 return Ok(new ApiResponse<UserDto>
                 {
@@ -269,6 +286,8 @@ namespace EntryPointApp.Api.Controllers
         {
             try
             {
+                var adminId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
                 if (userId <= 0)
                 {
                     return BadRequest(new ApiResponse
@@ -283,13 +302,15 @@ namespace EntryPointApp.Api.Controllers
 
                 if (!result.Success)
                 {
-                    return BadRequest(new ApiResponse
+                    return NotFound(new ApiResponse
                     {
                         Success = false,
                         Message = result.Message,
                         Errors = result.Errors
                     });
                 }
+
+                _logger.LogInformation("Admin {AdminId} removed manager from user {UserId}", adminId, userId);
 
                 return Ok(new ApiResponse<UserDto>
                 {
@@ -325,6 +346,8 @@ namespace EntryPointApp.Api.Controllers
         {
             try
             {
+                var adminId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
                 if (userId <= 0)
                 {
                     return BadRequest(new ApiResponse
@@ -339,13 +362,15 @@ namespace EntryPointApp.Api.Controllers
 
                 if (!result.Success)
                 {
-                    return BadRequest(new ApiResponse
+                    return NotFound(new ApiResponse
                     {
                         Success = false,
                         Message = result.Message,
                         Errors = result.Errors
                     });
                 }
+
+                _logger.LogInformation("Admin {AdminId} deactivated user {UserId}", adminId, userId);
 
                 return Ok(new ApiResponse<UserDto>
                 {
@@ -381,6 +406,8 @@ namespace EntryPointApp.Api.Controllers
         {
             try
             {
+                var adminId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
                 if (userId <= 0)
                 {
                     return BadRequest(new ApiResponse
@@ -395,13 +422,15 @@ namespace EntryPointApp.Api.Controllers
 
                 if (!result.Success)
                 {
-                    return BadRequest(new ApiResponse
+                    return NotFound(new ApiResponse
                     {
                         Success = false,
                         Message = result.Message,
                         Errors = result.Errors
                     });
                 }
+
+                _logger.LogInformation("Admin {AdminId} activated user {UserId}", adminId, userId);
 
                 return Ok(new ApiResponse<UserDto>
                 {
