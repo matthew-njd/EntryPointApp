@@ -4,6 +4,7 @@ using EntryPointApp.Api.Data.Context;
 using EntryPointApp.Api.Extensions;
 using EntryPointApp.Api.Middleware;
 using EntryPointApp.Api.Models.Configuration;
+using EntryPointApp.Api.Services.Admin;
 using EntryPointApp.Api.Services.Authentication;
 using EntryPointApp.Api.Services.DailyLog;
 using EntryPointApp.Api.Services.Email;
@@ -55,6 +56,8 @@ builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 
 builder.Services.AddScoped<IWeeklyLogService, WeeklyLogService>();
 builder.Services.AddScoped<IDailyLogService, DailyLogService>();
+
+builder.Services.AddScoped<IAdminService, AdminService>();
 
 builder.Services.AddSecurityServices(builder.Configuration);
 
