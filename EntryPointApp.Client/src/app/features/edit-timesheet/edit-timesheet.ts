@@ -47,8 +47,8 @@ export class EditTimesheet {
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
 
-  weeklyLogId = toSignal(this.route.paramMap);
   timesheetForm: FormGroup;
+  weeklyLogId = toSignal(this.route.paramMap);
   isLoading = signal(false);
   isLoadingData = signal(true);
   weeklyLog = signal<WeeklyLog | null>(null);

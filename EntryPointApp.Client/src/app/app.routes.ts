@@ -9,6 +9,9 @@ import { ForgotPassword } from './features/auth/forgot-password/forgot-password'
 import { ResetPassword } from './features/auth/reset-password/reset-password';
 import { CreateTimesheet } from './features/create-timesheet/create-timesheet';
 import { EditTimesheet } from './features/edit-timesheet/edit-timesheet';
+import { Admin } from './features/admin/admin';
+import { adminGuard } from './core/guards/admin.guard';
+import { UserEdit } from './features/user-edit/user-edit';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
@@ -30,6 +33,16 @@ export const routes: Routes = [
     path: 'dashboard/week/:id/edit',
     component: EditTimesheet,
     canActivate: [authGuard],
+  },
+  {
+    path: 'admin',
+    component: Admin,
+    canActivate: [adminGuard],
+  },
+  {
+    path: 'admin/users/:id/edit',
+    component: UserEdit,
+    canActivate: [adminGuard],
   },
   { path: '', canActivate: [redirectGuard], children: [] },
   { path: '**', redirectTo: '' },

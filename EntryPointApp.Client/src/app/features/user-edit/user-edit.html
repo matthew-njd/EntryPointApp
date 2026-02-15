@@ -1,0 +1,249 @@
+<div class="flex flex-col min-h-screen">
+  <div class="grow mt-16 sm:mt-40 max-w-2xl mx-auto px-4 w-full">
+    @if (isLoadingData()) {
+      <div class="flex justify-center items-center py-20">
+        <span class="loading loading-spinner loading-xl"></span>
+      </div>
+    } @else {
+      <div class="mb-8">
+        <button class="btn btn-sm btn-primary" (click)="goBack()">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="m7.825 13l4.9 4.9q.3.3.288.7t-.313.7q-.3.275-.7.288t-.7-.288l-6.6-6.6q-.15-.15-.213-.325T4.426 12t.063-.375t.212-.325l6.6-6.6q.275-.275.688-.275t.712.275q.3.3.3.713t-.3.712L7.825 11H19q.425 0 .713.288T20 12t-.288.713T19 13z"
+            />
+          </svg>
+          Back to Users
+        </button>
+      </div>
+
+      @if (user()) {
+        <h1 class="text-3xl mb-6">Edit User</h1>
+
+        <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+          <fieldset
+            class="fieldset bg-base-200 border-base-300 rounded-box border p-6 mb-6"
+          >
+            <legend class="fieldset-legend">User Information</legend>
+
+            <div class="space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="label">
+                    <span class="label-text font-semibold">Name</span>
+                  </label>
+                  <div class="text-base-content">
+                    {{ getUserFullName(user()!) }}
+                  </div>
+                </div>
+
+                <div>
+                  <label class="label">
+                    <span class="label-text font-semibold">Email</span>
+                  </label>
+                  <div class="text-base-content">{{ user()!.email }}</div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="label">
+                    <span class="label-text font-semibold">Status</span>
+                  </label>
+                  <div>
+                    <span
+                      class="badge"
+                      [ngClass]="
+                        user()!.isActive ? 'badge-success' : 'badge-ghost'
+                      "
+                    >
+                      {{ user()!.isActive ? "Active" : "Inactive" }}
+                    </span>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="label">
+                    <span class="label-text font-semibold">Current Role</span>
+                  </label>
+                  <div>
+                    <span
+                      class="badge badge-lg"
+                      [ngClass]="{
+                        'badge-info': user()!.role === 'User',
+                        'badge-warning': user()!.role === 'Manager',
+                        'badge-error': user()!.role === 'Admin',
+                      }"
+                    >
+                      {{ user()!.role }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              @if (user()!.managerName) {
+                <div>
+                  <label class="label">
+                    <span class="label-text font-semibold"
+                      >Current Manager</span
+                    >
+                  </label>
+                  <div class="text-base-content">
+                    {{ user()!.managerName }}
+                  </div>
+                </div>
+              }
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="label">
+                    <span class="label-text font-semibold">Created</span>
+                  </label>
+                  <div class="text-base-content text-sm">
+                    {{ user()!.createdAt | date: "MMM d, y 'at' h:mm a" }}
+                  </div>
+                </div>
+
+                <div>
+                  <label class="label">
+                    <span class="label-text font-semibold">Last Updated</span>
+                  </label>
+                  <div class="text-base-content text-sm">
+                    {{ user()!.updatedAt | date: "MMM d, y 'at' h:mm a" }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset
+            class="fieldset bg-base-200 border-base-300 rounded-box border p-6 mb-6"
+          >
+            <legend class="fieldset-legend">Role Management</legend>
+
+            <div class="form-control mb-4">
+              <label class="label">
+                <span class="label-text">Select Role*</span>
+              </label>
+              <select
+                class="select select-bordered"
+                formControlName="role"
+                [class.select-error]="
+                  roleControl?.invalid && roleControl?.touched
+                "
+              >
+                <option [value]="UserRole.User">User</option>
+                <option [value]="UserRole.Manager">Manager</option>
+                <option [value]="UserRole.Admin">Admin</option>
+              </select>
+              @if (roleControl?.invalid && roleControl?.touched) {
+                <div class="text-error text-sm mt-1">
+                  <span>Role is required</span>
+                </div>
+              }
+            </div>
+
+            <div class="alert alert-info">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                class="stroke-current shrink-0 w-6 h-6"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                ></path>
+              </svg>
+              <span>{{ getRoleDescription(roleControl?.value) }}</span>
+            </div>
+          </fieldset>
+
+          @if (roleControl?.value === UserRole.User) {
+            <fieldset
+              class="fieldset bg-base-200 border-base-300 rounded-box border p-6 mb-6"
+            >
+              <legend class="fieldset-legend">Manager Assignment</legend>
+
+              @if (availableManagers().length > 0) {
+                <div class="form-control">
+                  <label class="label">
+                    <span class="label-text">Assign Manager</span>
+                  </label>
+                  <select
+                    class="select select-bordered"
+                    formControlName="managerId"
+                  >
+                    <option [value]="null">No manager assigned</option>
+                    @for (manager of availableManagers(); track manager.id) {
+                      <option [value]="manager.id">
+                        {{ getUserFullName(manager) }} ({{ manager.email }})
+                      </option>
+                    }
+                  </select>
+                  <label class="label">
+                    <span class="label-text-alt text-base-content/60">
+                      Users must be assigned to a manager to submit timesheets
+                    </span>
+                  </label>
+                </div>
+              } @else {
+                <div class="alert alert-warning">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="stroke-current shrink-0 h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                    />
+                  </svg>
+                  <span>
+                    No active managers available. Please promote a user to
+                    Manager role first.
+                  </span>
+                </div>
+              }
+            </fieldset>
+          }
+
+          <div class="flex gap-2">
+            <button
+              type="submit"
+              class="btn btn-neutral flex-1"
+              [disabled]="isLoading() || userForm.invalid"
+            >
+              @if (isLoading()) {
+                <span class="loading loading-spinner loading-md"></span>
+                Saving Changes...
+              } @else {
+                Save Changes
+              }
+            </button>
+            <button
+              type="button"
+              class="btn btn-ghost"
+              (click)="goBack()"
+              [disabled]="isLoading()"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      }
+    }
+  </div>
+
+  <app-footer class="mt-8"></app-footer>
+</div>

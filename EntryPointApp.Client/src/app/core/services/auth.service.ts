@@ -26,7 +26,7 @@ export class AuthService {
 
   // track current user state
   private currentUserSubject = new BehaviorSubject<UserResponse | null>(
-    this.getUserFromStorage()
+    this.getUserFromStorage(),
   );
   public currentUser$ = this.currentUserSubject.asObservable();
 
@@ -46,7 +46,7 @@ export class AuthService {
           }
           throw new Error(response.message || 'Login failed');
         }),
-        catchError(this.handleError)
+        catchError(this.handleError),
       );
   }
 
@@ -61,7 +61,7 @@ export class AuthService {
           }
           throw new Error(response.message || 'Failed to send reset email');
         }),
-        catchError(this.handleError)
+        catchError(this.handleError),
       );
   }
 
@@ -75,18 +75,17 @@ export class AuthService {
           }
           throw new Error(response.message || 'Failed to reset password');
         }),
-        catchError(this.handleError)
+        catchError(this.handleError),
       );
   }
 
   register(
-    registerRequest: RegisterRequest
+    registerRequest: RegisterRequest,
   ): Observable<ApiResponse<RegisterResponse>> {
     return this.http
-      .post<ApiResponse<RegisterResponse>>(
-        `${this.apiUrl}/register`,
-        registerRequest
-      )
+      .post<
+        ApiResponse<RegisterResponse>
+      >(`${this.apiUrl}/register`, registerRequest)
       .pipe(
         map((response) => {
           if (response.success && response.data) {
@@ -96,7 +95,7 @@ export class AuthService {
           }
           throw new Error(response.message || 'Registration failed');
         }),
-        catchError(this.handleError)
+        catchError(this.handleError),
       );
   }
 
@@ -140,7 +139,16 @@ export class AuthService {
   }
 
   getCurrentUser(): UserResponse | null {
-    return this.currentUserSubject.value;
+    let user = this.currentUserSubject.value;
+
+    if (!user && this.isBrowser) {
+      user = this.getUserFromStorage();
+      if (user) {
+        this.currentUserSubject.next(user);
+      }
+    }
+
+    return user;
   }
 
   private storeAuthData(loginResponse: LoginResponse): void {

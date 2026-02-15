@@ -51,9 +51,20 @@ export class Login {
 
     this.authService.login(loginRequest).subscribe({
       next: (response) => {
-        this.isLoading = false;
-        this.toastService.success(response.message);
-        this.router.navigate(['/dashboard']);
+        if (response.success && response.data) {
+          const user = response.data.user;
+
+          this.isLoading = false;
+          this.toastService.success(response.message);
+
+          if (user.role === 'Admin') {
+            this.router.navigate(['/admin']);
+          } else if (user.role === 'Manager') {
+            this.router.navigate(['/dashboard']); // need to create manager-specific route
+          } else {
+            this.router.navigate(['/dashboard']);
+          }
+        }
       },
       error: (error) => {
         this.isLoading = false;
