@@ -26,8 +26,6 @@ namespace EntryPointApp.Api.Models.Entities
 
         public int? ManagerId { get; set; }
 
-        public bool IsManager { get; set; } = false;
-
         [StringLength(256)]
         public string? PasswordResetToken { get; set; }
 

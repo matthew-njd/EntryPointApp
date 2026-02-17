@@ -163,24 +163,16 @@ namespace EntryPointApp.Api.Services.Admin
                             Errors = ["Cannot demote manager who has active managed users. Reassign their users first."]
                         };
                     }
-                    user.IsManager = false;
                 }
 
                 if (newRole == UserRole.Manager)
                 {
-                    user.IsManager = true;
                     user.ManagerId = null;
                 }
 
                 if (newRole == UserRole.Admin)
                 {
-                    user.IsManager = false;
                     user.ManagerId = null;
-                }
-
-                if (newRole == UserRole.User)
-                {
-                    user.IsManager = false;
                 }
 
                 user.Role = newRole;
@@ -451,7 +443,7 @@ namespace EntryPointApp.Api.Services.Admin
                 }
 
                 // Check if manager has active managed users
-                if (user.Role == UserRole.Manager || user.IsManager)
+                if (user.Role == UserRole.Manager)
                 {
                     var hasManagedUsers = user.ManagedUsers.Any(u => u.IsActive);
                     if (hasManagedUsers)

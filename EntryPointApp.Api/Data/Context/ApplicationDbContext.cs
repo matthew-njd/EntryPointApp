@@ -36,7 +36,7 @@ namespace EntryPointApp.Api.Data.Context
                     .HasForeignKey(e => e.ManagerId)
                     .OnDelete(DeleteBehavior.Restrict);
                 entity.HasIndex(e => e.ManagerId);
-                entity.HasIndex(e => e.IsManager);
+                entity.HasIndex(e => e.Role);
             });
         }
 
