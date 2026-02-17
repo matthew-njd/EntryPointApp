@@ -24,6 +24,7 @@ import {
 } from '../../core/models/dailylog.model';
 import { ToastService } from '../../core/services/toast.service';
 import { Footer } from '../../shared/footer/footer';
+import { Nav } from '../../shared/nav/nav';
 
 interface DayForm {
   dayName: string;
@@ -34,7 +35,7 @@ interface DayForm {
 
 @Component({
   selector: 'app-edit-timesheet',
-  imports: [CommonModule, ReactiveFormsModule, Footer],
+  imports: [CommonModule, ReactiveFormsModule, Footer, Nav],
   templateUrl: './edit-timesheet.html',
   styleUrl: './edit-timesheet.css',
 })

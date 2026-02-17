@@ -19,6 +19,7 @@ import { WeeklyLogRequest } from '../../core/models/weeklylog.model';
 import { DailyLogRequest } from '../../core/models/dailylog.model';
 import { ToastService } from '../../core/services/toast.service';
 import { Footer } from '../../shared/footer/footer';
+import { Nav } from '../../shared/nav/nav';
 
 interface DayForm {
   dayName: string;
@@ -28,7 +29,7 @@ interface DayForm {
 
 @Component({
   selector: 'app-create-timesheet',
-  imports: [CommonModule, ReactiveFormsModule, Footer],
+  imports: [CommonModule, ReactiveFormsModule, Footer, Nav],
   templateUrl: './create-timesheet.html',
   styleUrl: './create-timesheet.css',
 })

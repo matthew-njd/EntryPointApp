@@ -16,10 +16,11 @@ import { AdminService } from '../../core/services/admin.service';
 import { ToastService } from '../../core/services/toast.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Footer } from '../../shared/footer/footer';
+import { Nav } from '../../shared/nav/nav';
 
 @Component({
   selector: 'app-user-edit',
-  imports: [CommonModule, ReactiveFormsModule, Footer],
+  imports: [CommonModule, ReactiveFormsModule, Footer, Nav],
   templateUrl: './user-edit.html',
   styleUrl: './user-edit.css',
 })

@@ -15,7 +15,6 @@
         <h1 class="text-3xl font-bold">User Management</h1>
       </div>
 
-      <!-- Stats Cards -->
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <app-card
           title="Total Users"
@@ -23,12 +22,12 @@
           cardClasses="text-info"
         ></app-card>
         <app-card
-          title="Managers"
+          title="Total Managers"
           [value]="service.totalManagers().toString()"
           cardClasses="text-warning"
         ></app-card>
         <app-card
-          title="Admins"
+          title="Total Admins"
           [value]="service.totalAdmins().toString()"
           cardClasses="text-error"
         ></app-card>
@@ -39,7 +38,6 @@
         ></app-card>
       </div>
 
-      <!-- Filters -->
       <div class="flex flex-col sm:flex-row gap-4 mb-6">
         <div class="form-control w-full sm:w-auto">
           <label class="label">
@@ -71,7 +69,6 @@
         </div>
       </div>
 
-      <!-- Users Table -->
       <div class="overflow-x-auto rounded-box bg-base-300">
         <table class="table">
           <thead>
@@ -111,7 +108,6 @@
                 </td>
                 <td>
                   <div class="flex gap-2">
-                    <!-- Edit User (Role & Manager) -->
                     <button
                       class="btn btn-xs btn-outline btn-primary"
                       (click)="editUser(user.id)"
@@ -130,7 +126,6 @@
                       </svg>
                     </button>
 
-                    <!-- Remove Manager (only show if user has manager) -->
                     @if (user.managerId && user.role === "User") {
                       <button
                         class="btn btn-xs btn-outline btn-warning"
@@ -151,7 +146,6 @@
                       </button>
                     }
 
-                    <!-- Activate/Deactivate -->
                     <button
                       class="btn btn-xs btn-outline"
                       [ngClass]="user.isActive ? 'btn-error' : 'btn-success'"

@@ -1,4 +1,6 @@
 <div class="flex flex-col min-h-screen">
+  <app-nav></app-nav>
+
   <div class="grow mt-16 sm:mt-40 max-w-2xl mx-auto px-4 w-full">
     @if (isLoadingData()) {
       <div class="flex justify-center items-center py-20">
@@ -127,8 +129,8 @@
             <legend class="fieldset-legend">Role Management</legend>
 
             <div class="form-control mb-4">
-              <label class="label">
-                <span class="label-text">Select Role*</span>
+              <label class="label mr-1">
+                <span class="label-text">Select Role:</span>
               </label>
               <select
                 class="select select-bordered"
@@ -174,8 +176,8 @@
 
               @if (availableManagers().length > 0) {
                 <div class="form-control">
-                  <label class="label">
-                    <span class="label-text">Assign Manager</span>
+                  <label class="label mr-1">
+                    <span class="label-text">Assign Manager:</span>
                   </label>
                   <select
                     class="select select-bordered"
