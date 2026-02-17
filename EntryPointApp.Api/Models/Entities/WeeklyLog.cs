@@ -19,6 +19,9 @@ namespace EntryPointApp.Api.Models.Entities
 
         public TimesheetStatus Status { get; set; } = TimesheetStatus.Draft;
 
+        [MaxLength(500)]
+        public string? ManagerComment { get; set; }
+
         public bool IsDeleted { get; set; } = false;
 
         public DateTime CreatedAt { get; set; }

@@ -58,23 +58,26 @@ namespace EntryPointApp.Api.Data.Context
         private void ConfigureWeeklyLog(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<WeeklyLog>(entity =>
-           {
-               entity.HasKey(e => e.Id);
-               entity.Property(e => e.UserId).IsRequired();
-               entity.Property(e => e.DateFrom).IsRequired();
-               entity.Property(e => e.DateTo).IsRequired();
-               entity.Property(e => e.TotalHours).HasPrecision(5, 2);
-               entity.Property(e => e.TotalCharges).HasPrecision(8, 2);
-               entity.Property(e => e.Status)
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.UserId).IsRequired();
+                entity.Property(e => e.DateFrom).IsRequired();
+                entity.Property(e => e.DateTo).IsRequired();
+                entity.Property(e => e.TotalHours).HasPrecision(5, 2);
+                entity.Property(e => e.TotalCharges).HasPrecision(8, 2);
+                entity.Property(e => e.Status)
                     .HasConversion<string>()
                     .HasMaxLength(20);
-               entity.HasOne(e => e.User)
+                entity.Property(e => e.ManagerComment)
+                    .HasMaxLength(500);
+                entity.HasOne(e => e.User)
                     .WithMany(u => u.WeeklyLogs)
                     .HasForeignKey(e => e.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
-               entity.HasIndex(e => e.UserId);
-               entity.HasIndex(e => new { e.UserId, e.DateFrom, e.DateTo });
-           });
+                entity.HasIndex(e => e.UserId);
+                entity.HasIndex(e => new { e.UserId, e.DateFrom, e.DateTo });
+                entity.HasIndex(e => e.Status);
+            });
         }
 
         private void ConfigureDailyLog(ModelBuilder modelBuilder)
