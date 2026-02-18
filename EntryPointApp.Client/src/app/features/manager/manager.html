@@ -41,7 +41,7 @@
           <select
             class="select select-bordered"
             [(ngModel)]="statusFilter"
-            (ngModelChange)="statusFilter.set($event)"
+            (ngModelChange)="statusFilter.set($event); onStatusFilterChange()"
           >
             <option value="All">All Statuses</option>
             <option value="Pending">Pending</option>
@@ -52,7 +52,7 @@
         </div>
       </div>
 
-      <div class="overflow-x-auto rounded-box bg-base-300">
+      <div class="overflow-x-auto rounded-box bg-base-300 mb-4">
         <table class="table">
           <thead>
             <tr>
@@ -66,7 +66,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (timesheet of filteredTimesheets(); track timesheet.id) {
+            @for (timesheet of service.timesheets(); track timesheet.id) {
               <tr>
                 <td>
                   <div>
@@ -138,6 +138,39 @@
           </tbody>
         </table>
       </div>
+
+      <!-- Pagination -->
+      @if (service.totalPages() > 1) {
+        <div class="flex justify-center mb-8">
+          <div class="join">
+            <button
+              class="join-item btn btn-square"
+              [disabled]="service.page() === 1"
+              (click)="onPageChange(service.page() - 1)"
+            >
+              «
+            </button>
+
+            @for (pageNum of pageNumbers(); track pageNum) {
+              <button
+                class="join-item btn btn-square"
+                [class.btn-active]="pageNum === service.page()"
+                (click)="onPageChange(pageNum)"
+              >
+                {{ pageNum }}
+              </button>
+            }
+
+            <button
+              class="join-item btn btn-square"
+              [disabled]="service.page() === service.totalPages()"
+              (click)="onPageChange(service.page() + 1)"
+            >
+              »
+            </button>
+          </div>
+        </div>
+      }
     }
   </div>
 

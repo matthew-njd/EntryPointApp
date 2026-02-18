@@ -9,6 +9,16 @@ import {
   TimesheetStatus,
 } from '../models/manager.model';
 
+export interface PagedResult<T> {
+  data: T[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
 export interface ApiResponse<T> {
   success: boolean;
   message: string;
@@ -24,10 +34,20 @@ export class ManagerService {
   private _timesheets = signal<TeamTimesheetResponse[]>([]);
   private _isLoading = signal(false);
   private _error = signal<string | null>(null);
+  private _totalCount = signal(0);
+  private _page = signal(1);
+  private _pageSize = signal(10);
 
   readonly timesheets = this._timesheets.asReadonly();
   readonly isLoading = this._isLoading.asReadonly();
   readonly error = this._error.asReadonly();
+  readonly totalCount = this._totalCount.asReadonly();
+  readonly page = this._page.asReadonly();
+  readonly pageSize = this._pageSize.asReadonly();
+
+  readonly totalPages = computed(() =>
+    Math.ceil(this._totalCount() / this._pageSize()),
+  );
 
   readonly totalPending = computed(
     () =>
@@ -47,23 +67,39 @@ export class ManagerService {
         .length,
   );
 
-  loadTimesheets(statusFilter: string = 'All') {
+  loadTimesheets(
+    page?: number,
+    pageSize?: number,
+    statusFilter: string = 'All',
+  ) {
     this._isLoading.set(true);
     this._error.set(null);
 
-    let params = new HttpParams();
+    const p = page ?? this._page();
+    const ps = pageSize ?? this._pageSize();
+
+    let params = new HttpParams()
+      .set('page', p.toString())
+      .set('pageSize', ps.toString());
+
     if (statusFilter && statusFilter !== 'All') {
       params = params.set('status', statusFilter);
     }
 
     this.http
-      .get<ApiResponse<TeamTimesheetResponse[]>>(`${this.apiUrl}/timesheets`, {
-        params,
-      })
+      .get<ApiResponse<PagedResult<TeamTimesheetResponse>>>(
+        `${this.apiUrl}/timesheets`,
+        {
+          params,
+        },
+      )
       .subscribe({
         next: (response) => {
           if (response.success && response.data) {
-            this._timesheets.set(response.data);
+            this._timesheets.set(response.data.data);
+            this._totalCount.set(response.data.totalCount);
+            this._page.set(response.data.page);
+            this._pageSize.set(response.data.pageSize);
           } else {
             this._error.set(response.message || 'Failed to fetch timesheets');
             this._timesheets.set([]);

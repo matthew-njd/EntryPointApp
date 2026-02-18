@@ -19,19 +19,47 @@ export class Manager {
 
   statusFilter = signal<string>('All');
 
-  filteredTimesheets = computed(() => {
-    let timesheets = this.service.timesheets();
+  pageNumbers = computed(() => {
+    const totalPages = this.service.totalPages();
+    const current = this.service.page();
+    const pages: number[] = [];
+    const maxButtons = 5;
 
-    if (this.statusFilter() !== 'All') {
-      timesheets = timesheets.filter((t) => t.status === this.statusFilter());
+    let startPage = Math.max(1, current - Math.floor(maxButtons / 2));
+    let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+
+    if (endPage - startPage < maxButtons - 1) {
+      startPage = Math.max(1, endPage - maxButtons + 1);
     }
 
-    return timesheets;
+    for (let i = startPage; i <= endPage; i++) pages.push(i);
+
+    return pages;
   });
 
   loadEffect = effect(() => {
-    this.service.loadTimesheets(this.statusFilter());
+    this.service.loadTimesheets(
+      this.service.page(),
+      this.service.pageSize(),
+      this.statusFilter(),
+    );
   });
+
+  onPageChange(page: number) {
+    this.service.loadTimesheets(
+      page,
+      this.service.pageSize(),
+      this.statusFilter(),
+    );
+  }
+
+  onStatusFilterChange() {
+    this.service.loadTimesheets(
+      1,
+      this.service.pageSize(),
+      this.statusFilter(),
+    );
+  }
 
   viewTimesheet(timesheetId: number) {
     this.router.navigate(['/manager/timesheets', timesheetId]);
