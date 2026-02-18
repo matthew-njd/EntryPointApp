@@ -1,0 +1,145 @@
+<div class="flex flex-col min-h-screen">
+  <app-nav></app-nav>
+
+  <div class="grow mt-16 sm:mt-40 max-w-7xl mx-auto px-4 w-full">
+    @if (service.isLoading()) {
+      <div class="flex justify-center items-center py-20">
+        <span class="loading loading-spinner loading-xl"></span>
+      </div>
+    } @else if (service.error()) {
+      <div class="alert alert-error mb-4">
+        <span>{{ service.error() }}</span>
+      </div>
+    } @else {
+      <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold">Team Timesheets</h1>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <app-card
+          title="Pending Approval"
+          [value]="service.totalPending().toString()"
+          cardClasses="text-warning"
+        ></app-card>
+        <app-card
+          title="Approved"
+          [value]="service.totalApproved().toString()"
+          cardClasses="text-success"
+        ></app-card>
+        <app-card
+          title="Denied"
+          [value]="service.totalDenied().toString()"
+          cardClasses="text-error"
+        ></app-card>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-4 mb-6">
+        <div class="form-control w-full sm:w-auto">
+          <label class="label">
+            <span class="label-text">Filter by Status</span>
+          </label>
+          <select
+            class="select select-bordered"
+            [(ngModel)]="statusFilter"
+            (ngModelChange)="statusFilter.set($event)"
+          >
+            <option value="All">All Statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="Approved">Approved</option>
+            <option value="Denied">Denied</option>
+            <option value="Draft">Draft</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto rounded-box bg-base-300">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Employee</th>
+              <th>Week</th>
+              <th>Hours</th>
+              <th>Charges</th>
+              <th>Status</th>
+              <th>Submitted</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (timesheet of filteredTimesheets(); track timesheet.id) {
+              <tr>
+                <td>
+                  <div>
+                    <div class="font-semibold">
+                      {{ timesheet.userFullName }}
+                    </div>
+                    <div class="text-sm text-base-content/60">
+                      {{ timesheet.userEmail }}
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="text-sm">
+                    {{ formatDate(timesheet.dateFrom) }} -
+                    {{ formatDate(timesheet.dateTo) }}
+                  </div>
+                </td>
+                <td>{{ timesheet.totalHours }} hrs</td>
+                <td>${{ timesheet.totalCharges.toFixed(2) }}</td>
+                <td>
+                  <span
+                    class="badge"
+                    [ngClass]="getStatusClass(timesheet.status)"
+                  >
+                    {{ timesheet.status }}
+                  </span>
+                </td>
+                <td>
+                  <div class="text-sm">
+                    {{ formatDate(timesheet.submittedAt) }}
+                  </div>
+                </td>
+                <td>
+                  <button
+                    class="btn btn-sm btn-outline btn-primary"
+                    (click)="viewTimesheet(timesheet.id)"
+                    title="Review Timesheet"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                    >
+                      <g
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                      >
+                        <path
+                          d="M2 12s3-7 10-7s10 7 10 7s-3 7-10 7s-10-7-10-7Z"
+                        />
+                        <circle cx="12" cy="12" r="3" />
+                      </g>
+                    </svg>
+                    Review
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="7" class="text-center py-8">
+                  No timesheets found matching your filters
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+
+  <app-footer class="mt-8"></app-footer>
+</div>

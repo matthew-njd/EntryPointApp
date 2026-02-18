@@ -60,7 +60,7 @@ export class Login {
           if (user.role === 'Admin') {
             this.router.navigate(['/admin']);
           } else if (user.role === 'Manager') {
-            this.router.navigate(['/dashboard']); // need to create manager-specific route
+            this.router.navigate(['/manager']);
           } else {
             this.router.navigate(['/dashboard']);
           }

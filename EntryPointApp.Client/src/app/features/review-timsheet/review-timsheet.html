@@ -1,0 +1,280 @@
+<div class="flex flex-col min-h-screen">
+  <app-nav></app-nav>
+
+  <div class="grow mt-16 sm:mt-40 max-w-4xl mx-auto px-4 w-full">
+    @if (isLoadingData()) {
+      <div class="flex justify-center items-center py-20">
+        <span class="loading loading-spinner loading-xl"></span>
+      </div>
+    } @else if (timesheet()) {
+      <div class="mb-8">
+        <button class="btn btn-sm btn-primary" (click)="goBack()">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="m7.825 13l4.9 4.9q.3.3.288.7t-.313.7q-.3.275-.7.288t-.7-.288l-6.6-6.6q-.15-.15-.213-.325T4.426 12t.063-.375t.212-.325l6.6-6.6q.275-.275.688-.275t.712.275q.3.3.3.713t-.3.712L7.825 11H19q.425 0 .713.288T20 12t-.288.713T19 13z"
+            />
+          </svg>
+          Back to Team Timesheets
+        </button>
+      </div>
+
+      <div class="flex justify-between items-start mb-6">
+        <div>
+          <h1 class="text-3xl font-bold">Review Timesheet</h1>
+          <p class="text-base-content/60 mt-2">
+            {{ timesheet()!.userFullName }} ({{ timesheet()!.userEmail }})
+          </p>
+        </div>
+        <span
+          class="badge badge-lg"
+          [ngClass]="getStatusClass(timesheet()!.status)"
+        >
+          {{ timesheet()!.status }}
+        </span>
+      </div>
+
+      <fieldset
+        class="fieldset bg-base-200 border-base-300 rounded-box border p-6 mb-6"
+      >
+        <legend class="fieldset-legend">Timesheet Summary</legend>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="label">
+              <span class="label-text font-semibold">Week Period</span>
+            </label>
+            <div class="text-base-content">
+              {{ formatDate(timesheet()!.dateFrom) }} -
+              {{ formatDate(timesheet()!.dateTo) }}
+            </div>
+          </div>
+
+          <div>
+            <label class="label">
+              <span class="label-text font-semibold">Submitted</span>
+            </label>
+            <div class="text-base-content">
+              {{ formatDate(timesheet()!.submittedAt) }}
+            </div>
+          </div>
+
+          <div>
+            <label class="label">
+              <span class="label-text font-semibold">Total Hours</span>
+            </label>
+            <div class="text-2xl font-bold text-primary">
+              {{ timesheet()!.totalHours }} hrs
+            </div>
+          </div>
+
+          <div>
+            <label class="label">
+              <span class="label-text font-semibold">Total Charges</span>
+            </label>
+            <div class="text-2xl font-bold text-secondary">
+              ${{ timesheet()!.totalCharges.toFixed(2) }}
+            </div>
+          </div>
+
+          @if (timesheet()!.managerComment) {
+            <div class="col-span-1 sm:col-span-2">
+              <label class="label">
+                <span class="label-text font-semibold">Manager Comment</span>
+              </label>
+              <div
+                class="alert"
+                [ngClass]="
+                  timesheet()!.status === 'Approved'
+                    ? 'alert-success'
+                    : 'alert-error'
+                "
+              >
+                <span>{{ timesheet()!.managerComment }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      </fieldset>
+
+      <fieldset
+        class="fieldset bg-base-200 border-base-300 rounded-box border p-6 mb-6"
+      >
+        <legend class="fieldset-legend">Daily Breakdown</legend>
+
+        <div class="overflow-x-auto">
+          <table class="table table-sm">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Hours</th>
+                <th>Mileage</th>
+                <th>Tolls</th>
+                <th>Parking</th>
+                <th>Other</th>
+                <th>Comment</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (log of timesheet()!.dailyLogs; track log.id) {
+                <tr>
+                  <td>{{ formatDate(log.date) }}</td>
+                  <td>{{ log.hours }}</td>
+                  <td>{{ log.mileage }}</td>
+                  <td>${{ log.tollCharge.toFixed(2) }}</td>
+                  <td>${{ log.parkingFee.toFixed(2) }}</td>
+                  <td>${{ log.otherCharges.toFixed(2) }}</td>
+                  <td>
+                    <span class="text-sm text-base-content/60">
+                      {{ log.comment || "-" }}
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </fieldset>
+
+      @if (timesheet()!.status === "Pending") {
+        <div class="flex gap-2 mb-6">
+          <button
+            class="btn btn-success flex-1"
+            (click)="approveTimesheet()"
+            [disabled]="isSubmitting()"
+          >
+            @if (isSubmitting() && !showDenyForm()) {
+              <span class="loading loading-spinner loading-md"></span>
+              Approving...
+            } @else {
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  fill="currentColor"
+                  d="m10.6 16.6l7.05-7.05l-1.4-1.4l-5.65 5.65l-2.85-2.85l-1.4 1.4zM12 22q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22"
+                />
+              </svg>
+              Approve Timesheet
+            }
+          </button>
+
+          <button
+            class="btn btn-error flex-1"
+            (click)="toggleDenyForm()"
+            [disabled]="isSubmitting()"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+            >
+              <path
+                fill="currentColor"
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2M4 12c0-4.42 3.58-8 8-8c1.85 0 3.55.63 4.9 1.69L5.69 16.9A7.9 7.9 0 0 1 4 12m8 8c-1.85 0-3.55-.63-4.9-1.69L18.31 7.1A7.9 7.9 0 0 1 20 12c0 4.42-3.58 8-8 8"
+              />
+            </svg>
+            {{ showDenyForm() ? "Cancel Deny" : "Deny Timesheet" }}
+          </button>
+        </div>
+
+        @if (showDenyForm()) {
+          <fieldset
+            class="fieldset bg-base-200 rounded-box border p-6 mb-6 border-error"
+          >
+            <legend class="fieldset-legend text-error">Deny Timesheet</legend>
+
+            <form [formGroup]="denyForm" (ngSubmit)="submitDeny()">
+              <div class="alert alert-warning mb-4">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="stroke-current shrink-0 h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
+                <span>
+                  The employee will be notified and can revise their timesheet.
+                </span>
+              </div>
+
+              <div class="form-control mb-4">
+                <label class="label">
+                  <span class="label-text font-semibold"
+                    >Reason for denial*</span
+                  >
+                </label>
+                <textarea
+                  class="textarea textarea-bordered h-32"
+                  formControlName="reason"
+                  placeholder="Please explain why this timesheet is being denied so the employee can make corrections..."
+                  maxlength="500"
+                  [class.textarea-error]="
+                    reasonControl?.invalid && reasonControl?.touched
+                  "
+                ></textarea>
+                @if (reasonControl?.invalid && reasonControl?.touched) {
+                  <label class="label">
+                    <span class="label-text-alt text-error">
+                      @if (reasonControl?.hasError("required")) {
+                        Reason is required when denying a timesheet
+                      }
+                      @if (reasonControl?.hasError("maxlength")) {
+                        Maximum 500 characters
+                      }
+                    </span>
+                  </label>
+                }
+                <label class="label">
+                  <span class="label-text-alt text-base-content/60">
+                    {{ reasonControl?.value?.length || 0 }}/500 characters
+                  </span>
+                </label>
+              </div>
+
+              <div class="flex gap-2">
+                <button
+                  type="submit"
+                  class="btn btn-error flex-1"
+                  [disabled]="isSubmitting() || denyForm.invalid"
+                >
+                  @if (isSubmitting()) {
+                    <span class="loading loading-spinner loading-md"></span>
+                    Denying Timesheet...
+                  } @else {
+                    Confirm Denial
+                  }
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-ghost"
+                  (click)="toggleDenyForm()"
+                  [disabled]="isSubmitting()"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </fieldset>
+        }
+      }
+    }
+  </div>
+
+  <app-footer class="mt-8"></app-footer>
+</div>

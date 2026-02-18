@@ -8,6 +8,7 @@ using EntryPointApp.Api.Services.Admin;
 using EntryPointApp.Api.Services.Authentication;
 using EntryPointApp.Api.Services.DailyLog;
 using EntryPointApp.Api.Services.Email;
+using EntryPointApp.Api.Services.Manager;
 using EntryPointApp.Api.Services.WeeklyLog;
 using Mailjet.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -58,6 +59,7 @@ builder.Services.AddScoped<IWeeklyLogService, WeeklyLogService>();
 builder.Services.AddScoped<IDailyLogService, DailyLogService>();
 
 builder.Services.AddScoped<IAdminService, AdminService>();
+builder.Services.AddScoped<IManagerService, ManagerService>();
 
 builder.Services.AddSecurityServices(builder.Configuration);
 

@@ -11,6 +11,8 @@ export const redirectGuard: CanActivateFn = () => {
 
     if (user?.role === 'Admin') {
       router.navigate(['/admin']);
+    } else if (user?.role === 'Manager') {
+      router.navigate(['/manager']);
     } else {
       router.navigate(['/dashboard']);
     }
