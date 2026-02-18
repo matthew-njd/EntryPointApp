@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using EntryPointApp.Api.Models.Common;
+using EntryPointApp.Api.Models.Dtos.Common;
 using EntryPointApp.Api.Models.Dtos.Manager;
 using EntryPointApp.Api.Services.Manager;
 using Microsoft.AspNetCore.Authorization;
@@ -16,14 +17,16 @@ namespace EntryPointApp.Api.Controllers
         private readonly ILogger<ManagerController> _logger = logger;
 
         /// <summary>
-        /// Get all team timesheets, optionally filtered by status.
-        /// Query param: ?status=Pending|Approved|Denied|Draft|All
+        /// Get all team timesheets with pagination, optionally filtered by status.
         /// </summary>
         [HttpGet("timesheets")]
-        [ProducesResponseType(typeof(ApiResponse<List<TeamTimesheetResponse>>), 200)]
+        [ProducesResponseType(typeof(ApiResponse<PagedResult<TeamTimesheetResponse>>), 200)]
         [ProducesResponseType(typeof(ApiResponse), 400)]
         [ProducesResponseType(typeof(ErrorResponse), 500)]
-        public async Task<IActionResult> GetTeamTimesheets([FromQuery] string? status = "All")
+        public async Task<IActionResult> GetTeamTimesheets(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? status = "All")
         {
             try
             {
@@ -38,7 +41,27 @@ namespace EntryPointApp.Api.Controllers
                     });
                 }
 
-                var result = await _managerService.GetTeamTimesheetsAsync(managerId, status);
+                if (page < 1)
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Validation failed",
+                        Errors = ["Page number must be 1 or greater"]
+                    });
+                }
+
+                if (pageSize < 1 || pageSize > 100)
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Validation failed",
+                        Errors = ["Page size must be between 1 and 100"]
+                    });
+                }
+
+                var result = await _managerService.GetTeamTimesheetsAsync(managerId, page, pageSize, status);
 
                 if (!result.Success)
                 {
@@ -50,9 +73,9 @@ namespace EntryPointApp.Api.Controllers
                     });
                 }
 
-                _logger.LogInformation("Manager {ManagerId} retrieved team timesheets with filter {Filter}", managerId, status);
+                _logger.LogInformation("Manager {ManagerId} retrieved team timesheets - Page {Page} with filter {Filter}", managerId, page, status);
 
-                return Ok(new ApiResponse<List<TeamTimesheetResponse>>
+                return Ok(new ApiResponse<PagedResult<TeamTimesheetResponse>>
                 {
                     Success = true,
                     Message = result.Message,

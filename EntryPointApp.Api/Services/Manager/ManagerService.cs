@@ -1,23 +1,24 @@
 using EntryPointApp.Api.Data.Context;
+using EntryPointApp.Api.Models.Dtos.Common;
 using EntryPointApp.Api.Models.Dtos.Manager;
 using EntryPointApp.Api.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace EntryPointApp.Api.Services.Manager
 {
-public class ManagerService(
+    public class ManagerService(
         ApplicationDbContext context,
         ILogger<ManagerService> logger) : IManagerService
     {
         private readonly ApplicationDbContext _context = context;
         private readonly ILogger<ManagerService> _logger = logger;
 
-        public async Task<TeamTimesheetListResult> GetTeamTimesheetsAsync(int managerId, string? statusFilter)
+        public async Task<TeamTimesheetPagedResult> GetTeamTimesheetsAsync(int managerId, int page, int pageSize, string? statusFilter)
         {
             try
             {
-                _logger.LogInformation("Retrieving team timesheets for manager {ManagerId} with filter {Filter}",
-                    managerId, statusFilter ?? "All");
+                _logger.LogInformation("Retrieving team timesheets for manager {ManagerId} - Page: {Page}, PageSize: {PageSize}, Filter: {Filter}",
+                    managerId, page, pageSize, statusFilter ?? "All");
 
                 var query = _context.WeeklyLogs
                     .Include(w => w.User)
@@ -31,8 +32,12 @@ public class ManagerService(
                     }
                 }
 
+                var totalCount = await query.CountAsync();
+
                 var timesheets = await query
                     .OrderByDescending(w => w.UpdatedAt)
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
                     .Select(w => new TeamTimesheetResponse
                     {
                         Id = w.Id,
@@ -50,20 +55,33 @@ public class ManagerService(
                     })
                     .ToListAsync();
 
-                _logger.LogInformation("Successfully retrieved {Count} timesheets for manager {ManagerId}",
-                    timesheets.Count, managerId);
+                var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
 
-                return new TeamTimesheetListResult
+                var pagedResult = new PagedResult<TeamTimesheetResponse>
+                {
+                    Data = timesheets,
+                    TotalCount = totalCount,
+                    Page = page,
+                    PageSize = pageSize,
+                    TotalPages = totalPages,
+                    HasNextPage = page < totalPages,
+                    HasPreviousPage = page > 1
+                };
+
+                _logger.LogInformation("Successfully retrieved {Count} timesheets (page {Page} of {TotalPages}) for manager {ManagerId}",
+                    timesheets.Count, page, totalPages, managerId);
+
+                return new TeamTimesheetPagedResult
                 {
                     Success = true,
                     Message = "Team timesheets retrieved successfully!",
-                    Data = timesheets
+                    Data = pagedResult
                 };
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving team timesheets for manager {ManagerId}", managerId);
-                return new TeamTimesheetListResult
+                return new TeamTimesheetPagedResult
                 {
                     Success = false,
                     Message = "Failed to retrieve team timesheets",

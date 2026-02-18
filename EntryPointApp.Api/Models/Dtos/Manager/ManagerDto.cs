@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using EntryPointApp.Api.Models.Dtos.Common;
 
 namespace EntryPointApp.Api.Models.Dtos.Manager
 {
@@ -68,5 +69,10 @@ namespace EntryPointApp.Api.Models.Dtos.Manager
     public class TeamTimesheetListResult : BaseManagerResult
     {
         public List<TeamTimesheetResponse>? Data { get; set; }
+    }
+
+    public class TeamTimesheetPagedResult : BaseManagerResult
+    {
+        public PagedResult<TeamTimesheetResponse>? Data { get; set; }
     }
 }
