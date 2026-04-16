@@ -8,6 +8,7 @@ using EntryPointApp.Api.Services.Admin;
 using EntryPointApp.Api.Services.Authentication;
 using EntryPointApp.Api.Services.DailyLog;
 using EntryPointApp.Api.Services.Email;
+using EntryPointApp.Api.Services.Excel;
 using EntryPointApp.Api.Services.Manager;
 using EntryPointApp.Api.Services.WeeklyLog;
 using Mailjet.Client;
@@ -60,6 +61,7 @@ builder.Services.AddScoped<IDailyLogService, DailyLogService>();
 
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IManagerService, ManagerService>();
+builder.Services.AddScoped<IExcelService, ExcelService>();
 
 builder.Services.AddSecurityServices(builder.Configuration);
 

@@ -240,9 +240,9 @@ namespace EntryPointApp.Api.Services.Email
                 // Create email with attachment
                 var email = new TransactionalEmailBuilder()
                     .WithFrom(new SendContact(fromEmail, fromName))
-                    .WithTo(new SendContact(employeeEmail, employeeName))
+                    .WithTo(new SendContact(hrEmail, "HR Department"))
+                    .WithCc(new SendContact(employeeEmail, employeeName))
                     .WithCc(new SendContact(managerEmail, managerName))
-                    .WithCc(new SendContact(hrEmail, "HR Department"))
                     .WithSubject($"Timesheet Approved - {employeeName} - {weekPeriod}")
                     .WithHtmlPart(htmlBody)
                     .WithTextPart(textBody)

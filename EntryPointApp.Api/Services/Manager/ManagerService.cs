@@ -2,16 +2,22 @@ using EntryPointApp.Api.Data.Context;
 using EntryPointApp.Api.Models.Dtos.Common;
 using EntryPointApp.Api.Models.Dtos.Manager;
 using EntryPointApp.Api.Models.Enums;
+using EntryPointApp.Api.Services.Email;
+using EntryPointApp.Api.Services.Excel;
 using Microsoft.EntityFrameworkCore;
 
 namespace EntryPointApp.Api.Services.Manager
 {
     public class ManagerService(
         ApplicationDbContext context,
-        ILogger<ManagerService> logger) : IManagerService
+        ILogger<ManagerService> logger,
+        IExcelService excelService,
+        IEmailService emailService) : IManagerService
     {
         private readonly ApplicationDbContext _context = context;
         private readonly ILogger<ManagerService> _logger = logger;
+        private readonly IExcelService _excelService = excelService;
+        private readonly IEmailService _emailService = emailService;
 
         public async Task<TeamTimesheetPagedResult> GetTeamTimesheetsAsync(int managerId, int page, int pageSize, string? statusFilter)
         {
@@ -228,6 +234,7 @@ namespace EntryPointApp.Api.Services.Manager
 
                 var weeklyLog = await _context.WeeklyLogs
                     .Include(w => w.User)
+                        .ThenInclude(u => u.Manager)
                     .FirstOrDefaultAsync(w => w.Id == weeklyLogId
                         && w.User.ManagerId == managerId
                         && !w.IsDeleted);
@@ -262,6 +269,34 @@ namespace EntryPointApp.Api.Services.Manager
 
                 _logger.LogInformation("Manager {ManagerId} successfully approved timesheet {WeeklyLogId}",
                     managerId, weeklyLogId);
+
+                var capturedLog = weeklyLog;
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        var excelBytes = await _excelService.GenerateTimesheetExcelAsync(weeklyLogId);
+                        var employeeName = $"{capturedLog.User.FirstName} {capturedLog.User.LastName}".Trim();
+                        var managerName = $"{capturedLog.User.Manager!.FirstName} {capturedLog.User.Manager.LastName}".Trim();
+                        var weekPeriod = $"{capturedLog.DateFrom:MM/dd/yyyy} - {capturedLog.DateTo:MM/dd/yyyy}";
+                        var filename = $"Timesheet_{employeeName.Replace(" ", "_")}_{capturedLog.DateFrom:yyyyMMdd}.xlsx";
+
+                        await _emailService.SendTimesheetApprovalEmailAsync(
+                            capturedLog.User.Email,
+                            employeeName,
+                            capturedLog.User.Manager.Email,
+                            managerName,
+                            weekPeriod,
+                            capturedLog.TotalHours,
+                            capturedLog.TotalCharges,
+                            excelBytes,
+                            filename);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Failed to send approval email for timesheet {WeeklyLogId}", weeklyLogId);
+                    }
+                });
 
                 return new TeamTimesheetResult
                 {
