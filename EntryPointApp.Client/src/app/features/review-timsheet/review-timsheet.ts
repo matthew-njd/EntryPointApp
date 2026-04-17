@@ -182,15 +182,6 @@ export class ReviewTimsheet {
     }
   }
 
-  formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
-  }
-
   get reasonControl() {
     return this.denyForm.get('reason');
   }

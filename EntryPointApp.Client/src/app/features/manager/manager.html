@@ -80,8 +80,8 @@
                 </td>
                 <td>
                   <div class="text-sm">
-                    {{ formatDate(timesheet.dateFrom) }} -
-                    {{ formatDate(timesheet.dateTo) }}
+                    {{ timesheet.dateFrom | date: "MMM d, y" }} -
+                    {{ timesheet.dateTo | date: "MMM d, y" }}
                   </div>
                 </td>
                 <td>{{ timesheet.totalHours }} hrs</td>
@@ -96,7 +96,7 @@
                 </td>
                 <td>
                   <div class="text-sm">
-                    {{ formatDate(timesheet.submittedAt) }}
+                    {{ timesheet.submittedAt | date: "MMM d, y" }}
                   </div>
                 </td>
                 <td>

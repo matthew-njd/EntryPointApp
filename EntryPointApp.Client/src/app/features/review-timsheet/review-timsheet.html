@@ -50,8 +50,8 @@
               <span class="label-text font-semibold">Week Period</span>
             </label>
             <div class="text-base-content">
-              {{ formatDate(timesheet()!.dateFrom) }} -
-              {{ formatDate(timesheet()!.dateTo) }}
+              {{ timesheet()!.dateFrom | date: "MMM d, y" }} -
+              {{ timesheet()!.dateTo | date: "MMM d, y" }}
             </div>
           </div>
 
@@ -60,7 +60,7 @@
               <span class="label-text font-semibold">Submitted</span>
             </label>
             <div class="text-base-content">
-              {{ formatDate(timesheet()!.submittedAt) }}
+              {{ timesheet()!.submittedAt | date: "MMM d, y" }}
             </div>
           </div>
 
@@ -123,7 +123,7 @@
             <tbody>
               @for (log of timesheet()!.dailyLogs; track log.id) {
                 <tr>
-                  <td>{{ formatDate(log.date) }}</td>
+                  <td>{{ log.date | date: "EEE, MMM d, y" }}</td>
                   <td>{{ log.hours }}</td>
                   <td>{{ log.mileage }}</td>
                   <td>${{ log.tollCharge.toFixed(2) }}</td>

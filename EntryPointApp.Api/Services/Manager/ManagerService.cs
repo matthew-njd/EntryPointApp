@@ -41,7 +41,10 @@ namespace EntryPointApp.Api.Services.Manager
                 var totalCount = await query.CountAsync();
 
                 var timesheets = await query
-                    .OrderByDescending(w => w.UpdatedAt)
+                    .OrderBy(w => w.Status == TimesheetStatus.Pending ? 0 : 1)
+                    .ThenBy(w => w.CreatedAt)
+                    .ThenBy(w => w.User.FirstName)
+                    .ThenBy(w => w.User.LastName)
                     .Skip((page - 1) * pageSize)
                     .Take(pageSize)
                     .Select(w => new TeamTimesheetResponse
