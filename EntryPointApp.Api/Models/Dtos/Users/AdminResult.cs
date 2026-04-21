@@ -16,4 +16,14 @@ namespace EntryPointApp.Api.Models.Dtos.Users
     {
         public List<UserDto>? Data { get; set; }
     }
+
+    public class UserRateResult : BaseAdminResult
+    {
+        public UserRateDto? Data { get; set; }
+    }
+
+    public class UserRateListResult : BaseAdminResult
+    {
+        public List<UserRateDto>? Data { get; set; }
+    }
 }

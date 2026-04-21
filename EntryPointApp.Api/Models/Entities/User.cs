@@ -39,5 +39,6 @@ namespace EntryPointApp.Api.Models.Entities
         public ICollection<RefreshToken> RefreshTokens { get; set; } = [];
         public ICollection<WeeklyLog> WeeklyLogs { get; set; } = [];
         public ICollection<DailyLog> DailyLogs { get; set; } = [];
+        public ICollection<UserRate> Rates { get; set; } = [];
     }
 }

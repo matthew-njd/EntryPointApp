@@ -9,6 +9,7 @@ import {
 import {
   getRoleDisplayName,
   UserDto,
+  UserRateDto,
   UserRole,
 } from '../../core/models/admin.model';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -33,9 +34,13 @@ export class UserEdit {
 
   userId = toSignal(this.route.paramMap);
   userForm: FormGroup;
+  rateForm: FormGroup;
   isLoading = signal(false);
   isLoadingData = signal(true);
+  isLoadingRates = signal(false);
+  isSavingRate = signal(false);
   user = signal<UserDto | null>(null);
+  rates = signal<UserRateDto[]>([]);
 
   UserRole = UserRole;
   getRoleDisplayName = getRoleDisplayName;
@@ -63,6 +68,12 @@ export class UserEdit {
       managerId: [null as number | null],
     });
 
+    this.rateForm = this.fb.group({
+      hourlyRate: [null as number | null, [Validators.required, Validators.min(0)]],
+      mileageRate: [null as number | null, [Validators.required, Validators.min(0)]],
+      effectiveDate: ['', [Validators.required]],
+    });
+
     this.adminService.loadUsers();
   }
 
@@ -70,6 +81,7 @@ export class UserEdit {
     const id = this.userId()?.get('id');
     if (id) {
       this.loadUserData(+id);
+      this.loadRates(+id);
     }
   });
 
@@ -209,6 +221,50 @@ export class UserEdit {
     this.router.navigate(['/admin']);
   }
 
+  loadRates(userId: number): void {
+    this.isLoadingRates.set(true);
+    this.adminService.getUserRates(userId).subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          this.rates.set(response.data);
+        }
+        this.isLoadingRates.set(false);
+      },
+      error: () => {
+        this.isLoadingRates.set(false);
+      },
+    });
+  }
+
+  onSubmitRate(): void {
+    if (this.rateForm.invalid || !this.user()) {
+      this.rateForm.markAllAsTouched();
+      return;
+    }
+
+    this.isSavingRate.set(true);
+    const { hourlyRate, mileageRate, effectiveDate } = this.rateForm.value;
+
+    this.adminService
+      .setUserRate(this.user()!.id, { hourlyRate, mileageRate, effectiveDate })
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.toastService.success('Rate saved successfully!');
+            this.rateForm.reset();
+            this.loadRates(this.user()!.id);
+          } else {
+            this.toastService.error(response.message);
+          }
+          this.isSavingRate.set(false);
+        },
+        error: (err) => {
+          this.toastService.error(err.message || 'Failed to save rate');
+          this.isSavingRate.set(false);
+        },
+      });
+  }
+
   goBack(): void {
     this.router.navigate(['/admin']);
   }
@@ -238,6 +294,18 @@ export class UserEdit {
 
   get managerIdControl() {
     return this.userForm.get('managerId');
+  }
+
+  get hourlyRateControl() {
+    return this.rateForm.get('hourlyRate');
+  }
+
+  get mileageRateControl() {
+    return this.rateForm.get('mileageRate');
+  }
+
+  get effectiveDateControl() {
+    return this.rateForm.get('effectiveDate');
   }
 
   getRoleDescription(role: UserRole): string {

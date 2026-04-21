@@ -220,6 +220,144 @@
             </fieldset>
           }
 
+          @if (user()!.role === "User") {
+            <fieldset
+              class="fieldset bg-base-200 border-base-300 rounded-box border p-6 mb-6 mt-6"
+            >
+              <legend class="fieldset-legend">Rate Management</legend>
+
+              <form [formGroup]="rateForm" (ngSubmit)="onSubmitRate()">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                  <div class="form-control">
+                    <label class="label">
+                      <span class="label-text">Hourly Rate ($)</span>
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      placeholder="0.00"
+                      class="input input-bordered"
+                      formControlName="hourlyRate"
+                      [class.input-error]="
+                        hourlyRateControl?.invalid && hourlyRateControl?.touched
+                      "
+                    />
+                    @if (
+                      hourlyRateControl?.invalid && hourlyRateControl?.touched
+                    ) {
+                      <div class="text-error text-sm mt-1">
+                        Valid hourly rate required
+                      </div>
+                    }
+                  </div>
+
+                  <div class="form-control">
+                    <label class="label">
+                      <span class="label-text">Mileage Rate ($/mi)</span>
+                    </label>
+                    <input
+                      type="number"
+                      step="0.001"
+                      min="0"
+                      placeholder="0.000"
+                      class="input input-bordered"
+                      formControlName="mileageRate"
+                      [class.input-error]="
+                        mileageRateControl?.invalid &&
+                        mileageRateControl?.touched
+                      "
+                    />
+                    @if (
+                      mileageRateControl?.invalid && mileageRateControl?.touched
+                    ) {
+                      <div class="text-error text-sm mt-1">
+                        Valid mileage rate required
+                      </div>
+                    }
+                  </div>
+
+                  <div class="form-control">
+                    <label class="label">
+                      <span class="label-text">Effective Date</span>
+                    </label>
+                    <input
+                      type="date"
+                      class="input input-bordered"
+                      formControlName="effectiveDate"
+                      [class.input-error]="
+                        effectiveDateControl?.invalid &&
+                        effectiveDateControl?.touched
+                      "
+                    />
+                    @if (
+                      effectiveDateControl?.invalid &&
+                      effectiveDateControl?.touched
+                    ) {
+                      <div class="text-error text-sm mt-1">
+                        Effective date is required
+                      </div>
+                    }
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  [disabled]="isSavingRate() || rateForm.invalid"
+                >
+                  @if (isSavingRate()) {
+                    <span class="loading loading-spinner loading-sm"></span>
+                    Saving...
+                  } @else {
+                    Add Rate
+                  }
+                </button>
+              </form>
+
+              <div class="mt-6">
+                @if (isLoadingRates()) {
+                  <div class="flex justify-center py-4">
+                    <span class="loading loading-spinner loading-md"></span>
+                  </div>
+                } @else if (rates().length > 0) {
+                  <h3 class="font-semibold mb-2 text-sm">Rate History</h3>
+                  <div class="overflow-x-auto rounded-box bg-base-300">
+                    <table class="table table-sm">
+                      <thead>
+                        <tr>
+                          <th>Effective Date</th>
+                          <th>Hourly Rate</th>
+                          <th>Mileage Rate</th>
+                          <th>Added</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (rate of rates(); track rate.id; let i = $index) {
+                          <tr [class.font-semibold]="i === 0">
+                            <td>{{ rate.effectiveDate | date: "MMM d, y" }}</td>
+                            <td>{{ rate.hourlyRate | currency }}</td>
+                            <td>
+                              {{
+                                rate.mileageRate
+                                  | currency: "USD" : "symbol" : "1.3-3"
+                              }}/mi
+                            </td>
+                            <td class="text-base-content/60 text-xs">
+                              {{ rate.createdAt | date: "MMM d, y" }}
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                } @else {
+                  <p class="text-base-content/50 text-sm">No rates set yet.</p>
+                }
+              </div>
+            </fieldset>
+          }
+
           <div class="flex gap-2">
             <button
               type="submit"

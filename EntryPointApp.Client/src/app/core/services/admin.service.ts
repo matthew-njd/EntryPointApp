@@ -3,6 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {
   UserDto,
+  UserRateDto,
+  SetUserRateRequest,
   UpdateUserRoleRequest,
   AssignManagerRequest,
   UserRole,
@@ -112,6 +114,28 @@ export class AdminService {
     return this.http.put<ApiResponse<UserDto>>(
       `${this.apiUrl}/users/${userId}/activate`,
       {},
+    );
+  }
+
+  getUserRates(userId: number): Observable<ApiResponse<UserRateDto[]>> {
+    return this.http.get<ApiResponse<UserRateDto[]>>(
+      `${this.apiUrl}/users/${userId}/rates`,
+    );
+  }
+
+  getCurrentUserRate(userId: number): Observable<ApiResponse<UserRateDto>> {
+    return this.http.get<ApiResponse<UserRateDto>>(
+      `${this.apiUrl}/users/${userId}/rates/current`,
+    );
+  }
+
+  setUserRate(
+    userId: number,
+    request: SetUserRateRequest,
+  ): Observable<ApiResponse<UserRateDto>> {
+    return this.http.post<ApiResponse<UserRateDto>>(
+      `${this.apiUrl}/users/${userId}/rates`,
+      request,
     );
   }
 

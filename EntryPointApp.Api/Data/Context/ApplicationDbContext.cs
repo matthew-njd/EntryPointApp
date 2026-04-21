@@ -9,6 +9,7 @@ namespace EntryPointApp.Api.Data.Context
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<WeeklyLog> WeeklyLogs { get; set; }
         public DbSet<DailyLog> DailyLogs { get; set; }
+        public DbSet<UserRate> UserRates { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -18,6 +19,7 @@ namespace EntryPointApp.Api.Data.Context
             ConfigureRefreshToken(modelBuilder);
             ConfigureWeeklyLog(modelBuilder);
             ConfigureDailyLog(modelBuilder);
+            ConfigureUserRate(modelBuilder);
         }
 
         private void ConfigureUser(ModelBuilder modelBuilder)
@@ -105,6 +107,28 @@ namespace EntryPointApp.Api.Data.Context
                 entity.HasIndex(e => e.UserId);
                 entity.HasIndex(e => e.WeeklyLogId);
                 entity.HasIndex(e => new { e.WeeklyLogId, e.Date });
+            });
+        }
+
+        private void ConfigureUserRate(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<UserRate>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.HourlyRate).HasPrecision(18, 4).IsRequired();
+                entity.Property(e => e.MileageRate).HasPrecision(18, 4).IsRequired();
+                entity.Property(e => e.EffectiveDate).IsRequired();
+                entity.Property(e => e.CreatedAt).IsRequired();
+                entity.HasOne(e => e.User)
+                    .WithMany(u => u.Rates)
+                    .HasForeignKey(e => e.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(e => e.CreatedByAdmin)
+                    .WithMany()
+                    .HasForeignKey(e => e.CreatedByAdminId)
+                    .OnDelete(DeleteBehavior.Restrict);
+                entity.HasIndex(e => e.UserId);
+                entity.HasIndex(e => new { e.UserId, e.EffectiveDate });
             });
         }
     }

@@ -1,0 +1,13 @@
+namespace EntryPointApp.Api.Models.Dtos.Users
+{
+    public class UserRateDto
+    {
+        public int Id { get; set; }
+        public int UserId { get; set; }
+        public decimal HourlyRate { get; set; }
+        public decimal MileageRate { get; set; }
+        public DateTime EffectiveDate { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public int CreatedByAdminId { get; set; }
+    }
+}

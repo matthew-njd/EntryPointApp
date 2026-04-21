@@ -10,9 +10,10 @@ namespace EntryPointApp.Api.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize(Policy = "AdminOnly")]
-    public class AdminController(IAdminService adminService, ILogger<AdminController> logger) : ControllerBase
+    public class AdminController(IAdminService adminService, IUserRateService userRateService, ILogger<AdminController> logger) : ControllerBase
     {
         private readonly IAdminService _adminService = adminService;
+        private readonly IUserRateService _userRateService = userRateService;
         private readonly ILogger<AdminController> _logger = logger;
 
         /// <summary>
@@ -388,6 +389,196 @@ namespace EntryPointApp.Api.Controllers
                     Title = "User Deactivation Error",
                     Status = 500,
                     Detail = "An unexpected error occurred while deactivating the user",
+                    Instance = HttpContext.Request.Path,
+                    TraceId = HttpContext.TraceIdentifier
+                });
+            }
+        }
+
+        /// <summary>
+        /// Get full rate history for a user
+        /// </summary>
+        [HttpGet("users/{userId}/rates")]
+        [ProducesResponseType(typeof(ApiResponse<List<UserRateDto>>), 200)]
+        [ProducesResponseType(typeof(ApiResponse), 404)]
+        [ProducesResponseType(typeof(ErrorResponse), 500)]
+        public async Task<IActionResult> GetUserRates([FromRoute] int userId)
+        {
+            try
+            {
+                if (userId <= 0)
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Validation failed",
+                        Errors = ["User ID must be greater than 0"]
+                    });
+                }
+
+                var result = await _userRateService.GetRatesForUserAsync(userId);
+
+                if (!result.Success)
+                {
+                    return NotFound(new ApiResponse
+                    {
+                        Success = false,
+                        Message = result.Message,
+                        Errors = result.Errors
+                    });
+                }
+
+                return Ok(new ApiResponse<List<UserRateDto>>
+                {
+                    Success = true,
+                    Message = result.Message,
+                    Data = result.Data
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error retrieving rates for user {UserId}", userId);
+                return StatusCode(500, new ErrorResponse
+                {
+                    Type = "InternalServerError",
+                    Title = "Rate Retrieval Error",
+                    Status = 500,
+                    Detail = "An unexpected error occurred while retrieving user rates",
+                    Instance = HttpContext.Request.Path,
+                    TraceId = HttpContext.TraceIdentifier
+                });
+            }
+        }
+
+        /// <summary>
+        /// Get the current effective rate for a user
+        /// </summary>
+        [HttpGet("users/{userId}/rates/current")]
+        [ProducesResponseType(typeof(ApiResponse<UserRateDto>), 200)]
+        [ProducesResponseType(typeof(ApiResponse), 404)]
+        [ProducesResponseType(typeof(ErrorResponse), 500)]
+        public async Task<IActionResult> GetCurrentUserRate([FromRoute] int userId)
+        {
+            try
+            {
+                if (userId <= 0)
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Validation failed",
+                        Errors = ["User ID must be greater than 0"]
+                    });
+                }
+
+                var result = await _userRateService.GetCurrentRateAsync(userId);
+
+                if (!result.Success)
+                {
+                    return NotFound(new ApiResponse
+                    {
+                        Success = false,
+                        Message = result.Message,
+                        Errors = result.Errors
+                    });
+                }
+
+                return Ok(new ApiResponse<UserRateDto>
+                {
+                    Success = true,
+                    Message = result.Message,
+                    Data = result.Data
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error retrieving current rate for user {UserId}", userId);
+                return StatusCode(500, new ErrorResponse
+                {
+                    Type = "InternalServerError",
+                    Title = "Rate Retrieval Error",
+                    Status = 500,
+                    Detail = "An unexpected error occurred while retrieving the current user rate",
+                    Instance = HttpContext.Request.Path,
+                    TraceId = HttpContext.TraceIdentifier
+                });
+            }
+        }
+
+        /// <summary>
+        /// Set a new rate entry for a user
+        /// </summary>
+        [HttpPost("users/{userId}/rates")]
+        [ProducesResponseType(typeof(ApiResponse<UserRateDto>), 201)]
+        [ProducesResponseType(typeof(ApiResponse), 400)]
+        [ProducesResponseType(typeof(ApiResponse), 404)]
+        [ProducesResponseType(typeof(ErrorResponse), 500)]
+        public async Task<IActionResult> SetUserRate([FromRoute] int userId, [FromBody] SetUserRateRequest request)
+        {
+            try
+            {
+                var adminId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (userId <= 0)
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Validation failed",
+                        Errors = ["User ID must be greater than 0"]
+                    });
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList();
+
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Validation failed",
+                        Errors = errors
+                    });
+                }
+
+                if (!int.TryParse(adminId, out var parsedAdminId))
+                {
+                    return Unauthorized();
+                }
+
+                var result = await _userRateService.SetRateAsync(userId, request, parsedAdminId);
+
+                if (!result.Success)
+                {
+                    return NotFound(new ApiResponse
+                    {
+                        Success = false,
+                        Message = result.Message,
+                        Errors = result.Errors
+                    });
+                }
+
+                _logger.LogInformation("Admin {AdminId} set rate for user {UserId}", adminId, userId);
+
+                return StatusCode(201, new ApiResponse<UserRateDto>
+                {
+                    Success = true,
+                    Message = result.Message,
+                    Data = result.Data
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error setting rate for user {UserId}", userId);
+                return StatusCode(500, new ErrorResponse
+                {
+                    Type = "InternalServerError",
+                    Title = "Rate Set Error",
+                    Status = 500,
+                    Detail = "An unexpected error occurred while setting the user rate",
                     Instance = HttpContext.Request.Path,
                     TraceId = HttpContext.TraceIdentifier
                 });

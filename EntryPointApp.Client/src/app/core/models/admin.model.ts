@@ -11,6 +11,22 @@ export interface UserDto {
   updatedAt: string;
 }
 
+export interface UserRateDto {
+  id: number;
+  userId: number;
+  hourlyRate: number;
+  mileageRate: number;
+  effectiveDate: string;
+  createdAt: string;
+  createdByAdminId: number;
+}
+
+export interface SetUserRateRequest {
+  hourlyRate: number;
+  mileageRate: number;
+  effectiveDate: string;
+}
+
 export interface UpdateUserRoleRequest {
   role: UserRole;
 }
