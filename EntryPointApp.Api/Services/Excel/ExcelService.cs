@@ -95,7 +95,7 @@ namespace EntryPointApp.Api.Services.Excel
                 foreach (var log in dailyLogs)
                 {
                     worksheet.Cell(currentRow, 1).Value = log.Date.ToString("MM/dd/yyyy (ddd)");
-                    worksheet.Cell(currentRow, 2).Value = log.Hours;
+                    worksheet.Cell(currentRow, 2).Value = (double)(log.TimeOut - log.TimeIn).TotalHours;
                     worksheet.Cell(currentRow, 2).Style.NumberFormat.Format = "0.00";
                     
                     worksheet.Cell(currentRow, 3).Value = log.Mileage;

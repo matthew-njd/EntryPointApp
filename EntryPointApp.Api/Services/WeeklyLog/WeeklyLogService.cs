@@ -361,7 +361,8 @@ namespace EntryPointApp.Api.Services.WeeklyLog
                     return;
                 }
 
-                weeklyLog.TotalHours = weeklyLog.DailyLogs.Sum(d => d.Hours);
+                weeklyLog.TotalHours = weeklyLog.DailyLogs
+                    .Sum(d => (decimal)(d.TimeOut - d.TimeIn).TotalHours);
                 weeklyLog.TotalCharges = weeklyLog.DailyLogs.Sum(d => d.TollCharge + d.ParkingFee + d.OtherCharges);
                 weeklyLog.UpdatedAt = DateTime.UtcNow;
 

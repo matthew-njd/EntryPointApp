@@ -7,9 +7,11 @@ namespace EntryPointApp.Api.Models.Dtos.DailyLog
         [Required(ErrorMessage = "A date is required.")]
         public DateOnly Date { get; set; }
 
-        [Required(ErrorMessage = "The number of hours is required.")]
-        [Range(0, 24, ErrorMessage = "Hours must be between 0 and 24.")]
-        public decimal Hours { get; set; }
+        [Required(ErrorMessage = "A time in is required.")]
+        public TimeOnly TimeIn { get; set; }
+
+        [Required(ErrorMessage = "A time out is required.")]
+        public TimeOnly TimeOut { get; set; }
 
         [Required(ErrorMessage = "The mileage is required.")]
         [Range(0, double.MaxValue, ErrorMessage = "Mileage must be a positive number.")]

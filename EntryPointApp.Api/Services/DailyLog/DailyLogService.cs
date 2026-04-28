@@ -36,7 +36,8 @@ namespace EntryPointApp.Api.Services.DailyLog
                     {
                         Id = d.Id,
                         Date = d.Date,
-                        Hours = d.Hours,
+                        TimeIn = d.TimeIn,
+                        TimeOut = d.TimeOut,
                         Mileage = d.Mileage,
                         TollCharge = d.TollCharge,
                         ParkingFee = d.ParkingFee,
@@ -84,7 +85,8 @@ namespace EntryPointApp.Api.Services.DailyLog
                     {
                         Id = d.Id,
                         Date = d.Date,
-                        Hours = d.Hours,
+                        TimeIn = d.TimeIn,
+                        TimeOut = d.TimeOut,
                         Mileage = d.Mileage,
                         TollCharge = d.TollCharge,
                         ParkingFee = d.ParkingFee,
@@ -158,6 +160,16 @@ namespace EntryPointApp.Api.Services.DailyLog
                     };
                 }
 
+                if (request.TimeOut <= request.TimeIn)
+                {
+                    return new DailyLogResult
+                    {
+                        Success = false,
+                        Message = "Validation failed",
+                        Errors = ["Time out must be after time in."]
+                    };
+                }
+
                 var duplicateExists = await _context.DailyLogs
                     .AnyAsync(d => d.WeeklyLogId == weeklyLogId
                         && d.Date == request.Date
@@ -178,7 +190,8 @@ namespace EntryPointApp.Api.Services.DailyLog
                     UserId = userId,
                     WeeklyLogId = weeklyLogId,
                     Date = request.Date,
-                    Hours = request.Hours,
+                    TimeIn = request.TimeIn,
+                    TimeOut = request.TimeOut,
                     Mileage = request.Mileage,
                     TollCharge = request.TollCharge,
                     ParkingFee = request.ParkingFee,
@@ -197,7 +210,8 @@ namespace EntryPointApp.Api.Services.DailyLog
                 {
                     Id = dailyLog.Id,
                     Date = dailyLog.Date,
-                    Hours = dailyLog.Hours,
+                    TimeIn = dailyLog.TimeIn,
+                    TimeOut = dailyLog.TimeOut,
                     Mileage = dailyLog.Mileage,
                     TollCharge = dailyLog.TollCharge,
                     ParkingFee = dailyLog.ParkingFee,
@@ -260,6 +274,12 @@ namespace EntryPointApp.Api.Services.DailyLog
                         continue;
                     }
 
+                    if (request.TimeOut <= request.TimeIn)
+                    {
+                        errors.Add($"Time out must be after time in for date {request.Date}.");
+                        continue;
+                    }
+
                     var duplicateExists = await _context.DailyLogs
                         .AnyAsync(d => d.WeeklyLogId == weeklyLogId && d.Date == request.Date && !d.IsDeleted);
 
@@ -280,7 +300,8 @@ namespace EntryPointApp.Api.Services.DailyLog
                         UserId = userId,
                         WeeklyLogId = weeklyLogId,
                         Date = request.Date,
-                        Hours = request.Hours,
+                        TimeIn = request.TimeIn,
+                        TimeOut = request.TimeOut,
                         Mileage = request.Mileage,
                         TollCharge = request.TollCharge,
                         ParkingFee = request.ParkingFee,
@@ -297,7 +318,8 @@ namespace EntryPointApp.Api.Services.DailyLog
                     {
                         Id = dailyLog.Id,
                         Date = dailyLog.Date,
-                        Hours = dailyLog.Hours,
+                        TimeIn = dailyLog.TimeIn,
+                        TimeOut = dailyLog.TimeOut,
                         Mileage = dailyLog.Mileage,
                         TollCharge = dailyLog.TollCharge,
                         ParkingFee = dailyLog.ParkingFee,
@@ -409,6 +431,16 @@ namespace EntryPointApp.Api.Services.DailyLog
                     };
                 }
 
+                if (request.TimeOut <= request.TimeIn)
+                {
+                    return new DailyLogResult
+                    {
+                        Success = false,
+                        Message = "Validation failed",
+                        Errors = ["Time out must be after time in."]
+                    };
+                }
+
                 var duplicateExists = await _context.DailyLogs
                     .AnyAsync(d => d.WeeklyLogId == weeklyLogId
                         && d.Date == request.Date
@@ -426,7 +458,8 @@ namespace EntryPointApp.Api.Services.DailyLog
                 }
 
                 dailyLog.Date = request.Date;
-                dailyLog.Hours = request.Hours;
+                dailyLog.TimeIn = request.TimeIn;
+                dailyLog.TimeOut = request.TimeOut;
                 dailyLog.Mileage = request.Mileage;
                 dailyLog.TollCharge = request.TollCharge;
                 dailyLog.ParkingFee = request.ParkingFee;
@@ -442,7 +475,8 @@ namespace EntryPointApp.Api.Services.DailyLog
                 {
                     Id = dailyLog.Id,
                     Date = dailyLog.Date,
-                    Hours = dailyLog.Hours,
+                    TimeIn = dailyLog.TimeIn,
+                    TimeOut = dailyLog.TimeOut,
                     Mileage = dailyLog.Mileage,
                     TollCharge = dailyLog.TollCharge,
                     ParkingFee = dailyLog.ParkingFee,
@@ -572,6 +606,12 @@ namespace EntryPointApp.Api.Services.DailyLog
                         continue;
                     }
 
+                    if (item.TimeOut <= item.TimeIn)
+                    {
+                        errors.Add($"Time out must be after time in for date {item.Date}.");
+                        continue;
+                    }
+
                     var duplicateInRequest = request.DailyLogs
                         .Count(d => d.Date == item.Date) > 1;
                     
@@ -604,7 +644,8 @@ namespace EntryPointApp.Api.Services.DailyLog
                         }
 
                         existingLog.Date = item.Date;
-                        existingLog.Hours = item.Hours;
+                        existingLog.TimeIn = item.TimeIn;
+                        existingLog.TimeOut = item.TimeOut;
                         existingLog.Mileage = item.Mileage;
                         existingLog.TollCharge = item.TollCharge;
                         existingLog.ParkingFee = item.ParkingFee;
@@ -618,7 +659,8 @@ namespace EntryPointApp.Api.Services.DailyLog
                         {
                             Id = existingLog.Id,
                             Date = existingLog.Date,
-                            Hours = existingLog.Hours,
+                            TimeIn = existingLog.TimeIn,
+                            TimeOut = existingLog.TimeOut,
                             Mileage = existingLog.Mileage,
                             TollCharge = existingLog.TollCharge,
                             ParkingFee = existingLog.ParkingFee,
@@ -642,7 +684,8 @@ namespace EntryPointApp.Api.Services.DailyLog
                             UserId = userId,
                             WeeklyLogId = weeklyLogId,
                             Date = item.Date,
-                            Hours = item.Hours,
+                            TimeIn = item.TimeIn,
+                            TimeOut = item.TimeOut,
                             Mileage = item.Mileage,
                             TollCharge = item.TollCharge,
                             ParkingFee = item.ParkingFee,
@@ -661,7 +704,8 @@ namespace EntryPointApp.Api.Services.DailyLog
                         {
                             Id = newLog.Id,
                             Date = newLog.Date,
-                            Hours = newLog.Hours,
+                            TimeIn = newLog.TimeIn,
+                            TimeOut = newLog.TimeOut,
                             Mileage = newLog.Mileage,
                             TollCharge = newLog.TollCharge,
                             ParkingFee = newLog.ParkingFee,

@@ -12,7 +12,9 @@ namespace EntryPointApp.Api.Models.Entities
 
         public required DateOnly Date { get; set; }
 
-        public decimal Hours { get; set; }
+        public TimeOnly TimeIn { get; set; }
+
+        public TimeOnly TimeOut { get; set; }
 
         public decimal Mileage { get; set; }
 

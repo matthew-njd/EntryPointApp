@@ -4,7 +4,9 @@ namespace EntryPointApp.Api.Models.Dtos.DailyLog
     {
         public int Id { get; set; }
         public DateOnly Date { get; set; }
-        public decimal Hours { get; set; }
+        public TimeOnly TimeIn { get; set; }
+        public TimeOnly TimeOut { get; set; }
+        public decimal Hours => (decimal)(TimeOut - TimeIn).TotalHours;
         public decimal Mileage { get; set; }
         public decimal TollCharge { get; set; }
         public decimal ParkingFee { get; set; }

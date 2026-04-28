@@ -197,7 +197,8 @@ namespace EntryPointApp.Api.Services.Manager
                         {
                             Id = d.Id,
                             Date = d.Date,
-                            Hours = d.Hours,
+                            TimeIn = d.TimeIn,
+                            TimeOut = d.TimeOut,
                             Mileage = d.Mileage,
                             TollCharge = d.TollCharge,
                             ParkingFee = d.ParkingFee,

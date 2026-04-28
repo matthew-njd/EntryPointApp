@@ -90,7 +90,6 @@ namespace EntryPointApp.Api.Data.Context
                 entity.Property(e => e.UserId).IsRequired();
                 entity.Property(e => e.WeeklyLogId).IsRequired();
                 entity.Property(e => e.Date).IsRequired();
-                entity.Property(e => e.Hours).HasPrecision(5, 2);
                 entity.Property(e => e.Mileage).HasPrecision(8, 2);
                 entity.Property(e => e.TollCharge).HasPrecision(8, 2);
                 entity.Property(e => e.ParkingFee).HasPrecision(8, 2);
