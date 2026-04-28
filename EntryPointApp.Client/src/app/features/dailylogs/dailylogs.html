@@ -75,7 +75,7 @@
               @for (dailyLog of service.dailyLogs(); track dailyLog.id) {
                 <tr>
                   <td>{{ dailyLog.date | date: "EEE, MMM d, y" }}</td>
-                  <td>{{ dailyLog.hours }} hrs</td>
+                  <td>{{ dailyLog.timeIn.substring(0, 5) }} – {{ dailyLog.timeOut.substring(0, 5) }} ({{ dailyLog.hours.toFixed(2) }} hrs)</td>
                   <td>{{ dailyLog.mileage }} mi</td>
                   <td>${{ dailyLog.tollCharge }}</td>
                   <td>${{ dailyLog.parkingFee }}</td>

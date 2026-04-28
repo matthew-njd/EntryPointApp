@@ -160,7 +160,7 @@ namespace EntryPointApp.Api.Services.DailyLog
                     };
                 }
 
-                if (request.TimeOut <= request.TimeIn)
+                if (request.TimeOut < request.TimeIn)
                 {
                     return new DailyLogResult
                     {
@@ -274,7 +274,7 @@ namespace EntryPointApp.Api.Services.DailyLog
                         continue;
                     }
 
-                    if (request.TimeOut <= request.TimeIn)
+                    if (request.TimeOut < request.TimeIn)
                     {
                         errors.Add($"Time out must be after time in for date {request.Date}.");
                         continue;
@@ -431,7 +431,7 @@ namespace EntryPointApp.Api.Services.DailyLog
                     };
                 }
 
-                if (request.TimeOut <= request.TimeIn)
+                if (request.TimeOut < request.TimeIn)
                 {
                     return new DailyLogResult
                     {
@@ -606,7 +606,7 @@ namespace EntryPointApp.Api.Services.DailyLog
                         continue;
                     }
 
-                    if (item.TimeOut <= item.TimeIn)
+                    if (item.TimeOut < item.TimeIn)
                     {
                         errors.Add($"Time out must be after time in for date {item.Date}.");
                         continue;

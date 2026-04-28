@@ -2,6 +2,8 @@ export interface DailyLog {
   id: number;
   weeklyLogId: number;
   date: string;
+  timeIn: string;
+  timeOut: string;
   hours: number;
   mileage: number;
   tollCharge: number;
@@ -12,7 +14,8 @@ export interface DailyLog {
 
 export interface DailyLogRequest {
   date: string;
-  hours: number;
+  timeIn: string;
+  timeOut: string;
   mileage: number;
   tollCharge: number;
   parkingFee: number;
@@ -23,7 +26,8 @@ export interface DailyLogRequest {
 export interface DailyLogUpdateItem {
   id?: number | null;
   date: string;
-  hours: number;
+  timeIn: string;
+  timeOut: string;
   mileage: number;
   tollCharge: number;
   parkingFee: number;

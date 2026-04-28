@@ -16,6 +16,8 @@ export interface TeamTimesheetResponse {
 export interface TeamDailyLogResponse {
   id: number;
   date: string;
+  timeIn: string;
+  timeOut: string;
   hours: number;
   mileage: number;
   tollCharge: number;

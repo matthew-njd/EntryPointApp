@@ -124,7 +124,7 @@
               @for (log of timesheet()!.dailyLogs; track log.id) {
                 <tr>
                   <td>{{ log.date | date: "EEE, MMM d, y" }}</td>
-                  <td>{{ log.hours }}</td>
+                  <td>{{ log.timeIn.substring(0, 5) }} – {{ log.timeOut.substring(0, 5) }} ({{ log.hours.toFixed(2) }} hrs)</td>
                   <td>{{ log.mileage }}</td>
                   <td>${{ log.tollCharge.toFixed(2) }}</td>
                   <td>${{ log.parkingFee.toFixed(2) }}</td>

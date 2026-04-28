@@ -105,16 +105,23 @@
                 >
                   <div>
                     <label class="label py-1">
-                      <span class="label-text text-xs">Hours</span>
+                      <span class="label-text text-xs">Time In</span>
                     </label>
                     <input
-                      type="number"
+                      type="time"
                       class="input input-sm w-full"
-                      formControlName="hours"
-                      step="0.5"
-                      min="0"
-                      max="24"
-                      placeholder="0"
+                      formControlName="timeIn"
+                    />
+                  </div>
+
+                  <div>
+                    <label class="label py-1">
+                      <span class="label-text text-xs">Time Out</span>
+                    </label>
+                    <input
+                      type="time"
+                      class="input input-sm w-full"
+                      formControlName="timeOut"
                     />
                   </div>
 
