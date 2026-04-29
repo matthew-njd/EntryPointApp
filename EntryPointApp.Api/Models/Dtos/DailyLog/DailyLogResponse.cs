@@ -12,5 +12,6 @@ namespace EntryPointApp.Api.Models.Dtos.DailyLog
         public decimal ParkingFee { get; set; }
         public decimal OtherCharges { get; set; }
         public string Comment { get; set; } = string.Empty;
+        public List<ReceiptResponse> Receipts { get; set; } = [];
     }
 }

@@ -2,6 +2,7 @@ using System.Security.Claims;
 using EntryPointApp.Api.Models.Common;
 using EntryPointApp.Api.Models.Dtos.DailyLog;
 using EntryPointApp.Api.Services.DailyLog;
+using EntryPointApp.Api.Services.Receipt;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,9 +10,10 @@ namespace EntryPointApp.Api.Controllers
 {
     [ApiController]
     [Route("api/weeklylogs/{weeklyLogId}/[controller]")]
-    public class DailyLogController(IDailyLogService dailyLogService, ILogger<DailyLogController> logger) : ControllerBase
+    public class DailyLogController(IDailyLogService dailyLogService, IReceiptService receiptService, ILogger<DailyLogController> logger) : ControllerBase
     {
         private readonly IDailyLogService _dailyLogService = dailyLogService;
+        private readonly IReceiptService _receiptService = receiptService;
         private readonly ILogger<DailyLogController> _logger = logger;
 
         /// <summary>
@@ -480,6 +482,339 @@ namespace EntryPointApp.Api.Controllers
                     Title = "DailyLog Deletion Error",
                     Status = 500,
                     Detail = "An unexpected error occurred while deleting the dailylog",
+                    Instance = HttpContext.Request.Path,
+                    TraceId = HttpContext.TraceIdentifier
+                });
+            }
+        }
+
+        /// <summary>
+        /// Upload a receipt for a specific dailylog
+        /// </summary>
+        [HttpPost("{id}/receipts")]
+        [Authorize]
+        [Consumes("multipart/form-data")]
+        [ProducesResponseType(typeof(ApiResponse<ReceiptResponse>), 201)]
+        [ProducesResponseType(typeof(ApiResponse), 400)]
+        [ProducesResponseType(typeof(ApiResponse), 403)]
+        [ProducesResponseType(typeof(ApiResponse), 404)]
+        [ProducesResponseType(typeof(ErrorResponse), 500)]
+        public async Task<IActionResult> UploadReceipt([FromRoute] int weeklyLogId, [FromRoute] int id, IFormFile file)
+        {
+            try
+            {
+                if (weeklyLogId <= 0 || id <= 0)
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Validation failed",
+                        Errors = ["IDs must be greater than 0"]
+                    });
+                }
+
+                if (file == null || file.Length == 0)
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Validation failed",
+                        Errors = ["A file must be provided"]
+                    });
+                }
+
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Invalid user context",
+                        Errors = ["Unable to identify user"]
+                    });
+                }
+
+                var result = await _receiptService.UploadReceiptAsync(id, weeklyLogId, file, userId);
+
+                if (!result.Success)
+                {
+                    if (result.Errors?.Any(e => e.Contains("permission")) == true)
+                    {
+                        return StatusCode(403, new ApiResponse
+                        {
+                            Success = false,
+                            Message = result.Message,
+                            Errors = result.Errors
+                        });
+                    }
+
+                    if (result.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return NotFound(new ApiResponse
+                        {
+                            Success = false,
+                            Message = result.Message,
+                            Errors = result.Errors ?? []
+                        });
+                    }
+
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = result.Message,
+                        Errors = result.Errors ?? []
+                    });
+                }
+
+                return Created(
+                    Url.Action(nameof(DownloadReceipt), new { weeklyLogId, id, attachmentId = result.Data!.Id }),
+                    new ApiResponse<ReceiptResponse>
+                    {
+                        Success = true,
+                        Message = result.Message,
+                        Data = result.Data
+                    });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error uploading receipt for daily log {DailyLogId}", id);
+                return StatusCode(500, new ErrorResponse
+                {
+                    Type = "InternalServerError",
+                    Title = "Receipt Upload Error",
+                    Status = 500,
+                    Detail = "An unexpected error occurred while uploading the receipt",
+                    Instance = HttpContext.Request.Path,
+                    TraceId = HttpContext.TraceIdentifier
+                });
+            }
+        }
+
+        /// <summary>
+        /// Get all receipts for a specific dailylog
+        /// </summary>
+        [HttpGet("{id}/receipts")]
+        [Authorize]
+        [ProducesResponseType(typeof(ApiResponse<List<ReceiptResponse>>), 200)]
+        [ProducesResponseType(typeof(ApiResponse), 400)]
+        [ProducesResponseType(typeof(ApiResponse), 403)]
+        [ProducesResponseType(typeof(ApiResponse), 404)]
+        [ProducesResponseType(typeof(ErrorResponse), 500)]
+        public async Task<IActionResult> GetReceipts([FromRoute] int weeklyLogId, [FromRoute] int id)
+        {
+            try
+            {
+                if (weeklyLogId <= 0 || id <= 0)
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Validation failed",
+                        Errors = ["IDs must be greater than 0"]
+                    });
+                }
+
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Invalid user context",
+                        Errors = ["Unable to identify user"]
+                    });
+                }
+
+                var result = await _receiptService.GetReceiptsAsync(id, weeklyLogId, userId);
+
+                if (!result.Success)
+                {
+                    if (result.Errors?.Any(e => e.Contains("permission")) == true)
+                    {
+                        return StatusCode(403, new ApiResponse
+                        {
+                            Success = false,
+                            Message = result.Message,
+                            Errors = result.Errors
+                        });
+                    }
+
+                    return NotFound(new ApiResponse
+                    {
+                        Success = false,
+                        Message = result.Message,
+                        Errors = result.Errors ?? []
+                    });
+                }
+
+                return Ok(new ApiResponse<List<ReceiptResponse>>
+                {
+                    Success = true,
+                    Message = result.Message,
+                    Data = result.Data
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error retrieving receipts for daily log {DailyLogId}", id);
+                return StatusCode(500, new ErrorResponse
+                {
+                    Type = "InternalServerError",
+                    Title = "Receipt Retrieval Error",
+                    Status = 500,
+                    Detail = "An unexpected error occurred while retrieving receipts",
+                    Instance = HttpContext.Request.Path,
+                    TraceId = HttpContext.TraceIdentifier
+                });
+            }
+        }
+
+        /// <summary>
+        /// Download a specific receipt file
+        /// </summary>
+        [HttpGet("{id}/receipts/{attachmentId}")]
+        [Authorize]
+        [ProducesResponseType(typeof(FileStreamResult), 200)]
+        [ProducesResponseType(typeof(ApiResponse), 400)]
+        [ProducesResponseType(typeof(ApiResponse), 403)]
+        [ProducesResponseType(typeof(ApiResponse), 404)]
+        [ProducesResponseType(typeof(ErrorResponse), 500)]
+        public async Task<IActionResult> DownloadReceipt([FromRoute] int weeklyLogId, [FromRoute] int id, [FromRoute] int attachmentId)
+        {
+            try
+            {
+                if (weeklyLogId <= 0 || id <= 0 || attachmentId <= 0)
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Validation failed",
+                        Errors = ["IDs must be greater than 0"]
+                    });
+                }
+
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Invalid user context",
+                        Errors = ["Unable to identify user"]
+                    });
+                }
+
+                var result = await _receiptService.DownloadReceiptAsync(attachmentId, id, weeklyLogId, userId);
+
+                if (!result.Success)
+                {
+                    if (result.Errors?.Any(e => e.Contains("permission")) == true)
+                    {
+                        return StatusCode(403, new ApiResponse
+                        {
+                            Success = false,
+                            Message = result.Message,
+                            Errors = result.Errors
+                        });
+                    }
+
+                    return NotFound(new ApiResponse
+                    {
+                        Success = false,
+                        Message = result.Message,
+                        Errors = result.Errors ?? []
+                    });
+                }
+
+                return File(result.FileStream!, result.ContentType, result.FileName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error downloading receipt {AttachmentId}", attachmentId);
+                return StatusCode(500, new ErrorResponse
+                {
+                    Type = "InternalServerError",
+                    Title = "Receipt Download Error",
+                    Status = 500,
+                    Detail = "An unexpected error occurred while downloading the receipt",
+                    Instance = HttpContext.Request.Path,
+                    TraceId = HttpContext.TraceIdentifier
+                });
+            }
+        }
+
+        /// <summary>
+        /// Delete a receipt (owner or admin only)
+        /// </summary>
+        [HttpDelete("{id}/receipts/{attachmentId}")]
+        [Authorize]
+        [ProducesResponseType(typeof(ApiResponse), 200)]
+        [ProducesResponseType(typeof(ApiResponse), 400)]
+        [ProducesResponseType(typeof(ApiResponse), 403)]
+        [ProducesResponseType(typeof(ApiResponse), 404)]
+        [ProducesResponseType(typeof(ErrorResponse), 500)]
+        public async Task<IActionResult> DeleteReceipt([FromRoute] int weeklyLogId, [FromRoute] int id, [FromRoute] int attachmentId)
+        {
+            try
+            {
+                if (weeklyLogId <= 0 || id <= 0 || attachmentId <= 0)
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Validation failed",
+                        Errors = ["IDs must be greater than 0"]
+                    });
+                }
+
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Invalid user context",
+                        Errors = ["Unable to identify user"]
+                    });
+                }
+
+                var result = await _receiptService.DeleteReceiptAsync(attachmentId, id, weeklyLogId, userId);
+
+                if (!result.Success)
+                {
+                    if (result.Errors?.Any(e => e.Contains("permission") || e.Contains("Only the owner")) == true)
+                    {
+                        return StatusCode(403, new ApiResponse
+                        {
+                            Success = false,
+                            Message = result.Message,
+                            Errors = result.Errors
+                        });
+                    }
+
+                    return NotFound(new ApiResponse
+                    {
+                        Success = false,
+                        Message = result.Message,
+                        Errors = result.Errors ?? []
+                    });
+                }
+
+                return Ok(new ApiResponse
+                {
+                    Success = true,
+                    Message = result.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error deleting receipt {AttachmentId}", attachmentId);
+                return StatusCode(500, new ErrorResponse
+                {
+                    Type = "InternalServerError",
+                    Title = "Receipt Deletion Error",
+                    Status = 500,
+                    Detail = "An unexpected error occurred while deleting the receipt",
                     Instance = HttpContext.Request.Path,
                     TraceId = HttpContext.TraceIdentifier
                 });

@@ -16,4 +16,21 @@ namespace EntryPointApp.Api.Models.Dtos.DailyLog
     {
         public List<DailyLogResponse>? Data { get; set; }
     }
+
+    public class ReceiptResult : BaseDailyLogResult
+    {
+        public ReceiptResponse? Data { get; set; }
+    }
+
+    public class ReceiptListResult : BaseDailyLogResult
+    {
+        public List<ReceiptResponse>? Data { get; set; }
+    }
+
+    public class ReceiptFileResult : BaseDailyLogResult
+    {
+        public Stream? FileStream { get; set; }
+        public string ContentType { get; set; } = string.Empty;
+        public string FileName { get; set; } = string.Empty;
+    }
 }

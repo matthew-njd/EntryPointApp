@@ -10,6 +10,7 @@ namespace EntryPointApp.Api.Data.Context
         public DbSet<WeeklyLog> WeeklyLogs { get; set; }
         public DbSet<DailyLog> DailyLogs { get; set; }
         public DbSet<UserRate> UserRates { get; set; }
+        public DbSet<DailyLogAttachment> DailyLogAttachments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -20,6 +21,7 @@ namespace EntryPointApp.Api.Data.Context
             ConfigureWeeklyLog(modelBuilder);
             ConfigureDailyLog(modelBuilder);
             ConfigureUserRate(modelBuilder);
+            ConfigureDailyLogAttachment(modelBuilder);
         }
 
         private void ConfigureUser(ModelBuilder modelBuilder)
@@ -128,6 +130,22 @@ namespace EntryPointApp.Api.Data.Context
                     .OnDelete(DeleteBehavior.Restrict);
                 entity.HasIndex(e => e.UserId);
                 entity.HasIndex(e => new { e.UserId, e.EffectiveDate });
+            });
+        }
+
+        private void ConfigureDailyLogAttachment(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<DailyLogAttachment>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.FileName).IsRequired().HasMaxLength(260);
+                entity.Property(e => e.OriginalFileName).IsRequired().HasMaxLength(260);
+                entity.Property(e => e.ContentType).IsRequired().HasMaxLength(100);
+                entity.HasOne(e => e.DailyLog)
+                    .WithMany(d => d.Attachments)
+                    .HasForeignKey(e => e.DailyLogId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                entity.HasIndex(e => e.DailyLogId);
             });
         }
     }

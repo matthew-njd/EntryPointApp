@@ -42,7 +42,18 @@ namespace EntryPointApp.Api.Services.DailyLog
                         TollCharge = d.TollCharge,
                         ParkingFee = d.ParkingFee,
                         OtherCharges = d.OtherCharges,
-                        Comment = d.Comment
+                        Comment = d.Comment,
+                        Receipts = d.Attachments
+                            .OrderBy(a => a.UploadedAt)
+                            .Select(a => new ReceiptResponse
+                            {
+                                Id = a.Id,
+                                DailyLogId = a.DailyLogId,
+                                OriginalFileName = a.OriginalFileName,
+                                ContentType = a.ContentType,
+                                FileSizeBytes = a.FileSizeBytes,
+                                UploadedAt = a.UploadedAt
+                            }).ToList()
                     })
                     .ToListAsync();
 
@@ -91,7 +102,18 @@ namespace EntryPointApp.Api.Services.DailyLog
                         TollCharge = d.TollCharge,
                         ParkingFee = d.ParkingFee,
                         OtherCharges = d.OtherCharges,
-                        Comment = d.Comment
+                        Comment = d.Comment,
+                        Receipts = d.Attachments
+                            .OrderBy(a => a.UploadedAt)
+                            .Select(a => new ReceiptResponse
+                            {
+                                Id = a.Id,
+                                DailyLogId = a.DailyLogId,
+                                OriginalFileName = a.OriginalFileName,
+                                ContentType = a.ContentType,
+                                FileSizeBytes = a.FileSizeBytes,
+                                UploadedAt = a.UploadedAt
+                            }).ToList()
                     })
                     .FirstOrDefaultAsync();
 

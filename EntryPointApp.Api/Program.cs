@@ -9,7 +9,9 @@ using EntryPointApp.Api.Services.Authentication;
 using EntryPointApp.Api.Services.DailyLog;
 using EntryPointApp.Api.Services.Email;
 using EntryPointApp.Api.Services.Excel;
+using EntryPointApp.Api.Services.FileStorage;
 using EntryPointApp.Api.Services.Manager;
+using EntryPointApp.Api.Services.Receipt;
 using EntryPointApp.Api.Services.WeeklyLog;
 using Mailjet.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -64,6 +66,10 @@ builder.Services.AddScoped<IUserRateService, UserRateService>();
 builder.Services.AddScoped<IManagerService, ManagerService>();
 builder.Services.AddScoped<IExcelService, ExcelService>();
 
+builder.Services.Configure<FileStorageSettings>(builder.Configuration.GetSection("FileStorage"));
+builder.Services.AddSingleton<IFileStorageService, FileStorageService>();
+builder.Services.AddScoped<IReceiptService, ReceiptService>();
+
 builder.Services.AddSecurityServices(builder.Configuration);
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
@@ -113,6 +119,9 @@ builder.Services.AddHttpClient<IMailjetClient, MailjetClient>(client =>
 });
 
 builder.Services.AddScoped<IEmailService, MailJetEmailService>();
+
+builder.WebHost.ConfigureKestrel(o =>
+    o.Limits.MaxRequestBodySize = 11_534_336); // 11 MB to accommodate 10 MB file + multipart overhead
 
 var app = builder.Build();
 

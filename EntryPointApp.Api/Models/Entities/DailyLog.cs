@@ -36,5 +36,6 @@ namespace EntryPointApp.Api.Models.Entities
         // Navigation properties
         public User User { get; set; } = null!;
         public WeeklyLog WeeklyLog { get; set; } = null!;
+        public ICollection<DailyLogAttachment> Attachments { get; set; } = [];
     }
 }
