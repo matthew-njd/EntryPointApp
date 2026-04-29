@@ -1,6 +1,7 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ManagerService } from '../../core/services/manager.service';
+import { DailyLogService } from '../../core/services/dailylog.service';
 import { ToastService } from '../../core/services/toast.service';
 import {
   FormBuilder,
@@ -28,6 +29,7 @@ export class ReviewTimsheet {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private managerService = inject(ManagerService);
+  private dailyLogService = inject(DailyLogService);
   private toastService = inject(ToastService);
   private fb = inject(FormBuilder);
 
@@ -159,6 +161,22 @@ export class ReviewTimsheet {
       error: (err) => {
         this.toastService.error(err.message || 'Failed to deny timesheet');
         this.isSubmitting.set(false);
+      },
+    });
+  }
+
+  downloadReceipt(weeklyLogId: number, dailyLogId: number, attachmentId: number, fileName: string): void {
+    this.dailyLogService.downloadReceipt(weeklyLogId, dailyLogId, attachmentId).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        a.click();
+        URL.revokeObjectURL(url);
+      },
+      error: () => {
+        this.toastService.error('Failed to download receipt');
       },
     });
   }

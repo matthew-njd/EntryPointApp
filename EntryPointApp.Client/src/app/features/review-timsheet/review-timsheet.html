@@ -118,6 +118,7 @@
                 <th>Parking</th>
                 <th>Other</th>
                 <th>Comment</th>
+                <th>Receipts</th>
               </tr>
             </thead>
             <tbody>
@@ -133,6 +134,22 @@
                     <span class="text-sm text-base-content/60">
                       {{ log.comment || "-" }}
                     </span>
+                  </td>
+                  <td>
+                    @if (log.receipts && log.receipts.length > 0) {
+                      <div class="flex flex-col gap-1">
+                        @for (receipt of log.receipts; track receipt.id) {
+                          <button
+                            class="link link-primary text-xs text-left"
+                            (click)="downloadReceipt(timesheet()!.id, log.id, receipt.id, receipt.originalFileName)"
+                          >
+                            {{ receipt.originalFileName }}
+                          </button>
+                        }
+                      </div>
+                    } @else {
+                      <span class="text-base-content/40 text-xs">—</span>
+                    }
                   </td>
                 </tr>
               }

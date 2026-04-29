@@ -1,5 +1,6 @@
 using EntryPointApp.Api.Data.Context;
 using EntryPointApp.Api.Models.Dtos.Common;
+using EntryPointApp.Api.Models.Dtos.DailyLog;
 using EntryPointApp.Api.Models.Dtos.Manager;
 using EntryPointApp.Api.Models.Enums;
 using EntryPointApp.Api.Services.Email;
@@ -160,6 +161,7 @@ namespace EntryPointApp.Api.Services.Manager
                 var weeklyLog = await _context.WeeklyLogs
                     .Include(w => w.User)
                     .Include(w => w.DailyLogs.Where(d => !d.IsDeleted))
+                        .ThenInclude(d => d.Attachments)
                     .Where(w => w.Id == weeklyLogId
                         && w.User.ManagerId == managerId
                         && !w.IsDeleted)
@@ -203,7 +205,18 @@ namespace EntryPointApp.Api.Services.Manager
                             TollCharge = d.TollCharge,
                             ParkingFee = d.ParkingFee,
                             OtherCharges = d.OtherCharges,
-                            Comment = d.Comment
+                            Comment = d.Comment,
+                            Receipts = d.Attachments
+                                .OrderBy(a => a.UploadedAt)
+                                .Select(a => new ReceiptResponse
+                                {
+                                    Id = a.Id,
+                                    DailyLogId = a.DailyLogId,
+                                    OriginalFileName = a.OriginalFileName,
+                                    ContentType = a.ContentType,
+                                    FileSizeBytes = a.FileSizeBytes,
+                                    UploadedAt = a.UploadedAt
+                                }).ToList()
                         })
                         .ToList()
                 };

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using EntryPointApp.Api.Models.Dtos.Common;
+using EntryPointApp.Api.Models.Dtos.DailyLog;
 
 namespace EntryPointApp.Api.Models.Dtos.Manager
 {
@@ -36,6 +37,7 @@ namespace EntryPointApp.Api.Models.Dtos.Manager
         public decimal ParkingFee { get; set; }
         public decimal OtherCharges { get; set; }
         public string Comment { get; set; } = string.Empty;
+        public List<ReceiptResponse> Receipts { get; set; } = [];
     }
 
     public class DenyTimesheetRequest

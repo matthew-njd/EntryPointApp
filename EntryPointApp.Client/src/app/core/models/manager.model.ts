@@ -13,6 +13,8 @@ export interface TeamTimesheetResponse {
   updatedAt: string;
 }
 
+import { ReceiptResponse } from './dailylog.model';
+
 export interface TeamDailyLogResponse {
   id: number;
   date: string;
@@ -24,6 +26,7 @@ export interface TeamDailyLogResponse {
   parkingFee: number;
   otherCharges: number;
   comment: string;
+  receipts: ReceiptResponse[];
 }
 
 export interface TeamTimesheetDetailResponse extends TeamTimesheetResponse {
