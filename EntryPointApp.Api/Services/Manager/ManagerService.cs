@@ -274,25 +274,28 @@ namespace EntryPointApp.Api.Services.Manager
                 _logger.LogInformation("Manager {ManagerId} successfully approved timesheet {WeeklyLogId}",
                     managerId, weeklyLogId);
 
-                var capturedLog = weeklyLog;
+                var employeeName = $"{weeklyLog.User.FirstName} {weeklyLog.User.LastName}".Trim();
+                var managerName = $"{weeklyLog.User.Manager!.FirstName} {weeklyLog.User.Manager.LastName}".Trim();
+                var weekPeriod = $"{weeklyLog.DateFrom:MM/dd/yyyy} - {weeklyLog.DateTo:MM/dd/yyyy}";
+                var filename = $"Timesheet_{employeeName.Replace(" ", "_")}_{weeklyLog.DateFrom:yyyyMMdd}.xlsx";
+                var userEmail = weeklyLog.User.Email;
+                var managerEmail = weeklyLog.User.Manager.Email;
+                var totalHours = weeklyLog.TotalHours;
+                var totalCharges = weeklyLog.TotalCharges;
+                var excelBytes = await _excelService.GenerateTimesheetExcelAsync(weeklyLogId);
+
                 _ = Task.Run(async () =>
                 {
                     try
                     {
-                        var excelBytes = await _excelService.GenerateTimesheetExcelAsync(weeklyLogId);
-                        var employeeName = $"{capturedLog.User.FirstName} {capturedLog.User.LastName}".Trim();
-                        var managerName = $"{capturedLog.User.Manager!.FirstName} {capturedLog.User.Manager.LastName}".Trim();
-                        var weekPeriod = $"{capturedLog.DateFrom:MM/dd/yyyy} - {capturedLog.DateTo:MM/dd/yyyy}";
-                        var filename = $"Timesheet_{employeeName.Replace(" ", "_")}_{capturedLog.DateFrom:yyyyMMdd}.xlsx";
-
                         await _emailService.SendTimesheetApprovalEmailAsync(
-                            capturedLog.User.Email,
+                            userEmail,
                             employeeName,
-                            capturedLog.User.Manager.Email,
+                            managerEmail,
                             managerName,
                             weekPeriod,
-                            capturedLog.TotalHours,
-                            capturedLog.TotalCharges,
+                            totalHours,
+                            totalCharges,
                             excelBytes,
                             filename);
                     }
