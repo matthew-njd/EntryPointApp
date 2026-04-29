@@ -1,3 +1,12 @@
+export interface ReceiptResponse {
+  id: number;
+  dailyLogId: number;
+  originalFileName: string;
+  contentType: string;
+  fileSizeBytes: number;
+  uploadedAt: string;
+}
+
 export interface DailyLog {
   id: number;
   weeklyLogId: number;
@@ -10,6 +19,7 @@ export interface DailyLog {
   parkingFee: number;
   otherCharges: number;
   comment: string;
+  receipts: ReceiptResponse[];
 }
 
 export interface DailyLogRequest {

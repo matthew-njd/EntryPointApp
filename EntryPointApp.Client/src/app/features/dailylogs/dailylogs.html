@@ -69,6 +69,7 @@
                 <th>Parking Fees</th>
                 <th>Other Charges</th>
                 <th>Comments</th>
+                <th>Receipts</th>
               </tr>
             </thead>
             <tbody>
@@ -81,10 +82,26 @@
                   <td>${{ dailyLog.parkingFee }}</td>
                   <td>${{ dailyLog.otherCharges }}</td>
                   <td>{{ dailyLog.comment || "-" }}</td>
+                  <td>
+                    @if (dailyLog.receipts && dailyLog.receipts.length > 0) {
+                      <div class="flex flex-col gap-1">
+                        @for (receipt of dailyLog.receipts; track receipt.id) {
+                          <button
+                            class="link link-primary text-xs text-left"
+                            (click)="downloadReceipt(dailyLog.weeklyLogId, dailyLog.id, receipt.id, receipt.originalFileName)"
+                          >
+                            {{ receipt.originalFileName }}
+                          </button>
+                        }
+                      </div>
+                    } @else {
+                      <span class="text-base-content/40 text-xs">—</span>
+                    }
+                  </td>
                 </tr>
               } @empty {
                 <tr>
-                  <td colspan="7" class="text-center py-8">
+                  <td colspan="8" class="text-center py-8">
                     No dailylogs found for this week
                   </td>
                 </tr>

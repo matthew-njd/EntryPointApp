@@ -8,6 +8,7 @@ import { Card } from '../../shared/card/card';
 import { Footer } from '../../shared/footer/footer';
 import { WeeklyLogService } from '../../core/services/weeklog.service';
 import { WeeklyLog } from '../../core/models/weeklylog.model';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-dailylogs',
@@ -21,6 +22,7 @@ export class Dailylogs {
   private router = inject(Router);
   readonly service = inject(DailyLogService);
   private weeklyLogService = inject(WeeklyLogService);
+  private toastService = inject(ToastService);
 
   weeklyLogId = toSignal(this.route.paramMap);
   weeklyLog = signal<WeeklyLog | null>(null);
@@ -72,6 +74,22 @@ export class Dailylogs {
       )
       .toFixed(2),
   );
+
+  downloadReceipt(weeklyLogId: number, dailyLogId: number, attachmentId: number, fileName: string): void {
+    this.service.downloadReceipt(weeklyLogId, dailyLogId, attachmentId).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        a.click();
+        URL.revokeObjectURL(url);
+      },
+      error: () => {
+        this.toastService.error('Failed to download receipt');
+      },
+    });
+  }
 
   editTimesheet() {
     const id = this.weeklyLogId()?.get('id');

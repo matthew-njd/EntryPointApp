@@ -13,6 +13,7 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { WeeklyLogService } from '../../core/services/weeklog.service';
 import { DailyLogService } from '../../core/services/dailylog.service';
 import { WeeklyLogRequest } from '../../core/models/weeklylog.model';
@@ -25,6 +26,8 @@ interface DayForm {
   dayName: string;
   date: string;
   formGroup: FormGroup;
+  pendingFiles: File[];
+  canAddReceipt: boolean;
 }
 
 @Component({
@@ -111,17 +114,20 @@ export class CreateTimesheet {
         comment: [{ value: '', disabled: true }, [Validators.maxLength(500)]],
       });
 
-      forms.push({
+      const dayForm: DayForm = {
         dayName,
         date: dateStr,
         formGroup,
-      });
+        pendingFiles: [],
+        canAddReceipt: false,
+      };
+      forms.push(dayForm);
 
       formGroup.get('isDayOff')?.valueChanges.subscribe((isDayOff) => {
-        this.handleDayOffChange(formGroup, isDayOff ?? false);
+        this.handleDayOffChange(dayForm, isDayOff ?? false);
       });
 
-      this.subscribeToTimeChanges(formGroup);
+      this.subscribeToTimeChanges(dayForm);
     }
 
     forms.forEach((form) => {
@@ -133,7 +139,8 @@ export class CreateTimesheet {
     this.dayForms.set(forms);
   }
 
-  handleDayOffChange(formGroup: FormGroup, isDayOff: boolean): void {
+  handleDayOffChange(day: DayForm, isDayOff: boolean): void {
+    const formGroup = day.formGroup;
     if (isDayOff) {
       formGroup.get('timeIn')?.setValue('');
       formGroup.get('timeIn')?.disable();
@@ -149,15 +156,18 @@ export class CreateTimesheet {
       formGroup.get('otherCharges')?.disable();
       formGroup.get('comment')?.setValue('Day off');
       formGroup.get('comment')?.disable();
+      day.canAddReceipt = false;
     } else {
       formGroup.get('timeIn')?.enable();
       formGroup.get('timeOut')?.enable();
       formGroup.get('comment')?.setValue('');
-      // Other fields stay disabled until Time In and Time Out are entered
+      // canAddReceipt stays false until Time In and Time Out are entered
     }
+    this.dayForms.update((days) => [...days]);
   }
 
-  private subscribeToTimeChanges(formGroup: FormGroup): void {
+  private subscribeToTimeChanges(day: DayForm): void {
+    const formGroup = day.formGroup;
     const onTimeChange = () => {
       if (formGroup.get('isDayOff')?.value) return;
       const timeIn = formGroup.get('timeIn')?.value;
@@ -169,6 +179,7 @@ export class CreateTimesheet {
         formGroup.get('parkingFee')?.enable();
         formGroup.get('otherCharges')?.enable();
         formGroup.get('comment')?.enable();
+        day.canAddReceipt = true;
       } else {
         ['mileage', 'tollCharge', 'parkingFee', 'otherCharges'].forEach((field) => {
           formGroup.get(field)?.setValue(0);
@@ -176,7 +187,9 @@ export class CreateTimesheet {
         });
         formGroup.get('comment')?.setValue('');
         formGroup.get('comment')?.disable();
+        day.canAddReceipt = false;
       }
+      this.dayForms.update((days) => [...days]);
     };
 
     formGroup.get('timeIn')?.valueChanges.subscribe(onTimeChange);
@@ -238,11 +251,36 @@ export class CreateTimesheet {
             .createDailyLogsBatch(weeklyLogId, dailyLogRequests)
             .subscribe({
               next: (dailyLogResponse) => {
-                this.isLoading.set(false);
-                if (dailyLogResponse.success) {
-                  this.toastService.success(dailyLogResponse.message);
-                  this.router.navigate(['/dashboard/week', weeklyLogId]);
+                if (dailyLogResponse.success && dailyLogResponse.data) {
+                  const createdLogs = dailyLogResponse.data;
+                  const uploadTasks = createdLogs.flatMap((createdLog) => {
+                    const dayForm = this.dayForms().find((d) => d.date === createdLog.date);
+                    return (dayForm?.pendingFiles ?? []).map((file) =>
+                      this.dailyLogService.uploadReceipt(weeklyLogId, createdLog.id, file)
+                    );
+                  });
+
+                  const navigate = () => {
+                    this.isLoading.set(false);
+                    this.toastService.success(dailyLogResponse.message);
+                    this.router.navigate(['/dashboard/week', weeklyLogId]);
+                  };
+
+                  if (uploadTasks.length === 0) {
+                    navigate();
+                  } else {
+                    forkJoin(uploadTasks).subscribe({
+                      next: () => navigate(),
+                      error: () => {
+                        this.isLoading.set(false);
+                        this.toastService.success(dailyLogResponse.message);
+                        this.toastService.error('Some receipts failed to upload');
+                        this.router.navigate(['/dashboard/week', weeklyLogId]);
+                      },
+                    });
+                  }
                 } else {
+                  this.isLoading.set(false);
                   this.toastService.error(
                     dailyLogResponse.message || 'Failed to create daily logs',
                   );
@@ -271,6 +309,20 @@ export class CreateTimesheet {
         );
       },
     });
+  }
+
+  onFileSelected(day: DayForm, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    day.pendingFiles = [...day.pendingFiles, file];
+    input.value = '';
+    this.dayForms.update((days) => [...days]);
+  }
+
+  removeQueuedFile(day: DayForm, index: number): void {
+    day.pendingFiles = day.pendingFiles.filter((_, i) => i !== index);
+    this.dayForms.update((days) => [...days]);
   }
 
   get dateFrom() {

@@ -20,6 +20,7 @@ import { DailyLogService } from '../../core/services/dailylog.service';
 import { WeeklyLog } from '../../core/models/weeklylog.model';
 import {
   DailyLogUpdateItem,
+  ReceiptResponse,
   UpdateDailyLogsRequest,
 } from '../../core/models/dailylog.model';
 import { ToastService } from '../../core/services/toast.service';
@@ -31,6 +32,9 @@ interface DayForm {
   date: string;
   formGroup: FormGroup;
   existingId?: number;
+  receipts: ReceiptResponse[];
+  isUploadingReceipt: boolean;
+  canAddReceipt: boolean;
 }
 
 @Component({
@@ -157,6 +161,9 @@ export class EditTimesheet {
         dayName,
         date: dateStr,
         existingId: existingLog?.id,
+        receipts: existingLog?.receipts ?? [],
+        isUploadingReceipt: false,
+        canAddReceipt: hasRealTimes,
         formGroup: this.fb.group({
           isDayOff: [isDayOff],
           timeIn: [{ value: isEmptyTime ? '' : (existingLog?.timeIn?.substring(0, 5) ?? ''), disabled: isDayOff }],
@@ -186,10 +193,10 @@ export class EditTimesheet {
 
       const lastForm = forms[forms.length - 1];
       lastForm.formGroup.get('isDayOff')?.valueChanges.subscribe((isDayOff) => {
-        this.handleDayOffChange(lastForm.formGroup, isDayOff ?? false);
+        this.handleDayOffChange(lastForm, isDayOff ?? false);
       });
 
-      this.subscribeToTimeChanges(lastForm.formGroup);
+      this.subscribeToTimeChanges(lastForm);
     }
 
     forms.forEach((form) => {
@@ -201,7 +208,8 @@ export class EditTimesheet {
     this.dayForms.set(forms);
   }
 
-  handleDayOffChange(formGroup: FormGroup, isDayOff: boolean): void {
+  handleDayOffChange(day: DayForm, isDayOff: boolean): void {
+    const formGroup = day.formGroup;
     if (isDayOff) {
       formGroup.get('timeIn')?.setValue('');
       formGroup.get('timeIn')?.disable();
@@ -217,15 +225,18 @@ export class EditTimesheet {
       formGroup.get('otherCharges')?.disable();
       formGroup.get('comment')?.setValue('Day off');
       formGroup.get('comment')?.disable();
+      day.canAddReceipt = false;
     } else {
       formGroup.get('timeIn')?.enable();
       formGroup.get('timeOut')?.enable();
       formGroup.get('comment')?.setValue('');
-      // Other fields stay disabled until Time In and Time Out are entered
+      // canAddReceipt stays false until Time In and Time Out are entered
     }
+    this.dayForms.update((days) => [...days]);
   }
 
-  private subscribeToTimeChanges(formGroup: FormGroup): void {
+  private subscribeToTimeChanges(day: DayForm): void {
+    const formGroup = day.formGroup;
     const onTimeChange = () => {
       if (formGroup.get('isDayOff')?.value) return;
       const timeIn = formGroup.get('timeIn')?.value;
@@ -237,6 +248,7 @@ export class EditTimesheet {
         formGroup.get('parkingFee')?.enable();
         formGroup.get('otherCharges')?.enable();
         formGroup.get('comment')?.enable();
+        day.canAddReceipt = true;
       } else {
         ['mileage', 'tollCharge', 'parkingFee', 'otherCharges'].forEach((field) => {
           formGroup.get(field)?.setValue(0);
@@ -244,11 +256,84 @@ export class EditTimesheet {
         });
         formGroup.get('comment')?.setValue('');
         formGroup.get('comment')?.disable();
+        day.canAddReceipt = false;
       }
+      this.dayForms.update((days) => [...days]);
     };
 
     formGroup.get('timeIn')?.valueChanges.subscribe(onTimeChange);
     formGroup.get('timeOut')?.valueChanges.subscribe(onTimeChange);
+  }
+
+  onFileSelected(day: DayForm, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file || !day.existingId) return;
+
+    const weeklyLogId = this.weeklyLog()?.id;
+    if (!weeklyLogId) return;
+
+    day.isUploadingReceipt = true;
+    this.dayForms.update((days) => [...days]);
+
+    this.dailyLogService.uploadReceipt(weeklyLogId, day.existingId, file).subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          day.receipts = [...day.receipts, response.data];
+          this.toastService.success('Receipt uploaded successfully!');
+        } else {
+          this.toastService.error(response.message || 'Failed to upload receipt');
+        }
+        day.isUploadingReceipt = false;
+        input.value = '';
+        this.dayForms.update((days) => [...days]);
+      },
+      error: (err) => {
+        this.toastService.error(err.error?.message || 'Failed to upload receipt');
+        day.isUploadingReceipt = false;
+        input.value = '';
+        this.dayForms.update((days) => [...days]);
+      },
+    });
+  }
+
+  deleteReceipt(day: DayForm, attachmentId: number): void {
+    const weeklyLogId = this.weeklyLog()?.id;
+    if (!weeklyLogId || !day.existingId) return;
+
+    this.dailyLogService.deleteReceipt(weeklyLogId, day.existingId, attachmentId).subscribe({
+      next: (response) => {
+        if (response.success) {
+          day.receipts = day.receipts.filter((r) => r.id !== attachmentId);
+          this.toastService.success('Receipt deleted.');
+          this.dayForms.update((days) => [...days]);
+        } else {
+          this.toastService.error(response.message || 'Failed to delete receipt');
+        }
+      },
+      error: (err) => {
+        this.toastService.error(err.error?.message || 'Failed to delete receipt');
+      },
+    });
+  }
+
+  downloadReceipt(dailyLogId: number, attachmentId: number, fileName: string): void {
+    const weeklyLogId = this.weeklyLog()?.id;
+    if (!weeklyLogId) return;
+
+    this.dailyLogService.downloadReceipt(weeklyLogId, dailyLogId, attachmentId).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        a.click();
+        URL.revokeObjectURL(url);
+      },
+      error: () => {
+        this.toastService.error('Failed to download receipt');
+      },
+    });
   }
 
   onSubmit(): void {

@@ -3,6 +3,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import {
   DailyLog,
   DailyLogRequest,
+  ReceiptResponse,
   UpdateDailyLogsRequest,
 } from '../models/dailylog.model';
 
@@ -58,6 +59,23 @@ export class DailyLogService {
   updateDailyLogs(weeklyLogId: number, request: UpdateDailyLogsRequest) {
     const apiUrl = `http://localhost:5077/api/weeklylogs/${weeklyLogId}/dailylog`;
     return this.http.put<ApiResponse<DailyLog[]>>(apiUrl, request);
+  }
+
+  uploadReceipt(weeklyLogId: number, dailyLogId: number, file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+    const url = `http://localhost:5077/api/weeklylogs/${weeklyLogId}/dailylog/${dailyLogId}/receipts`;
+    return this.http.post<ApiResponse<ReceiptResponse>>(url, formData);
+  }
+
+  deleteReceipt(weeklyLogId: number, dailyLogId: number, attachmentId: number) {
+    const url = `http://localhost:5077/api/weeklylogs/${weeklyLogId}/dailylog/${dailyLogId}/receipts/${attachmentId}`;
+    return this.http.delete<ApiResponse<void>>(url);
+  }
+
+  downloadReceipt(weeklyLogId: number, dailyLogId: number, attachmentId: number) {
+    const url = `http://localhost:5077/api/weeklylogs/${weeklyLogId}/dailylog/${dailyLogId}/receipts/${attachmentId}`;
+    return this.http.get(url, { responseType: 'blob' });
   }
 
   clear() {
