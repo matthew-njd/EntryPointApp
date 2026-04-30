@@ -269,6 +269,13 @@ export class UserEdit {
     this.router.navigate(['/admin']);
   }
 
+  viewTimesheets(): void {
+    const id = this.userId()?.get('id');
+    if (id) {
+      this.router.navigate(['/admin/users', id, 'timesheets']);
+    }
+  }
+
   getUserFullName(user: UserDto): string {
     if (user.firstName && user.lastName) {
       return `${user.firstName} ${user.lastName}`;

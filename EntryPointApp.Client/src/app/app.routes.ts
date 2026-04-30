@@ -15,6 +15,8 @@ import { UserEdit } from './features/user-edit/user-edit';
 import { Manager } from './features/manager/manager';
 import { managerGuard } from './core/guards/manager.guard';
 import { ReviewTimsheet } from './features/review-timsheet/review-timsheet';
+import { AdminUserTimesheets } from './features/admin-user-timesheets/admin-user-timesheets';
+import { AdminTimesheetDetail } from './features/admin-timesheet-detail/admin-timesheet-detail';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
@@ -45,6 +47,16 @@ export const routes: Routes = [
   {
     path: 'admin/users/:id/edit',
     component: UserEdit,
+    canActivate: [adminGuard],
+  },
+  {
+    path: 'admin/users/:id/timesheets',
+    component: AdminUserTimesheets,
+    canActivate: [adminGuard],
+  },
+  {
+    path: 'admin/users/:id/timesheets/:timesheetId',
+    component: AdminTimesheetDetail,
     canActivate: [adminGuard],
   },
   {

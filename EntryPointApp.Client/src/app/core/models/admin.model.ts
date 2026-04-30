@@ -1,3 +1,38 @@
+import { ReceiptResponse } from './dailylog.model';
+
+export interface AdminTimesheetResponse {
+  id: number;
+  dateFrom: string;
+  dateTo: string;
+  totalHours: number;
+  totalCharges: number;
+  status: string;
+  managerComment: string | null;
+  submittedAt: string;
+  updatedAt: string;
+}
+
+export interface AdminDailyLogResponse {
+  id: number;
+  date: string;
+  timeIn: string;
+  timeOut: string;
+  hours: number;
+  mileage: number;
+  tollCharge: number;
+  parkingFee: number;
+  otherCharges: number;
+  comment: string;
+  receipts: ReceiptResponse[];
+}
+
+export interface AdminTimesheetDetailResponse extends AdminTimesheetResponse {
+  userId: number;
+  userFullName: string;
+  userEmail: string;
+  dailyLogs: AdminDailyLogResponse[];
+}
+
 export interface UserDto {
   id: number;
   email: string;

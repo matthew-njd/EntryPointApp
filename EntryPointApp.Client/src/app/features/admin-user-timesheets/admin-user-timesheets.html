@@ -1,0 +1,86 @@
+<div class="flex flex-col min-h-screen">
+  <app-nav></app-nav>
+
+  <div class="grow mt-16 sm:mt-40 max-w-4xl mx-auto px-4 w-full">
+    @if (isLoading()) {
+      <div class="flex justify-center items-center py-20">
+        <span class="loading loading-spinner loading-xl"></span>
+      </div>
+    } @else {
+      <div class="mb-8">
+        <button class="btn btn-sm btn-primary" (click)="goBack()">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="m7.825 13l4.9 4.9q.3.3.288.7t-.313.7q-.3.275-.7.288t-.7-.288l-6.6-6.6q-.15-.15-.213-.325T4.426 12t.063-.375t.212-.325l6.6-6.6q.275-.275.688-.275t.712.275q.3.3.3.713t-.3.712L7.825 11H19q.425 0 .713.288T20 12t-.288.713T19 13z"
+            />
+          </svg>
+          Back to User
+        </button>
+      </div>
+
+      @if (user()) {
+        <div class="mb-6">
+          <h1 class="text-3xl font-bold">Timesheets</h1>
+          <p class="text-base-content/60 mt-2">
+            {{ getUserDisplayName(user()!) }} ({{ user()!.email }})
+          </p>
+        </div>
+      }
+
+      <div class="w-full overflow-x-auto rounded-box bg-base-300">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Week</th>
+              <th>Status</th>
+              <th>Total Hours</th>
+              <th>Total Charges</th>
+              <th>Submitted</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (ts of timesheets(); track ts.id) {
+              <tr>
+                <td>
+                  {{ ts.dateFrom | date: "MMM d, y" }} –
+                  {{ ts.dateTo | date: "MMM d, y" }}
+                </td>
+                <td>
+                  <span class="badge badge-sm" [ngClass]="getStatusClass(ts.status)">
+                    {{ ts.status }}
+                  </span>
+                </td>
+                <td>{{ ts.totalHours }} hrs</td>
+                <td>${{ ts.totalCharges.toFixed(2) }}</td>
+                <td>{{ ts.submittedAt | date: "MMM d, y" }}</td>
+                <td>
+                  <button
+                    class="btn btn-xs btn-outline"
+                    (click)="viewTimesheet(ts.id)"
+                  >
+                    View
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6" class="text-center py-8">
+                  No timesheets found for this user
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+
+  <app-footer class="mt-8"></app-footer>
+</div>

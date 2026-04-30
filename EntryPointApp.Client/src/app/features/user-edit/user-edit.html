@@ -7,7 +7,7 @@
         <span class="loading loading-spinner loading-xl"></span>
       </div>
     } @else {
-      <div class="mb-8">
+      <div class="flex justify-between items-center mb-8">
         <button class="btn btn-sm btn-primary" (click)="goBack()">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -21,6 +21,20 @@
             />
           </svg>
           Back to Users
+        </button>
+        <button class="btn btn-sm btn-outline" (click)="viewTimesheets()">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M8 17h8v-2H8zm0-4h8v-2H8zm-2 8q-.825 0-1.412-.587T4 19V5q0-.825.588-1.412T6 3h8l6 6v10q0 .825-.587 1.413T18 21zm7-11V5H6v14h12V10z"
+            />
+          </svg>
+          View Timesheets
         </button>
       </div>
 

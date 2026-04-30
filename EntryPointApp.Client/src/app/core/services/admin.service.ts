@@ -2,6 +2,8 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {
+  AdminTimesheetDetailResponse,
+  AdminTimesheetResponse,
   UserDto,
   UserRateDto,
   SetUserRateRequest,
@@ -136,6 +138,18 @@ export class AdminService {
     return this.http.post<ApiResponse<UserRateDto>>(
       `${this.apiUrl}/users/${userId}/rates`,
       request,
+    );
+  }
+
+  getUserTimesheets(userId: number): Observable<ApiResponse<AdminTimesheetResponse[]>> {
+    return this.http.get<ApiResponse<AdminTimesheetResponse[]>>(
+      `${this.apiUrl}/users/${userId}/timesheets`,
+    );
+  }
+
+  getUserTimesheetDetail(userId: number, timesheetId: number): Observable<ApiResponse<AdminTimesheetDetailResponse>> {
+    return this.http.get<ApiResponse<AdminTimesheetDetailResponse>>(
+      `${this.apiUrl}/users/${userId}/timesheets/${timesheetId}`,
     );
   }
 

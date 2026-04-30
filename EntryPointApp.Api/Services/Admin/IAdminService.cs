@@ -12,5 +12,7 @@ namespace EntryPointApp.Api.Services.Admin
         Task<UserResult> RemoveManagerAsync(int userId);
         Task<UserResult> DeactivateUserAsync(int userId);
         Task<UserResult> ActivateUserAsync(int userId);
+        Task<AdminTimesheetListResult> GetUserTimesheetsAsync(int userId);
+        Task<AdminTimesheetDetailResult> GetUserTimesheetDetailAsync(int weeklyLogId, int userId);
     }
 }

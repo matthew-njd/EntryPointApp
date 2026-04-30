@@ -1,4 +1,5 @@
 using EntryPointApp.Api.Data.Context;
+using EntryPointApp.Api.Models.Dtos.DailyLog;
 using EntryPointApp.Api.Models.Dtos.Users;
 using EntryPointApp.Api.Models.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -567,6 +568,147 @@ namespace EntryPointApp.Api.Services.Admin
                 {
                     Success = false,
                     Message = "Failed to activate user",
+                    Errors = [ex.Message]
+                };
+            }
+        }
+
+        public async Task<AdminTimesheetListResult> GetUserTimesheetsAsync(int userId)
+        {
+            try
+            {
+                _logger.LogInformation("Retrieving timesheets for user {UserId}", userId);
+
+                var userExists = await _context.Users.AnyAsync(u => u.Id == userId);
+                if (!userExists)
+                {
+                    return new AdminTimesheetListResult
+                    {
+                        Success = false,
+                        Message = "User not found",
+                        Errors = ["The requested user does not exist"]
+                    };
+                }
+
+                var timesheets = await _context.WeeklyLogs
+                    .Where(w => w.UserId == userId && !w.IsDeleted)
+                    .OrderByDescending(w => w.DateFrom)
+                    .Select(w => new AdminTimesheetResponse
+                    {
+                        Id = w.Id,
+                        DateFrom = w.DateFrom,
+                        DateTo = w.DateTo,
+                        TotalHours = w.TotalHours,
+                        TotalCharges = w.TotalCharges,
+                        Status = w.Status.ToString(),
+                        ManagerComment = w.ManagerComment,
+                        SubmittedAt = w.CreatedAt,
+                        UpdatedAt = w.UpdatedAt
+                    })
+                    .ToListAsync();
+
+                _logger.LogInformation("Successfully retrieved {Count} timesheets for user {UserId}", timesheets.Count, userId);
+
+                return new AdminTimesheetListResult
+                {
+                    Success = true,
+                    Message = "Timesheets retrieved successfully!",
+                    Data = timesheets
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving timesheets for user {UserId}", userId);
+                return new AdminTimesheetListResult
+                {
+                    Success = false,
+                    Message = "Failed to retrieve timesheets",
+                    Errors = [ex.Message]
+                };
+            }
+        }
+
+        public async Task<AdminTimesheetDetailResult> GetUserTimesheetDetailAsync(int weeklyLogId, int userId)
+        {
+            try
+            {
+                _logger.LogInformation("Retrieving timesheet {WeeklyLogId} for user {UserId}", weeklyLogId, userId);
+
+                var weeklyLog = await _context.WeeklyLogs
+                    .Include(w => w.User)
+                    .Include(w => w.DailyLogs.Where(d => !d.IsDeleted))
+                        .ThenInclude(d => d.Attachments)
+                    .Where(w => w.Id == weeklyLogId && w.UserId == userId && !w.IsDeleted)
+                    .FirstOrDefaultAsync();
+
+                if (weeklyLog == null)
+                {
+                    return new AdminTimesheetDetailResult
+                    {
+                        Success = false,
+                        Message = "Timesheet not found",
+                        Errors = ["The requested timesheet does not exist"]
+                    };
+                }
+
+                var detail = new AdminTimesheetDetailResponse
+                {
+                    Id = weeklyLog.Id,
+                    UserId = weeklyLog.UserId,
+                    UserFullName = $"{weeklyLog.User.FirstName} {weeklyLog.User.LastName}".Trim(),
+                    UserEmail = weeklyLog.User.Email,
+                    DateFrom = weeklyLog.DateFrom,
+                    DateTo = weeklyLog.DateTo,
+                    TotalHours = weeklyLog.TotalHours,
+                    TotalCharges = weeklyLog.TotalCharges,
+                    Status = weeklyLog.Status.ToString(),
+                    ManagerComment = weeklyLog.ManagerComment,
+                    SubmittedAt = weeklyLog.CreatedAt,
+                    UpdatedAt = weeklyLog.UpdatedAt,
+                    DailyLogs = weeklyLog.DailyLogs
+                        .OrderBy(d => d.Date)
+                        .Select(d => new AdminDailyLogResponse
+                        {
+                            Id = d.Id,
+                            Date = d.Date,
+                            TimeIn = d.TimeIn,
+                            TimeOut = d.TimeOut,
+                            Mileage = d.Mileage,
+                            TollCharge = d.TollCharge,
+                            ParkingFee = d.ParkingFee,
+                            OtherCharges = d.OtherCharges,
+                            Comment = d.Comment,
+                            Receipts = d.Attachments
+                                .OrderBy(a => a.UploadedAt)
+                                .Select(a => new ReceiptResponse
+                                {
+                                    Id = a.Id,
+                                    DailyLogId = a.DailyLogId,
+                                    OriginalFileName = a.OriginalFileName,
+                                    ContentType = a.ContentType,
+                                    FileSizeBytes = a.FileSizeBytes,
+                                    UploadedAt = a.UploadedAt
+                                }).ToList()
+                        })
+                        .ToList()
+                };
+
+                _logger.LogInformation("Successfully retrieved timesheet {WeeklyLogId}", weeklyLogId);
+
+                return new AdminTimesheetDetailResult
+                {
+                    Success = true,
+                    Message = "Timesheet detail retrieved successfully!",
+                    Data = detail
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving timesheet {WeeklyLogId} for user {UserId}", weeklyLogId, userId);
+                return new AdminTimesheetDetailResult
+                {
+                    Success = false,
+                    Message = "Failed to retrieve timesheet detail",
                     Errors = [ex.Message]
                 };
             }

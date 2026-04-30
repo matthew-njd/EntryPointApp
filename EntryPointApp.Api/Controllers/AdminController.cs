@@ -644,5 +644,103 @@ namespace EntryPointApp.Api.Controllers
                 });
             }
         }
+
+        /// <summary>
+        /// Get all timesheets for a specific user
+        /// </summary>
+        [HttpGet("users/{userId}/timesheets")]
+        [ProducesResponseType(typeof(ApiResponse<List<AdminTimesheetResponse>>), 200)]
+        [ProducesResponseType(typeof(ApiResponse), 400)]
+        [ProducesResponseType(typeof(ErrorResponse), 500)]
+        public async Task<IActionResult> GetUserTimesheets(int userId)
+        {
+            try
+            {
+                var adminId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                var result = await _adminService.GetUserTimesheetsAsync(userId);
+
+                if (!result.Success)
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = result.Message,
+                        Errors = result.Errors
+                    });
+                }
+
+                _logger.LogInformation("Admin {AdminId} retrieved timesheets for user {UserId}", adminId, userId);
+
+                return Ok(new ApiResponse<List<AdminTimesheetResponse>>
+                {
+                    Success = true,
+                    Message = result.Message,
+                    Data = result.Data
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error retrieving timesheets for user {UserId}", userId);
+                return StatusCode(500, new ErrorResponse
+                {
+                    Type = "InternalServerError",
+                    Title = "Timesheet Retrieval Error",
+                    Status = 500,
+                    Detail = "An unexpected error occurred while retrieving timesheets",
+                    Instance = HttpContext.Request.Path,
+                    TraceId = HttpContext.TraceIdentifier
+                });
+            }
+        }
+
+        /// <summary>
+        /// Get a specific timesheet detail for a user
+        /// </summary>
+        [HttpGet("users/{userId}/timesheets/{timesheetId}")]
+        [ProducesResponseType(typeof(ApiResponse<AdminTimesheetDetailResponse>), 200)]
+        [ProducesResponseType(typeof(ApiResponse), 400)]
+        [ProducesResponseType(typeof(ErrorResponse), 500)]
+        public async Task<IActionResult> GetUserTimesheetDetail(int userId, int timesheetId)
+        {
+            try
+            {
+                var adminId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                var result = await _adminService.GetUserTimesheetDetailAsync(timesheetId, userId);
+
+                if (!result.Success)
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = result.Message,
+                        Errors = result.Errors
+                    });
+                }
+
+                _logger.LogInformation("Admin {AdminId} retrieved timesheet {TimesheetId} for user {UserId}", adminId, timesheetId, userId);
+
+                return Ok(new ApiResponse<AdminTimesheetDetailResponse>
+                {
+                    Success = true,
+                    Message = result.Message,
+                    Data = result.Data
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error retrieving timesheet {TimesheetId} for user {UserId}", timesheetId, userId);
+                return StatusCode(500, new ErrorResponse
+                {
+                    Type = "InternalServerError",
+                    Title = "Timesheet Detail Retrieval Error",
+                    Status = 500,
+                    Detail = "An unexpected error occurred while retrieving the timesheet detail",
+                    Instance = HttpContext.Request.Path,
+                    TraceId = HttpContext.TraceIdentifier
+                });
+            }
+        }
     }
 }
