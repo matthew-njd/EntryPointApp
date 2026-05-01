@@ -7,10 +7,11 @@ import { ToastService } from '../../core/services/toast.service';
 import { AdminTimesheetResponse, UserDto } from '../../core/models/admin.model';
 import { Nav } from '../../shared/nav/nav';
 import { Footer } from '../../shared/footer/footer';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-admin-user-timesheets',
-  imports: [CommonModule, Nav, Footer],
+  imports: [CommonModule, Nav, Footer, TranslatePipe],
   templateUrl: './admin-user-timesheets.html',
   styleUrl: './admin-user-timesheets.css',
 })
@@ -19,6 +20,7 @@ export class AdminUserTimesheets {
   private router = inject(Router);
   private adminService = inject(AdminService);
   private toastService = inject(ToastService);
+  private translateService = inject(TranslateService);
 
   userId = toSignal(this.route.paramMap);
   isLoading = signal(true);
@@ -42,7 +44,7 @@ export class AdminUserTimesheets {
         }
       },
       error: () => {
-        this.toastService.error('Failed to load user');
+        this.toastService.error(this.translateService.instant('toast.failedLoadUser'));
         this.router.navigate(['/admin']);
       },
     });
@@ -52,12 +54,12 @@ export class AdminUserTimesheets {
         if (response.success && response.data) {
           this.timesheets.set(response.data);
         } else {
-          this.toastService.error(response.message || 'Failed to load timesheets');
+          this.toastService.error(response.message || this.translateService.instant('toast.failedLoadTimesheets'));
         }
         this.isLoading.set(false);
       },
       error: () => {
-        this.toastService.error('Failed to load timesheets');
+        this.toastService.error(this.translateService.instant('toast.failedLoadTimesheets'));
         this.isLoading.set(false);
       },
     });

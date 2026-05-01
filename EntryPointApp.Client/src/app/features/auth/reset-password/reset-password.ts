@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, computed, inject, OnInit } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -12,10 +12,12 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { ResetPasswordRequest } from '../../../core/models/auth.model';
 import { ToastService } from '../../../core/services/toast.service';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { LanguageService } from '../../../core/services/language.service';
 
 @Component({
   selector: 'app-reset-password',
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, TranslatePipe],
   templateUrl: './reset-password.html',
   styleUrl: './reset-password.css',
 })
@@ -23,9 +25,15 @@ export class ResetPassword implements OnInit {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
+  private translateService = inject(TranslateService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private cdr = inject(ChangeDetectorRef);
+  private languageService = inject(LanguageService);
+
+  languageLabel = computed(() =>
+    this.languageService.currentLang() === 'en' ? 'Español' : 'English'
+  );
 
   resetPasswordForm: FormGroup;
   isSubmitting = false;
@@ -59,7 +67,7 @@ export class ResetPassword implements OnInit {
 
       if (!this.email || !this.token) {
         this.toastService.error(
-          'Invalid reset link. Please request a new password reset.'
+          this.translateService.instant('auth.resetPassword.invalidLink')
         );
       }
     });
@@ -135,5 +143,9 @@ export class ResetPassword implements OnInit {
 
   toggleConfirmPasswordVisibility() {
     this.showConfirmPassword = !this.showConfirmPassword;
+  }
+
+  toggleLanguage(): void {
+    this.languageService.toggle();
   }
 }

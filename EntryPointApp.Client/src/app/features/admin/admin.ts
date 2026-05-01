@@ -12,10 +12,11 @@ import { Router } from '@angular/router';
 import { ToastService } from '../../core/services/toast.service';
 import { Card } from '../../shared/card/card';
 import { Footer } from '../../shared/footer/footer';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-admin',
-  imports: [CommonModule, FormsModule, Nav, Card, Footer],
+  imports: [CommonModule, FormsModule, Nav, Card, Footer, TranslatePipe],
   templateUrl: './admin.html',
   styleUrl: './admin.css',
 })
@@ -23,6 +24,7 @@ export class Admin {
   readonly service = inject(AdminService);
   private router = inject(Router);
   private toastService = inject(ToastService);
+  private translateService = inject(TranslateService);
 
   // Filter state
   roleFilter = signal<string>('All');
@@ -71,7 +73,7 @@ export class Admin {
         }
       },
       error: (err) => {
-        this.toastService.error(err.message || 'Failed to remove manager');
+        this.toastService.error(err.message || this.translateService.instant('toast.failedRemoveManager'));
       },
     });
   }

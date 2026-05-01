@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, computed, inject } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -9,10 +9,12 @@ import { AuthService } from '../../../core/services/auth.service';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { ToastService } from '../../../core/services/toast.service';
+import { TranslatePipe } from '@ngx-translate/core';
+import { LanguageService } from '../../../core/services/language.service';
 
 @Component({
   selector: 'app-forgot-password',
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, TranslatePipe],
   templateUrl: './forgot-password.html',
   styleUrl: './forgot-password.css',
 })
@@ -22,6 +24,11 @@ export class ForgotPassword {
   private toastService = inject(ToastService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
+  private languageService = inject(LanguageService);
+
+  languageLabel = computed(() =>
+    this.languageService.currentLang() === 'en' ? 'Español' : 'English'
+  );
 
   forgotPasswordForm: FormGroup;
   isSubmitting = false;
@@ -66,5 +73,9 @@ export class ForgotPassword {
 
   goBack() {
     this.router.navigate(['/login']);
+  }
+
+  toggleLanguage(): void {
+    this.languageService.toggle();
   }
 }

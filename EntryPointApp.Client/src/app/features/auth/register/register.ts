@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, computed, inject } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -11,10 +11,12 @@ import { AuthService } from '../../../core/services/auth.service';
 import { Router } from '@angular/router';
 import { RegisterRequest, UserRole } from '../../../core/models/auth.model';
 import { ToastService } from '../../../core/services/toast.service';
+import { TranslatePipe } from '@ngx-translate/core';
+import { LanguageService } from '../../../core/services/language.service';
 
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, TranslatePipe],
   templateUrl: './register.html',
   styleUrl: './register.css',
 })
@@ -24,6 +26,11 @@ export class Register {
   private toastService = inject(ToastService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
+  private languageService = inject(LanguageService);
+
+  languageLabel = computed(() =>
+    this.languageService.currentLang() === 'en' ? 'Español' : 'English'
+  );
 
   registerForm: FormGroup;
   isLoading = false;
@@ -138,5 +145,9 @@ export class Register {
 
   goBack() {
     this.router.navigate(['/login']);
+  }
+
+  toggleLanguage(): void {
+    this.languageService.toggle();
   }
 }

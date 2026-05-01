@@ -12,27 +12,27 @@
       </div>
     } @else {
       <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold">User Management</h1>
+        <h1 class="text-3xl font-bold">{{ 'admin.title' | translate }}</h1>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <app-card
-          title="Total Users"
+          [title]="'admin.totalUsers' | translate"
           [value]="service.totalUsers().toString()"
           cardClasses="text-info"
         ></app-card>
         <app-card
-          title="Total Managers"
+          [title]="'admin.totalManagers' | translate"
           [value]="service.totalManagers().toString()"
           cardClasses="text-warning"
         ></app-card>
         <app-card
-          title="Total Admins"
+          [title]="'admin.totalAdmins' | translate"
           [value]="service.totalAdmins().toString()"
           cardClasses="text-error"
         ></app-card>
         <app-card
-          title="Active Users"
+          [title]="'admin.activeUsers' | translate"
           [value]="service.activeUsers().toString()"
           cardClasses="text-success"
         ></app-card>
@@ -41,27 +41,27 @@
       <div class="flex flex-col sm:flex-row gap-4 mb-6">
         <div class="form-control w-full sm:w-auto">
           <label class="label">
-            <span class="label-text">Filter by Role</span>
+            <span class="label-text">{{ 'admin.filterByRole' | translate }}</span>
           </label>
           <select
             class="select select-bordered"
             [(ngModel)]="roleFilter"
             (ngModelChange)="roleFilter.set($event)"
           >
-            <option value="All">All Roles</option>
-            <option value="User">Users</option>
-            <option value="Manager">Managers</option>
-            <option value="Admin">Admins</option>
+            <option value="All">{{ 'admin.allRoles' | translate }}</option>
+            <option value="User">{{ 'admin.users' | translate }}</option>
+            <option value="Manager">{{ 'admin.managers' | translate }}</option>
+            <option value="Admin">{{ 'admin.admins' | translate }}</option>
           </select>
         </div>
 
         <div class="form-control w-full">
           <label class="label">
-            <span class="label-text">Search</span>
+            <span class="label-text">{{ 'admin.search' | translate }}</span>
           </label>
           <input
             type="text"
-            placeholder="Search by name or email..."
+            [placeholder]="'admin.searchPlaceholder' | translate"
             class="input input-bordered w-full"
             [(ngModel)]="searchQuery"
             (ngModelChange)="searchQuery.set($event)"
@@ -73,12 +73,12 @@
         <table class="table">
           <thead>
             <tr>
-              <th>User</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Manager</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th>{{ 'admin.tableUser' | translate }}</th>
+              <th>{{ 'admin.tableEmail' | translate }}</th>
+              <th>{{ 'admin.tableRole' | translate }}</th>
+              <th>{{ 'admin.tableManager' | translate }}</th>
+              <th>{{ 'admin.tableStatus' | translate }}</th>
+              <th>{{ 'admin.tableActions' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -103,7 +103,7 @@
                     class="badge"
                     [ngClass]="user.isActive ? 'badge-success' : 'badge-ghost'"
                   >
-                    {{ user.isActive ? "Active" : "Inactive" }}
+                    {{ (user.isActive ? 'admin.active' : 'admin.inactive') | translate }}
                   </span>
                 </td>
                 <td>
@@ -111,7 +111,7 @@
                     <button
                       class="btn btn-xs btn-outline btn-primary"
                       (click)="editUser(user.id)"
-                      title="Edit User"
+                      [title]="'admin.editUser' | translate"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -130,7 +130,7 @@
                       <button
                         class="btn btn-xs btn-outline btn-warning"
                         (click)="removeManager(user)"
-                        title="Remove Manager"
+                        [title]="'admin.removeManager' | translate"
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -150,7 +150,7 @@
                       class="btn btn-xs btn-outline"
                       [ngClass]="user.isActive ? 'btn-error' : 'btn-success'"
                       (click)="toggleUserStatus(user)"
-                      [title]="user.isActive ? 'Deactivate' : 'Activate'"
+                      [title]="(user.isActive ? 'admin.deactivate' : 'admin.activate') | translate"
                     >
                       @if (user.isActive) {
                         <svg
@@ -184,7 +184,7 @@
             } @empty {
               <tr>
                 <td colspan="6" class="text-center py-8">
-                  No users found matching your filters
+                  {{ 'admin.noUsers' | translate }}
                 </td>
               </tr>
             }
