@@ -2,14 +2,21 @@ using EntryPointApp.Api.Data.Context;
 using EntryPointApp.Api.Models.Dtos.Common;
 using EntryPointApp.Api.Models.Dtos.WeeklyLog;
 using EntryPointApp.Api.Models.Enums;
+using EntryPointApp.Api.Services.Email;
 using Microsoft.EntityFrameworkCore;
 
 namespace EntryPointApp.Api.Services.WeeklyLog
 {
-    public class WeeklyLogService(ApplicationDbContext context, ILogger<WeeklyLogService> logger) : IWeeklyLogService
+    public class WeeklyLogService(
+        ApplicationDbContext context,
+        ILogger<WeeklyLogService> logger,
+        IEmailService emailService,
+        IConfiguration configuration) : IWeeklyLogService
     {
         private readonly ApplicationDbContext _context = context;
         private readonly ILogger<WeeklyLogService> _logger = logger;
+        private readonly IEmailService _emailService = emailService;
+        private readonly IConfiguration _configuration = configuration;
 
         public async Task<WeeklyLogListResult> GetWeeklyLogsAsync(int userId, PagedRequest request)
         {
@@ -409,13 +416,57 @@ namespace EntryPointApp.Api.Services.WeeklyLog
             
             weeklyLog.Status = newStatus;
             weeklyLog.UpdatedAt = DateTime.UtcNow;
-            
+
             await _context.SaveChangesAsync();
-            
-            return new WeeklyLogResult 
-            { 
-                Success = true, 
-                Message = "Status updated successfully" 
+
+            if (newStatus == TimesheetStatus.Pending)
+            {
+                var emailData = await _context.WeeklyLogs
+                    .Where(w => w.Id == weeklyLogId && !w.IsDeleted)
+                    .Select(w => new
+                    {
+                        w.DateFrom,
+                        w.DateTo,
+                        w.TotalHours,
+                        w.TotalCharges,
+                        EmployeeName = (w.User.FirstName + " " + w.User.LastName).Trim(),
+                        ManagerEmail = w.User.Manager != null ? w.User.Manager.Email : null,
+                        ManagerName = w.User.Manager != null
+                            ? (w.User.Manager.FirstName + " " + w.User.Manager.LastName).Trim()
+                            : null
+                    })
+                    .FirstOrDefaultAsync();
+
+                if (emailData?.ManagerEmail != null)
+                {
+                    var weekPeriod = $"{emailData.DateFrom:MMM d} - {emailData.DateTo:MMM d, yyyy}";
+                    var timesheetUrl = $"{_configuration["AppSettings:BaseUrl"]}/manager/timesheets/{weeklyLogId}";
+
+                    _ = Task.Run(async () =>
+                    {
+                        try
+                        {
+                            await _emailService.SendTimesheetSubmissionEmailAsync(
+                                emailData.ManagerEmail,
+                                emailData.ManagerName ?? "Manager",
+                                emailData.EmployeeName,
+                                weekPeriod,
+                                emailData.TotalHours,
+                                emailData.TotalCharges,
+                                timesheetUrl);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Failed to send submission email for timesheet {WeeklyLogId}", weeklyLogId);
+                        }
+                    });
+                }
+            }
+
+            return new WeeklyLogResult
+            {
+                Success = true,
+                Message = "Status updated successfully"
             };
         }
 

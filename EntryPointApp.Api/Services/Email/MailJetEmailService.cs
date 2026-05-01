@@ -276,5 +276,156 @@ namespace EntryPointApp.Api.Services.Email
                 return false;
             }
         }
+
+        public async Task<bool> SendTimesheetSubmissionEmailAsync(
+            string managerEmail,
+            string managerName,
+            string employeeName,
+            string weekPeriod,
+            decimal totalHours,
+            decimal totalCharges,
+            string timesheetUrl)
+        {
+            try
+            {
+                var fromEmail = _configuration["MailJet:FromEmail"]
+                    ?? throw new InvalidOperationException("MailJet:FromEmail not configured");
+                var fromName = _configuration["MailJet:FromName"] ?? "EntryPoint App";
+
+                _logger.LogInformation("Sending timesheet submission email to Manager: {ManagerEmail} for Employee: {EmployeeName}",
+                    managerEmail, employeeName);
+
+                var htmlBody = $@"
+                    <html>
+                    <body style='margin:0; padding:0; background-color:#f4f6f8; font-family: Arial, Helvetica, sans-serif;'>
+                        <div style='max-width:600px; margin:40px auto; background-color:#ffffff; padding:32px; border-radius:6px;'>
+
+                            <!-- Title -->
+                            <h1 style='margin:0 0 16px 0; font-size:26px; color:#1f2a44; font-weight:bold; text-align:center;'>
+                                Timesheet Submitted for Approval
+                            </h1>
+
+                            <!-- Body text -->
+                            <p style='margin:0 0 20px 0; font-size:15px; color:#5f6b7a; line-height:1.6;'>
+                                Hi <strong>{managerName}</strong>,<br><br>
+                                <strong>{employeeName}</strong> has submitted their timesheet for <strong>{weekPeriod}</strong> and is awaiting your approval.
+                            </p>
+
+                            <!-- Summary Box -->
+                            <div style='background-color:#f8f9fa; border-left:4px solid #1c4e80; padding:16px; margin:20px 0;'>
+                                <h3 style='margin:0 0 12px 0; font-size:16px; color:#1f2a44;'>Summary</h3>
+                                <table style='width:100%; font-size:14px; color:#5f6b7a;'>
+                                    <tr>
+                                        <td style='padding:4px 0;'><strong>Employee:</strong></td>
+                                        <td style='padding:4px 0; text-align:right;'>{employeeName}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style='padding:4px 0;'><strong>Week Period:</strong></td>
+                                        <td style='padding:4px 0; text-align:right;'>{weekPeriod}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style='padding:4px 0;'><strong>Total Hours:</strong></td>
+                                        <td style='padding:4px 0; text-align:right;'>{totalHours:F2} hrs</td>
+                                    </tr>
+                                    <tr>
+                                        <td style='padding:4px 0;'><strong>Total Charges:</strong></td>
+                                        <td style='padding:4px 0; text-align:right;'>${totalCharges:F2}</td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <!-- Review Button -->
+                            <div style='text-align:center; margin:30px 0;'>
+                                <a href='{timesheetUrl}'
+                                style='display:inline-block;
+                                        background-color:#1c4e80;
+                                        color:#ffffff;
+                                        text-decoration:none;
+                                        padding:14px 36px;
+                                        font-size:15px;
+                                        font-weight:bold;
+                                        border-radius:4px;'>
+                                    Review Timesheet
+                                </a>
+                            </div>
+
+                            <!-- Fallback link -->
+                            <p style='font-size:12px; color:#9aa3ad; line-height:1.5; text-align:center;'>
+                                If the button doesn't work, copy and paste this link into your browser:
+                                <br />
+                                <a href='{timesheetUrl}' style='color:#1c4e80; word-break:break-all;'>
+                                    {timesheetUrl}
+                                </a>
+                            </p>
+
+                            <hr style='border:none; border-top:1px solid #e6e9ec; margin:30px 0;' />
+
+                            <!-- Footer -->
+                            <p style='font-size:11px; color:#b0b7c3; margin:0; text-align:center;'>
+                                © {DateTime.Now.Year} The Postcard Factory. All rights reserved.<br>
+                                This is an automated notification from the EntryPoint Timesheet System.
+                            </p>
+
+                        </div>
+                    </body>
+                    </html>
+                ";
+
+                var textBody = $@"
+                    TIMESHEET SUBMITTED FOR APPROVAL
+
+                    Hi {managerName},
+
+                    {employeeName} has submitted their timesheet for {weekPeriod} and is awaiting your approval.
+
+                    Summary:
+                    Employee: {employeeName}
+                    Week Period: {weekPeriod}
+                    Total Hours: {totalHours:F2} hrs
+                    Total Charges: ${totalCharges:F2}
+
+                    Review the timesheet here:
+                    {timesheetUrl}
+
+                    ---
+                    This is an automated notification from the EntryPoint Timesheet System.
+                ";
+
+                var email = new TransactionalEmailBuilder()
+                    .WithFrom(new SendContact(fromEmail, fromName))
+                    .WithTo(new SendContact(managerEmail, managerName))
+                    .WithSubject($"Timesheet Submitted for Approval - {employeeName} - {weekPeriod}")
+                    .WithHtmlPart(htmlBody)
+                    .WithTextPart(textBody)
+                    .Build();
+
+                var response = await _mailjetClient.SendTransactionalEmailAsync(email);
+
+                if (response.Messages != null && response.Messages.Length > 0)
+                {
+                    var message = response.Messages[0];
+                    if (message.Status == "success")
+                    {
+                        _logger.LogInformation("Timesheet submission email sent successfully to {ManagerEmail} for {EmployeeName}",
+                            managerEmail, employeeName);
+                        return true;
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Failed to send timesheet submission email to {ManagerEmail}. Status: {Status}",
+                            managerEmail, message.Status);
+                        return false;
+                    }
+                }
+
+                _logger.LogWarning("No response messages from MailJet for timesheet submission email");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error sending timesheet submission email for {EmployeeName}", employeeName);
+                return false;
+            }
+        }
     }
 }
