@@ -26,6 +26,7 @@ import {
 import { ToastService } from '../../core/services/toast.service';
 import { Footer } from '../../shared/footer/footer';
 import { Nav } from '../../shared/nav/nav';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 interface DayForm {
   dayName: string;
@@ -39,7 +40,7 @@ interface DayForm {
 
 @Component({
   selector: 'app-edit-timesheet',
-  imports: [CommonModule, ReactiveFormsModule, Footer, Nav],
+  imports: [CommonModule, ReactiveFormsModule, Footer, Nav, TranslatePipe],
   templateUrl: './edit-timesheet.html',
   styleUrl: './edit-timesheet.css',
 })
@@ -49,6 +50,7 @@ export class EditTimesheet {
   private weeklyLogService = inject(WeeklyLogService);
   private dailyLogService = inject(DailyLogService);
   private toastService = inject(ToastService);
+  private translateService = inject(TranslateService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
 
@@ -93,7 +95,7 @@ export class EditTimesheet {
           this.weeklyLog.set(weeklyLog);
 
           if (weeklyLog.status !== 'Draft') {
-            this.toastService.error('Only Draft timesheets can be edited');
+            this.toastService.error(this.translateService.instant('toast.onlyDraftEditable'));
             this.router.navigate(['/dashboard/week', weeklyLogId]);
             return;
           }
@@ -105,13 +107,13 @@ export class EditTimesheet {
             this.isLoadingData.set(false);
           }, 500);
         } else {
-          this.toastService.error('Failed to load timesheet');
+          this.toastService.error(this.translateService.instant('toast.failedLoadTimesheet'));
           this.router.navigate(['/dashboard']);
         }
       },
       error: (error) => {
         this.toastService.error(
-          error.error?.message || 'Failed to load timesheet',
+          error.error?.message || this.translateService.instant('toast.failedLoadTimesheet'),
         );
         this.router.navigate(['/dashboard']);
       },
@@ -280,16 +282,16 @@ export class EditTimesheet {
       next: (response) => {
         if (response.success && response.data) {
           day.receipts = [...day.receipts, response.data];
-          this.toastService.success('Receipt uploaded successfully!');
+          this.toastService.success(this.translateService.instant('toast.receiptUploaded'));
         } else {
-          this.toastService.error(response.message || 'Failed to upload receipt');
+          this.toastService.error(response.message || this.translateService.instant('toast.failedUploadReceipt'));
         }
         day.isUploadingReceipt = false;
         input.value = '';
         this.dayForms.update((days) => [...days]);
       },
       error: (err) => {
-        this.toastService.error(err.error?.message || 'Failed to upload receipt');
+        this.toastService.error(err.error?.message || this.translateService.instant('toast.failedUploadReceipt'));
         day.isUploadingReceipt = false;
         input.value = '';
         this.dayForms.update((days) => [...days]);
@@ -305,14 +307,14 @@ export class EditTimesheet {
       next: (response) => {
         if (response.success) {
           day.receipts = day.receipts.filter((r) => r.id !== attachmentId);
-          this.toastService.success('Receipt deleted.');
+          this.toastService.success(this.translateService.instant('toast.receiptDeleted'));
           this.dayForms.update((days) => [...days]);
         } else {
-          this.toastService.error(response.message || 'Failed to delete receipt');
+          this.toastService.error(response.message || this.translateService.instant('toast.failedDeleteReceipt'));
         }
       },
       error: (err) => {
-        this.toastService.error(err.error?.message || 'Failed to delete receipt');
+        this.toastService.error(err.error?.message || this.translateService.instant('toast.failedDeleteReceipt'));
       },
     });
   }
@@ -331,7 +333,7 @@ export class EditTimesheet {
         URL.revokeObjectURL(url);
       },
       error: () => {
-        this.toastService.error('Failed to download receipt');
+        this.toastService.error(this.translateService.instant('toast.failedDownloadReceipt'));
       },
     });
   }
@@ -373,11 +375,11 @@ export class EditTimesheet {
       next: (response) => {
         this.isLoading.set(false);
         if (response.success) {
-          this.toastService.success('Timesheet updated successfully!');
+          this.toastService.success(this.translateService.instant('toast.timesheetUpdated'));
           this.router.navigate(['/dashboard/week', weeklyLog.id]);
         } else {
           this.toastService.error(
-            response.message || 'Failed to update timesheet',
+            response.message || this.translateService.instant('toast.timesheetUpdated'),
           );
         }
       },
@@ -385,7 +387,7 @@ export class EditTimesheet {
         this.isLoading.set(false);
         this.cdr.detectChanges();
         this.toastService.error(
-          error.error?.message || 'Failed to update timesheet',
+          error.error?.message || this.translateService.instant('toast.timesheetUpdated'),
         );
       },
     });

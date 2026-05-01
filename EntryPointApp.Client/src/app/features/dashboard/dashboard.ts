@@ -6,11 +6,12 @@ import { WeeklyLogService } from '../../core/services/weeklog.service';
 import { Router } from '@angular/router';
 import { UserResponse } from '../../core/models/auth.model';
 import { Footer } from '../../shared/footer/footer';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, Nav, Card, Footer],
+  imports: [CommonModule, Nav, Card, Footer, TranslatePipe],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })

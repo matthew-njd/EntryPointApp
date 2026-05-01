@@ -20,13 +20,13 @@
               d="m7.825 13l4.9 4.9q.3.3.288.7t-.313.7q-.3.275-.7.288t-.7-.288l-6.6-6.6q-.15-.15-.213-.325T4.426 12t.063-.375t.212-.325l6.6-6.6q.275-.275.688-.275t.712.275q.3.3.3.713t-.3.712L7.825 11H19q.425 0 .713.288T20 12t-.288.713T19 13z"
             />
           </svg>
-          Back to Timesheets
+          {{ 'adminTimesheetDetail.backToTimesheets' | translate }}
         </button>
       </div>
 
       <div class="flex justify-between items-start mb-6">
         <div>
-          <h1 class="text-3xl font-bold">Timesheet Detail</h1>
+          <h1 class="text-3xl font-bold">{{ 'adminTimesheetDetail.title' | translate }}</h1>
           <p class="text-base-content/60 mt-2">
             {{ timesheet()!.userFullName }} ({{ timesheet()!.userEmail }})
           </p>
@@ -35,19 +35,19 @@
           class="badge badge-lg"
           [ngClass]="getStatusClass(timesheet()!.status)"
         >
-          {{ timesheet()!.status }}
+          {{ ('status.' + timesheet()!.status.toLowerCase()) | translate }}
         </span>
       </div>
 
       <fieldset
         class="fieldset bg-base-200 border-base-300 rounded-box border p-6 mb-6"
       >
-        <legend class="fieldset-legend">Summary</legend>
+        <legend class="fieldset-legend">{{ 'adminTimesheetDetail.summary' | translate }}</legend>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="label">
-              <span class="label-text font-semibold">Week Period</span>
+              <span class="label-text font-semibold">{{ 'adminTimesheetDetail.weekPeriod' | translate }}</span>
             </label>
             <div class="text-base-content">
               {{ timesheet()!.dateFrom | date: "MMM d, y" }} –
@@ -57,7 +57,7 @@
 
           <div>
             <label class="label">
-              <span class="label-text font-semibold">Submitted</span>
+              <span class="label-text font-semibold">{{ 'adminTimesheetDetail.submitted' | translate }}</span>
             </label>
             <div class="text-base-content">
               {{ timesheet()!.submittedAt | date: "MMM d, y" }}
@@ -66,16 +66,16 @@
 
           <div>
             <label class="label">
-              <span class="label-text font-semibold">Total Hours</span>
+              <span class="label-text font-semibold">{{ 'adminTimesheetDetail.totalHours' | translate }}</span>
             </label>
             <div class="text-2xl font-bold text-primary">
-              {{ timesheet()!.totalHours }} hrs
+              {{ timesheet()!.totalHours }} {{ 'common.hrs' | translate }}
             </div>
           </div>
 
           <div>
             <label class="label">
-              <span class="label-text font-semibold">Total Charges</span>
+              <span class="label-text font-semibold">{{ 'adminTimesheetDetail.totalCharges' | translate }}</span>
             </label>
             <div class="text-2xl font-bold text-secondary">
               ${{ timesheet()!.totalCharges.toFixed(2) }}
@@ -85,7 +85,7 @@
           @if (timesheet()!.managerComment) {
             <div class="col-span-1 sm:col-span-2">
               <label class="label">
-                <span class="label-text font-semibold">Manager Comment</span>
+                <span class="label-text font-semibold">{{ 'adminTimesheetDetail.managerComment' | translate }}</span>
               </label>
               <div
                 class="alert"
@@ -103,27 +103,27 @@
       <fieldset
         class="fieldset bg-base-200 border-base-300 rounded-box border p-6 mb-6"
       >
-        <legend class="fieldset-legend">Daily Breakdown</legend>
+        <legend class="fieldset-legend">{{ 'adminTimesheetDetail.dailyBreakdown' | translate }}</legend>
 
         <div class="overflow-x-auto">
           <table class="table table-sm">
             <thead>
               <tr>
-                <th>Date</th>
-                <th>Hours</th>
-                <th>Mileage</th>
-                <th>Tolls</th>
-                <th>Parking</th>
-                <th>Other</th>
-                <th>Comment</th>
-                <th>Receipts</th>
+                <th>{{ 'adminTimesheetDetail.tableDate' | translate }}</th>
+                <th>{{ 'adminTimesheetDetail.tableHours' | translate }}</th>
+                <th>{{ 'adminTimesheetDetail.tableMileage' | translate }}</th>
+                <th>{{ 'adminTimesheetDetail.tableTolls' | translate }}</th>
+                <th>{{ 'adminTimesheetDetail.tableParking' | translate }}</th>
+                <th>{{ 'adminTimesheetDetail.tableOther' | translate }}</th>
+                <th>{{ 'adminTimesheetDetail.tableComment' | translate }}</th>
+                <th>{{ 'adminTimesheetDetail.tableReceipts' | translate }}</th>
               </tr>
             </thead>
             <tbody>
               @for (log of timesheet()!.dailyLogs; track log.id) {
                 <tr>
                   <td>{{ log.date | date: "EEE, MMM d, y" }}</td>
-                  <td>{{ log.timeIn.substring(0, 5) }} – {{ log.timeOut.substring(0, 5) }} ({{ log.hours.toFixed(2) }} hrs)</td>
+                  <td>{{ log.timeIn.substring(0, 5) }} – {{ log.timeOut.substring(0, 5) }} ({{ log.hours.toFixed(2) }} {{ 'common.hrs' | translate }})</td>
                   <td>{{ log.mileage }}</td>
                   <td>${{ log.tollCharge.toFixed(2) }}</td>
                   <td>${{ log.parkingFee.toFixed(2) }}</td>

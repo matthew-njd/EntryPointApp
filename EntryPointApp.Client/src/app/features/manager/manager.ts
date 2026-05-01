@@ -6,10 +6,11 @@ import { CommonModule } from '@angular/common';
 import { Footer } from '../../shared/footer/footer';
 import { Card } from '../../shared/card/card';
 import { Nav } from '../../shared/nav/nav';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-manager',
-  imports: [CommonModule, FormsModule, Footer, Card, Nav],
+  imports: [CommonModule, FormsModule, Footer, Card, Nav, TranslatePipe],
   templateUrl: './manager.html',
   styleUrl: './manager.css',
 })

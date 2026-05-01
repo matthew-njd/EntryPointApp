@@ -9,11 +9,12 @@ import { Footer } from '../../shared/footer/footer';
 import { WeeklyLogService } from '../../core/services/weeklog.service';
 import { WeeklyLog } from '../../core/models/weeklylog.model';
 import { ToastService } from '../../core/services/toast.service';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-dailylogs',
   standalone: true,
-  imports: [Nav, DatePipe, Card, Footer],
+  imports: [Nav, DatePipe, Card, Footer, TranslatePipe],
   templateUrl: './dailylogs.html',
   styleUrl: './dailylogs.css',
 })
@@ -23,6 +24,7 @@ export class Dailylogs {
   readonly service = inject(DailyLogService);
   private weeklyLogService = inject(WeeklyLogService);
   private toastService = inject(ToastService);
+  private translateService = inject(TranslateService);
 
   weeklyLogId = toSignal(this.route.paramMap);
   weeklyLog = signal<WeeklyLog | null>(null);
@@ -86,7 +88,7 @@ export class Dailylogs {
         URL.revokeObjectURL(url);
       },
       error: () => {
-        this.toastService.error('Failed to download receipt');
+        this.toastService.error(this.translateService.instant('toast.failedDownloadReceipt'));
       },
     });
   }

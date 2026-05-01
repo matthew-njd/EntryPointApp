@@ -18,10 +18,11 @@ import {
 import { Footer } from '../../shared/footer/footer';
 import { Nav } from '../../shared/nav/nav';
 import { CommonModule } from '@angular/common';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-review-timsheet',
-  imports: [CommonModule, ReactiveFormsModule, Footer, Nav],
+  imports: [CommonModule, ReactiveFormsModule, Footer, Nav, TranslatePipe],
   templateUrl: './review-timsheet.html',
   styleUrl: './review-timsheet.css',
 })
@@ -31,6 +32,7 @@ export class ReviewTimsheet {
   private managerService = inject(ManagerService);
   private dailyLogService = inject(DailyLogService);
   private toastService = inject(ToastService);
+  private translateService = inject(TranslateService);
   private fb = inject(FormBuilder);
 
   timesheetId = toSignal(this.route.paramMap);
@@ -73,12 +75,12 @@ export class ReviewTimsheet {
           this.timesheet.set(response.data);
           this.isLoadingData.set(false);
         } else {
-          this.toastService.error('Failed to load timesheet');
+          this.toastService.error(this.translateService.instant('toast.failedLoadTimesheet'));
           this.router.navigate(['/manager']);
         }
       },
       error: (err) => {
-        this.toastService.error(err.message || 'Failed to load timesheet');
+        this.toastService.error(err.message || this.translateService.instant('toast.failedLoadTimesheet'));
         this.router.navigate(['/manager']);
       },
     });
@@ -87,7 +89,7 @@ export class ReviewTimsheet {
   approveTimesheet(): void {
     const ts = this.timesheet();
     if (!ts || ts.status !== 'Pending') {
-      this.toastService.error('Only pending timesheets can be approved');
+      this.toastService.error(this.translateService.instant('toast.onlyPendingApprovable'));
       return;
     }
 
@@ -106,7 +108,7 @@ export class ReviewTimsheet {
     this.managerService.approveTimesheet(ts.id, request).subscribe({
       next: (response) => {
         if (response.success) {
-          this.toastService.success('Timesheet approved successfully!');
+          this.toastService.success(this.translateService.instant('toast.timesheetApproved'));
           this.router.navigate(['/manager']);
         } else {
           this.toastService.error(response.message);
@@ -114,7 +116,7 @@ export class ReviewTimsheet {
         }
       },
       error: (err) => {
-        this.toastService.error(err.message || 'Failed to approve timesheet');
+        this.toastService.error(err.message || this.translateService.instant('toast.failedApproveTimesheet'));
         this.isSubmitting.set(false);
       },
     });
@@ -123,7 +125,7 @@ export class ReviewTimsheet {
   toggleDenyForm(): void {
     const ts = this.timesheet();
     if (!ts || ts.status !== 'Pending') {
-      this.toastService.error('Only pending timesheets can be denied');
+      this.toastService.error(this.translateService.instant('toast.onlyPendingDeniable'));
       return;
     }
 
@@ -151,7 +153,7 @@ export class ReviewTimsheet {
     this.managerService.denyTimesheet(ts.id, request).subscribe({
       next: (response) => {
         if (response.success) {
-          this.toastService.success('Timesheet denied');
+          this.toastService.success(this.translateService.instant('toast.timesheetDenied'));
           this.router.navigate(['/manager']);
         } else {
           this.toastService.error(response.message);
@@ -159,7 +161,7 @@ export class ReviewTimsheet {
         }
       },
       error: (err) => {
-        this.toastService.error(err.message || 'Failed to deny timesheet');
+        this.toastService.error(err.message || this.translateService.instant('toast.failedDenyTimesheet'));
         this.isSubmitting.set(false);
       },
     });
@@ -176,7 +178,7 @@ export class ReviewTimsheet {
         URL.revokeObjectURL(url);
       },
       error: () => {
-        this.toastService.error('Failed to download receipt');
+        this.toastService.error(this.translateService.instant('toast.failedDownloadReceipt'));
       },
     });
   }

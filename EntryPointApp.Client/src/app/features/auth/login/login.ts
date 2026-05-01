@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
@@ -10,10 +10,12 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { LoginRequest } from '../../../core/models/auth.model';
 import { ToastService } from '../../../core/services/toast.service';
+import { TranslatePipe } from '@ngx-translate/core';
+import { LanguageService } from '../../../core/services/language.service';
 
 @Component({
   selector: 'app-login',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, TranslatePipe],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
@@ -23,6 +25,11 @@ export class Login {
   private toastService = inject(ToastService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
+  private languageService = inject(LanguageService);
+
+  languageLabel = computed(() =>
+    this.languageService.currentLang() === 'en' ? 'Español' : 'English'
+  );
 
   loginForm: FormGroup;
   isLoading = false;
@@ -88,5 +95,9 @@ export class Login {
 
   togglePasswordVisibility() {
     this.showPassword = !this.showPassword;
+  }
+
+  toggleLanguage(): void {
+    this.languageService.toggle();
   }
 }

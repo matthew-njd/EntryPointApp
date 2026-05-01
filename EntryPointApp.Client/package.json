@@ -29,6 +29,7 @@
     "@angular/platform-server": "^20.3.5",
     "@angular/router": "^20.3.5",
     "@angular/ssr": "^20.3.6",
+    "@ngx-translate/core": "^17.0.0",
     "@tailwindcss/postcss": "^4.1.14",
     "express": "^5.1.0",
     "postcss": "^8.5.6",

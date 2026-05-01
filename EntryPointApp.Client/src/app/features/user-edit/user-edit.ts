@@ -18,10 +18,11 @@ import { ToastService } from '../../core/services/toast.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Footer } from '../../shared/footer/footer';
 import { Nav } from '../../shared/nav/nav';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-user-edit',
-  imports: [CommonModule, ReactiveFormsModule, Footer, Nav],
+  imports: [CommonModule, ReactiveFormsModule, Footer, Nav, TranslatePipe],
   templateUrl: './user-edit.html',
   styleUrl: './user-edit.css',
 })
@@ -31,6 +32,7 @@ export class UserEdit {
   private router = inject(Router);
   private adminService = inject(AdminService);
   private toastService = inject(ToastService);
+  private translateService = inject(TranslateService);
 
   userId = toSignal(this.route.paramMap);
   userForm: FormGroup;
@@ -52,15 +54,6 @@ export class UserEdit {
         (u) => u.role === 'Manager' && u.isActive && u.id !== this.user()?.id,
       ),
   );
-
-  roleDescriptions = {
-    [UserRole.User]:
-      'Can create and submit timesheets. Must be assigned to a manager.',
-    [UserRole.Manager]:
-      'Can approve/deny team timesheets. Cannot submit their own timesheets.',
-    [UserRole.Admin]:
-      'Full system access. Can manage users, roles, and view all data.',
-  };
 
   constructor() {
     this.userForm = this.fb.group({
@@ -108,12 +101,12 @@ export class UserEdit {
 
           this.isLoadingData.set(false);
         } else {
-          this.toastService.error('Failed to load user');
+          this.toastService.error(this.translateService.instant('toast.failedLoadUser'));
           this.router.navigate(['/admin']);
         }
       },
       error: (err) => {
-        this.toastService.error(err.message || 'Failed to load user');
+        this.toastService.error(err.message || this.translateService.instant('toast.failedLoadUser'));
         this.router.navigate(['/admin']);
       },
     });
@@ -148,7 +141,7 @@ export class UserEdit {
     const managerChanged = currentUser.managerId !== newManagerId;
 
     if (!roleChanged && !managerChanged) {
-      this.toastService.info('No changes to save');
+      this.toastService.info(this.translateService.instant('toast.noChanges'));
       this.isLoading.set(false);
       return;
     }
@@ -157,7 +150,7 @@ export class UserEdit {
       this.adminService.updateUserRole(currentUser.id, newRole).subscribe({
         next: (response) => {
           if (response.success) {
-            this.toastService.success('Role updated successfully!');
+            this.toastService.success(this.translateService.instant('toast.roleUpdated'));
 
             if (managerChanged && newRole === UserRole.User) {
               this.updateManager(currentUser.id, newManagerId);
@@ -170,7 +163,7 @@ export class UserEdit {
           }
         },
         error: (err) => {
-          this.toastService.error(err.message || 'Failed to update role');
+          this.toastService.error(err.message || this.translateService.instant('toast.failedUpdateRole'));
           this.isLoading.set(false);
         },
       });
@@ -184,7 +177,7 @@ export class UserEdit {
       this.adminService.removeManager(userId).subscribe({
         next: (response) => {
           if (response.success) {
-            this.toastService.success('Manager removed successfully!');
+            this.toastService.success(this.translateService.instant('toast.managerRemoved'));
             this.completeUpdate();
           } else {
             this.toastService.error(response.message);
@@ -192,7 +185,7 @@ export class UserEdit {
           }
         },
         error: (err) => {
-          this.toastService.error(err.message || 'Failed to remove manager');
+          this.toastService.error(err.message || this.translateService.instant('toast.failedRemoveManager'));
           this.isLoading.set(false);
         },
       });
@@ -200,7 +193,7 @@ export class UserEdit {
       this.adminService.assignManager(userId, managerId).subscribe({
         next: (response) => {
           if (response.success) {
-            this.toastService.success('Manager assigned successfully!');
+            this.toastService.success(this.translateService.instant('toast.managerAssigned'));
             this.completeUpdate();
           } else {
             this.toastService.error(response.message);
@@ -208,7 +201,7 @@ export class UserEdit {
           }
         },
         error: (err) => {
-          this.toastService.error(err.message || 'Failed to assign manager');
+          this.toastService.error(err.message || this.translateService.instant('toast.failedAssignManager'));
           this.isLoading.set(false);
         },
       });
@@ -250,7 +243,7 @@ export class UserEdit {
       .subscribe({
         next: (response) => {
           if (response.success) {
-            this.toastService.success('Rate saved successfully!');
+            this.toastService.success(this.translateService.instant('toast.rateSaved'));
             this.rateForm.reset();
             this.loadRates(this.user()!.id);
           } else {
@@ -259,7 +252,7 @@ export class UserEdit {
           this.isSavingRate.set(false);
         },
         error: (err) => {
-          this.toastService.error(err.message || 'Failed to save rate');
+          this.toastService.error(err.message || this.translateService.instant('toast.failedSaveRate'));
           this.isSavingRate.set(false);
         },
       });
@@ -316,6 +309,15 @@ export class UserEdit {
   }
 
   getRoleDescription(role: UserRole): string {
-    return this.roleDescriptions[role] || '';
+    switch (role) {
+      case UserRole.User:
+        return 'userEdit.roleDescUser';
+      case UserRole.Manager:
+        return 'userEdit.roleDescManager';
+      case UserRole.Admin:
+        return 'userEdit.roleDescAdmin';
+      default:
+        return '';
+    }
   }
 }

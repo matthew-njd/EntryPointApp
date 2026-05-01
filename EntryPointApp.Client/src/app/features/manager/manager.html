@@ -12,22 +12,22 @@
       </div>
     } @else {
       <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold">Team Timesheets</h1>
+        <h1 class="text-3xl font-bold">{{ 'manager.title' | translate }}</h1>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <app-card
-          title="Pending Approval"
+          [title]="'manager.pendingApproval' | translate"
           [value]="service.totalPending().toString()"
           cardClasses="text-warning"
         ></app-card>
         <app-card
-          title="Approved"
+          [title]="'manager.approved' | translate"
           [value]="service.totalApproved().toString()"
           cardClasses="text-success"
         ></app-card>
         <app-card
-          title="Denied"
+          [title]="'manager.denied' | translate"
           [value]="service.totalDenied().toString()"
           cardClasses="text-error"
         ></app-card>
@@ -36,18 +36,18 @@
       <div class="flex flex-col sm:flex-row gap-4 mb-6">
         <div class="form-control w-full sm:w-auto">
           <label class="label">
-            <span class="label-text">Filter by Status</span>
+            <span class="label-text">{{ 'manager.filterByStatus' | translate }}</span>
           </label>
           <select
             class="select select-bordered"
             [(ngModel)]="statusFilter"
             (ngModelChange)="statusFilter.set($event); onStatusFilterChange()"
           >
-            <option value="All">All Statuses</option>
-            <option value="Pending">Pending</option>
-            <option value="Approved">Approved</option>
-            <option value="Denied">Denied</option>
-            <option value="Draft">Draft</option>
+            <option value="All">{{ 'manager.allStatuses' | translate }}</option>
+            <option value="Pending">{{ 'manager.pending' | translate }}</option>
+            <option value="Approved">{{ 'manager.approved' | translate }}</option>
+            <option value="Denied">{{ 'manager.denied' | translate }}</option>
+            <option value="Draft">{{ 'manager.draft' | translate }}</option>
           </select>
         </div>
       </div>
@@ -56,13 +56,13 @@
         <table class="table">
           <thead>
             <tr>
-              <th>Employee</th>
-              <th>Week</th>
-              <th>Hours</th>
-              <th>Charges</th>
-              <th>Status</th>
-              <th>Submitted</th>
-              <th>Actions</th>
+              <th>{{ 'manager.tableEmployee' | translate }}</th>
+              <th>{{ 'manager.tableWeek' | translate }}</th>
+              <th>{{ 'manager.tableHours' | translate }}</th>
+              <th>{{ 'manager.tableCharges' | translate }}</th>
+              <th>{{ 'manager.tableStatus' | translate }}</th>
+              <th>{{ 'manager.tableSubmitted' | translate }}</th>
+              <th>{{ 'manager.tableActions' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -84,14 +84,14 @@
                     {{ timesheet.dateTo | date: "MMM d, y" }}
                   </div>
                 </td>
-                <td>{{ timesheet.totalHours }} hrs</td>
+                <td>{{ timesheet.totalHours }} {{ 'common.hrs' | translate }}</td>
                 <td>${{ timesheet.totalCharges.toFixed(2) }}</td>
                 <td>
                   <span
                     class="badge"
                     [ngClass]="getStatusClass(timesheet.status)"
                   >
-                    {{ timesheet.status }}
+                    {{ ('status.' + timesheet.status.toLowerCase()) | translate }}
                   </span>
                 </td>
                 <td>
@@ -103,7 +103,7 @@
                   <button
                     class="btn btn-sm btn-outline btn-primary"
                     (click)="viewTimesheet(timesheet.id)"
-                    title="Review Timesheet"
+                    [title]="'manager.review' | translate"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -124,14 +124,14 @@
                         <circle cx="12" cy="12" r="3" />
                       </g>
                     </svg>
-                    Review
+                    {{ 'manager.review' | translate }}
                   </button>
                 </td>
               </tr>
             } @empty {
               <tr>
                 <td colspan="7" class="text-center py-8">
-                  No timesheets found matching your filters
+                  {{ 'manager.noTimesheets' | translate }}
                 </td>
               </tr>
             }
@@ -139,7 +139,6 @@
         </table>
       </div>
 
-      <!-- Pagination -->
       @if (service.totalPages() > 1) {
         <div class="flex justify-center mb-8">
           <div class="join">

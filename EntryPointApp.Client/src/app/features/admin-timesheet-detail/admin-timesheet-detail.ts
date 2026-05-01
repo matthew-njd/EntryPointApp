@@ -8,10 +8,11 @@ import { ToastService } from '../../core/services/toast.service';
 import { AdminTimesheetDetailResponse } from '../../core/models/admin.model';
 import { Nav } from '../../shared/nav/nav';
 import { Footer } from '../../shared/footer/footer';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-admin-timesheet-detail',
-  imports: [CommonModule, Nav, Footer],
+  imports: [CommonModule, Nav, Footer, TranslatePipe],
   templateUrl: './admin-timesheet-detail.html',
   styleUrl: './admin-timesheet-detail.css',
 })
@@ -21,6 +22,7 @@ export class AdminTimesheetDetail {
   private adminService = inject(AdminService);
   private dailyLogService = inject(DailyLogService);
   private toastService = inject(ToastService);
+  private translateService = inject(TranslateService);
 
   params = toSignal(this.route.paramMap);
   isLoading = signal(true);
@@ -42,13 +44,13 @@ export class AdminTimesheetDetail {
         if (response.success && response.data) {
           this.timesheet.set(response.data);
         } else {
-          this.toastService.error(response.message || 'Failed to load timesheet');
+          this.toastService.error(response.message || this.translateService.instant('toast.failedLoadTimesheet'));
           this.goBack();
         }
         this.isLoading.set(false);
       },
       error: () => {
-        this.toastService.error('Failed to load timesheet');
+        this.toastService.error(this.translateService.instant('toast.failedLoadTimesheet'));
         this.goBack();
       },
     });
@@ -65,7 +67,7 @@ export class AdminTimesheetDetail {
         URL.revokeObjectURL(url);
       },
       error: () => {
-        this.toastService.error('Failed to download receipt');
+        this.toastService.error(this.translateService.instant('toast.failedDownloadReceipt'));
       },
     });
   }

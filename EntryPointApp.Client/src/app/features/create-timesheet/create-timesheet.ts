@@ -21,6 +21,7 @@ import { DailyLogRequest } from '../../core/models/dailylog.model';
 import { ToastService } from '../../core/services/toast.service';
 import { Footer } from '../../shared/footer/footer';
 import { Nav } from '../../shared/nav/nav';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 interface DayForm {
   dayName: string;
@@ -32,7 +33,7 @@ interface DayForm {
 
 @Component({
   selector: 'app-create-timesheet',
-  imports: [CommonModule, ReactiveFormsModule, Footer, Nav],
+  imports: [CommonModule, ReactiveFormsModule, Footer, Nav, TranslatePipe],
   templateUrl: './create-timesheet.html',
   styleUrl: './create-timesheet.css',
 })
@@ -41,6 +42,7 @@ export class CreateTimesheet {
   private weeklyLogService = inject(WeeklyLogService);
   private dailyLogService = inject(DailyLogService);
   private toastService = inject(ToastService);
+  private translateService = inject(TranslateService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
 
@@ -274,7 +276,7 @@ export class CreateTimesheet {
                       error: () => {
                         this.isLoading.set(false);
                         this.toastService.success(dailyLogResponse.message);
-                        this.toastService.error('Some receipts failed to upload');
+                        this.toastService.error(this.translateService.instant('toast.receiptUploadFailed'));
                         this.router.navigate(['/dashboard/week', weeklyLogId]);
                       },
                     });
