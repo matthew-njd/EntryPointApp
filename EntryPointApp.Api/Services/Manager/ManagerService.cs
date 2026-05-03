@@ -27,9 +27,16 @@ namespace EntryPointApp.Api.Services.Manager
                 _logger.LogInformation("Retrieving team timesheets for manager {ManagerId} - Page: {Page}, PageSize: {PageSize}, Filter: {Filter}",
                     managerId, page, pageSize, statusFilter ?? "All");
 
-                var query = _context.WeeklyLogs
+                var baseQuery = _context.WeeklyLogs
                     .Include(w => w.User)
                     .Where(w => w.User.ManagerId == managerId && !w.IsDeleted);
+
+                var statusCounts = await baseQuery
+                    .GroupBy(w => w.Status)
+                    .Select(g => new { Status = g.Key, Count = g.Count() })
+                    .ToDictionaryAsync(x => x.Status, x => x.Count);
+
+                var query = baseQuery;
 
                 if (!string.IsNullOrEmpty(statusFilter) && statusFilter != "All")
                 {
@@ -67,7 +74,7 @@ namespace EntryPointApp.Api.Services.Manager
 
                 var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
 
-                var pagedResult = new PagedResult<TeamTimesheetResponse>
+                var pagedResult = new TeamTimesheetPagedResponse
                 {
                     Data = timesheets,
                     TotalCount = totalCount,
@@ -75,7 +82,13 @@ namespace EntryPointApp.Api.Services.Manager
                     PageSize = pageSize,
                     TotalPages = totalPages,
                     HasNextPage = page < totalPages,
-                    HasPreviousPage = page > 1
+                    HasPreviousPage = page > 1,
+                    Summary = new TimesheetSummaryDto
+                    {
+                        TotalApproved = statusCounts.GetValueOrDefault(TimesheetStatus.Approved),
+                        TotalPending  = statusCounts.GetValueOrDefault(TimesheetStatus.Pending),
+                        TotalDenied   = statusCounts.GetValueOrDefault(TimesheetStatus.Denied)
+                    }
                 };
 
                 _logger.LogInformation("Successfully retrieved {Count} timesheets (page {Page} of {TotalPages}) for manager {ManagerId}",

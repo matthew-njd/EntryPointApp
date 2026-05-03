@@ -1,3 +1,4 @@
+using EntryPointApp.Api.Models.Dtos.Common;
 using EntryPointApp.Api.Models.Enums;
 
 namespace EntryPointApp.Api.Models.Dtos.WeeklyLog
@@ -11,5 +12,18 @@ namespace EntryPointApp.Api.Models.Dtos.WeeklyLog
         public decimal TotalHours { get; set; }
         public decimal TotalCharges { get; set; }
         public TimesheetStatus Status { get; set; }
+    }
+
+    public class WeeklyLogSummaryDto
+    {
+        public int TotalApproved { get; set; }
+        public int TotalPending { get; set; }
+        public int TotalDenied { get; set; }
+        public int TotalDraft { get; set; }
+    }
+
+    public class WeeklyLogPagedResponse : PagedResult<WeeklyLogResponse>
+    {
+        public WeeklyLogSummaryDto Summary { get; set; } = new();
     }
 }

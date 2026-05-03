@@ -20,7 +20,7 @@ namespace EntryPointApp.Api.Controllers
         /// Get all users in the system
         /// </summary>
         [HttpGet("users")]
-        [ProducesResponseType(typeof(ApiResponse<List<UserDto>>), 200)]
+        [ProducesResponseType(typeof(ApiResponse<UserListResponse>), 200)]
         [ProducesResponseType(typeof(ApiResponse), 400)]
         [ProducesResponseType(typeof(ErrorResponse), 500)]
         public async Task<IActionResult> GetAllUsers()
@@ -43,7 +43,7 @@ namespace EntryPointApp.Api.Controllers
 
                 _logger.LogInformation("Admin {AdminId} retrieved all users", adminId);
 
-                return Ok(new ApiResponse<List<UserDto>>
+                return Ok(new ApiResponse<UserListResponse>
                 {
                     Success = true,
                     Message = result.Message,

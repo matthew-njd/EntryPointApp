@@ -15,3 +15,10 @@ export interface WeeklyLogRequest {
   dateFrom: string;
   dateTo: string;
 }
+
+export interface WeeklyLogSummary {
+  totalApproved: number;
+  totalPending: number;
+  totalDenied: number;
+  totalDraft: number;
+}

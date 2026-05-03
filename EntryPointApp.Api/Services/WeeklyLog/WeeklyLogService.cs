@@ -40,6 +40,11 @@ namespace EntryPointApp.Api.Services.WeeklyLog
 
                 var totalCount = await query.CountAsync();
 
+                var statusCounts = await query
+                    .GroupBy(w => w.Status)
+                    .Select(g => new { Status = g.Key, Count = g.Count() })
+                    .ToDictionaryAsync(x => x.Status, x => x.Count);
+
                 var weeklyLogs = await query
                     .OrderByDescending(w => w.DateFrom)
                     .Skip((request.Page - 1) * request.PageSize)
@@ -58,7 +63,7 @@ namespace EntryPointApp.Api.Services.WeeklyLog
 
                 var totalPages = (int)Math.Ceiling((double)totalCount / request.PageSize);
 
-                var pagedResult = new PagedResult<WeeklyLogResponse>
+                var pagedResult = new WeeklyLogPagedResponse
                 {
                     Data = weeklyLogs,
                     TotalCount = totalCount,
@@ -66,7 +71,14 @@ namespace EntryPointApp.Api.Services.WeeklyLog
                     PageSize = request.PageSize,
                     TotalPages = totalPages,
                     HasNextPage = request.Page < totalPages,
-                    HasPreviousPage = request.Page > 1
+                    HasPreviousPage = request.Page > 1,
+                    Summary = new WeeklyLogSummaryDto
+                    {
+                        TotalApproved = statusCounts.GetValueOrDefault(TimesheetStatus.Approved),
+                        TotalPending  = statusCounts.GetValueOrDefault(TimesheetStatus.Pending),
+                        TotalDenied   = statusCounts.GetValueOrDefault(TimesheetStatus.Denied),
+                        TotalDraft    = statusCounts.GetValueOrDefault(TimesheetStatus.Draft)
+                    }
                 };
 
                 _logger.LogInformation("Successfully retrieved {Count} weeklylogs for user {UserId}",

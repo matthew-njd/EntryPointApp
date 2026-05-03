@@ -25,27 +25,10 @@ export class Dashboard {
     this.loadUserFullName();
   }
 
-  totalApproved = computed(
-    () =>
-      this.service.weeklyLogs().filter((log) => log.status === 'Approved')
-        .length,
-  );
-
-  totalPending = computed(
-    () =>
-      this.service.weeklyLogs().filter((log) => log.status === 'Pending')
-        .length,
-  );
-
-  totalDenied = computed(
-    () =>
-      this.service.weeklyLogs().filter((log) => log.status === 'Denied').length,
-  );
-
-  totalDrafts = computed(
-    () =>
-      this.service.weeklyLogs().filter((log) => log.status === 'Draft').length,
-  );
+  totalApproved = computed(() => this.service.totalApproved());
+  totalPending = computed(() => this.service.totalPending());
+  totalDenied = computed(() => this.service.totalDenied());
+  totalDrafts = computed(() => this.service.totalDraft());
 
   pageNumbers = computed(() => {
     const totalPages = this.service.totalPages();

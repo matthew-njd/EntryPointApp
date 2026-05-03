@@ -20,7 +20,7 @@ namespace EntryPointApp.Api.Controllers
         /// Get all team timesheets with pagination, optionally filtered by status.
         /// </summary>
         [HttpGet("timesheets")]
-        [ProducesResponseType(typeof(ApiResponse<PagedResult<TeamTimesheetResponse>>), 200)]
+        [ProducesResponseType(typeof(ApiResponse<TeamTimesheetPagedResponse>), 200)]
         [ProducesResponseType(typeof(ApiResponse), 400)]
         [ProducesResponseType(typeof(ErrorResponse), 500)]
         public async Task<IActionResult> GetTeamTimesheets(
@@ -75,7 +75,7 @@ namespace EntryPointApp.Api.Controllers
 
                 _logger.LogInformation("Manager {ManagerId} retrieved team timesheets - Page {Page} with filter {Filter}", managerId, page, status);
 
-                return Ok(new ApiResponse<PagedResult<TeamTimesheetResponse>>
+                return Ok(new ApiResponse<TeamTimesheetPagedResponse>
                 {
                     Success = true,
                     Message = result.Message,

@@ -75,8 +75,20 @@ namespace EntryPointApp.Api.Models.Dtos.Manager
         public List<TeamTimesheetResponse>? Data { get; set; }
     }
 
+    public class TimesheetSummaryDto
+    {
+        public int TotalApproved { get; set; }
+        public int TotalPending { get; set; }
+        public int TotalDenied { get; set; }
+    }
+
+    public class TeamTimesheetPagedResponse : PagedResult<TeamTimesheetResponse>
+    {
+        public TimesheetSummaryDto Summary { get; set; } = new();
+    }
+
     public class TeamTimesheetPagedResult : BaseManagerResult
     {
-        public PagedResult<TeamTimesheetResponse>? Data { get; set; }
+        public TeamTimesheetPagedResponse? Data { get; set; }
     }
 }

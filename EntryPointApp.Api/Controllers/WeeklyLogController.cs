@@ -20,7 +20,7 @@ namespace EntryPointApp.Api.Controllers
         /// </summary>
         [HttpGet]
         [Authorize]
-        [ProducesResponseType(typeof(ApiResponse<PagedResult<WeeklyLogResponse>>), 200)]
+        [ProducesResponseType(typeof(ApiResponse<WeeklyLogPagedResponse>), 200)]
         [ProducesResponseType(typeof(ApiResponse), 400)]
         [ProducesResponseType(typeof(ErrorResponse), 500)]
         public async Task<IActionResult> GetWeeklyLogs([FromQuery] PagedRequest request)
@@ -103,7 +103,7 @@ namespace EntryPointApp.Api.Controllers
                     });
                 }
 
-                return Ok(new ApiResponse<PagedResult<WeeklyLogResponse>>
+                return Ok(new ApiResponse<WeeklyLogPagedResponse>
                 {
                     Success = true,
                     Message = result.Message,

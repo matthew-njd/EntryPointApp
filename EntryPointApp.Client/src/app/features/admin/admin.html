@@ -55,6 +55,21 @@
           </select>
         </div>
 
+        <div class="form-control w-full sm:w-auto">
+          <label class="label">
+            <span class="label-text">{{ 'admin.filterByStatus' | translate }}</span>
+          </label>
+          <select
+            class="select select-bordered"
+            [(ngModel)]="statusFilter"
+            (ngModelChange)="statusFilter.set($event)"
+          >
+            <option value="All">{{ 'admin.allStatuses' | translate }}</option>
+            <option value="Active">{{ 'admin.active' | translate }}</option>
+            <option value="Inactive">{{ 'admin.inactive' | translate }}</option>
+          </select>
+        </div>
+
         <div class="form-control w-full">
           <label class="label">
             <span class="label-text">{{ 'admin.search' | translate }}</span>

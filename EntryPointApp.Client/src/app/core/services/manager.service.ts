@@ -6,7 +6,7 @@ import {
   TeamTimesheetDetailResponse,
   ApproveTimesheetRequest,
   DenyTimesheetRequest,
-  TimesheetStatus,
+  TimesheetSummary,
 } from '../models/manager.model';
 
 export interface PagedResult<T> {
@@ -19,12 +19,22 @@ export interface PagedResult<T> {
   hasPreviousPage: boolean;
 }
 
+export interface TeamTimesheetPagedResult extends PagedResult<TeamTimesheetResponse> {
+  summary: TimesheetSummary;
+}
+
 export interface ApiResponse<T> {
   success: boolean;
   message: string;
   data?: T;
   errors?: string[];
 }
+
+const defaultSummary: TimesheetSummary = {
+  totalApproved: 0,
+  totalPending: 0,
+  totalDenied: 0,
+};
 
 @Injectable({ providedIn: 'root' })
 export class ManagerService {
@@ -37,6 +47,7 @@ export class ManagerService {
   private _totalCount = signal(0);
   private _page = signal(1);
   private _pageSize = signal(10);
+  private _summary = signal<TimesheetSummary>({ ...defaultSummary });
 
   readonly timesheets = this._timesheets.asReadonly();
   readonly isLoading = this._isLoading.asReadonly();
@@ -49,23 +60,9 @@ export class ManagerService {
     Math.ceil(this._totalCount() / this._pageSize()),
   );
 
-  readonly totalPending = computed(
-    () =>
-      this._timesheets().filter((t) => t.status === TimesheetStatus.Pending)
-        .length,
-  );
-
-  readonly totalApproved = computed(
-    () =>
-      this._timesheets().filter((t) => t.status === TimesheetStatus.Approved)
-        .length,
-  );
-
-  readonly totalDenied = computed(
-    () =>
-      this._timesheets().filter((t) => t.status === TimesheetStatus.Denied)
-        .length,
-  );
+  readonly totalPending = computed(() => this._summary().totalPending);
+  readonly totalApproved = computed(() => this._summary().totalApproved);
+  readonly totalDenied = computed(() => this._summary().totalDenied);
 
   loadTimesheets(
     page?: number,
@@ -87,7 +84,7 @@ export class ManagerService {
     }
 
     this.http
-      .get<ApiResponse<PagedResult<TeamTimesheetResponse>>>(
+      .get<ApiResponse<TeamTimesheetPagedResult>>(
         `${this.apiUrl}/timesheets`,
         {
           params,
@@ -100,6 +97,7 @@ export class ManagerService {
             this._totalCount.set(response.data.totalCount);
             this._page.set(response.data.page);
             this._pageSize.set(response.data.pageSize);
+            this._summary.set(response.data.summary ?? { ...defaultSummary });
           } else {
             this._error.set(response.message || 'Failed to fetch timesheets');
             this._timesheets.set([]);

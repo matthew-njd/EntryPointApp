@@ -19,9 +19,16 @@ namespace EntryPointApp.Api.Services.Admin
             {
                 _logger.LogInformation("Retrieving all users");
 
-                var users = await _context.Users
-                    .Include(u => u.Manager)
-                    .Where(u => u.IsActive)
+                var query = _context.Users.Include(u => u.Manager);
+
+                var roleCounts = await query
+                    .GroupBy(u => u.Role)
+                    .Select(g => new { Role = g.Key, Count = g.Count() })
+                    .ToDictionaryAsync(x => x.Role, x => x.Count);
+
+                var activeCount = await query.CountAsync(u => u.IsActive);
+
+                var users = await query
                     .OrderBy(u => u.Email)
                     .Select(u => new UserDto
                     {
@@ -46,7 +53,17 @@ namespace EntryPointApp.Api.Services.Admin
                 {
                     Success = true,
                     Message = "Users retrieved successfully!",
-                    Data = users
+                    Data = new UserListResponse
+                    {
+                        Users = users,
+                        Summary = new UserSummaryDto
+                        {
+                            TotalUsers    = roleCounts.GetValueOrDefault(UserRole.User),
+                            TotalManagers = roleCounts.GetValueOrDefault(UserRole.Manager),
+                            TotalAdmins   = roleCounts.GetValueOrDefault(UserRole.Admin),
+                            ActiveUsers   = activeCount
+                        }
+                    }
                 };
             }
             catch (Exception ex)

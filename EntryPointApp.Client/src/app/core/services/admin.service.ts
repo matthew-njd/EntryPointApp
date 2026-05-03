@@ -5,6 +5,8 @@ import {
   AdminTimesheetDetailResponse,
   AdminTimesheetResponse,
   UserDto,
+  UserListResponse,
+  UserSummary,
   UserRateDto,
   SetUserRateRequest,
   UpdateUserRoleRequest,
@@ -19,6 +21,13 @@ export interface ApiResponse<T> {
   errors?: string[];
 }
 
+const defaultSummary: UserSummary = {
+  totalUsers: 0,
+  totalManagers: 0,
+  totalAdmins: 0,
+  activeUsers: 0,
+};
+
 @Injectable({ providedIn: 'root' })
 export class AdminService {
   private http = inject(HttpClient);
@@ -27,35 +36,26 @@ export class AdminService {
   private _users = signal<UserDto[]>([]);
   private _isLoading = signal(false);
   private _error = signal<string | null>(null);
+  private _summary = signal<UserSummary>({ ...defaultSummary });
 
   readonly users = this._users.asReadonly();
   readonly isLoading = this._isLoading.asReadonly();
   readonly error = this._error.asReadonly();
 
-  readonly totalUsers = computed(
-    () => this._users().filter((u) => u.role === 'User').length,
-  );
-
-  readonly totalManagers = computed(
-    () => this._users().filter((u) => u.role === 'Manager').length,
-  );
-
-  readonly totalAdmins = computed(
-    () => this._users().filter((u) => u.role === 'Admin').length,
-  );
-
-  readonly activeUsers = computed(
-    () => this._users().filter((u) => u.isActive).length,
-  );
+  readonly totalUsers = computed(() => this._summary().totalUsers);
+  readonly totalManagers = computed(() => this._summary().totalManagers);
+  readonly totalAdmins = computed(() => this._summary().totalAdmins);
+  readonly activeUsers = computed(() => this._summary().activeUsers);
 
   loadUsers() {
     this._isLoading.set(true);
     this._error.set(null);
 
-    this.http.get<ApiResponse<UserDto[]>>(`${this.apiUrl}/users`).subscribe({
+    this.http.get<ApiResponse<UserListResponse>>(`${this.apiUrl}/users`).subscribe({
       next: (response) => {
         if (response.success && response.data) {
-          this._users.set(response.data);
+          this._users.set(response.data.users);
+          this._summary.set(response.data.summary ?? { ...defaultSummary });
         } else {
           this._error.set(response.message || 'Failed to fetch users');
           this._users.set([]);

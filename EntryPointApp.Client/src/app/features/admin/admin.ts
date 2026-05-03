@@ -28,18 +28,23 @@ export class Admin {
 
   // Filter state
   roleFilter = signal<string>('All');
+  statusFilter = signal<string>('All');
   searchQuery = signal<string>('');
 
   // Filtered users
   filteredUsers = computed(() => {
     let users = this.service.users();
 
-    // Filter by role
     if (this.roleFilter() !== 'All') {
       users = users.filter((u) => u.role === this.roleFilter());
     }
 
-    // Filter by search query
+    if (this.statusFilter() === 'Active') {
+      users = users.filter((u) => u.isActive);
+    } else if (this.statusFilter() === 'Inactive') {
+      users = users.filter((u) => !u.isActive);
+    }
+
     const query = this.searchQuery().toLowerCase();
     if (query) {
       users = users.filter(

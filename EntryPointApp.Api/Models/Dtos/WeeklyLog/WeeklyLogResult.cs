@@ -16,6 +16,6 @@ namespace EntryPointApp.Api.Models.Dtos.WeeklyLog
 
     public class WeeklyLogListResult : BaseWeeklyLogResult
     {
-        public PagedResult<WeeklyLogResponse>? Data { get; set; }
+        public WeeklyLogPagedResponse? Data { get; set; }
     }
 }

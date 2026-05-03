@@ -47,3 +47,9 @@ export enum TimesheetStatus {
   Approved = 'Approved',
   Denied = 'Denied',
 }
+
+export interface TimesheetSummary {
+  totalApproved: number;
+  totalPending: number;
+  totalDenied: number;
+}

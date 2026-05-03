@@ -12,9 +12,23 @@ namespace EntryPointApp.Api.Models.Dtos.Users
         public UserDto? Data { get; set; }
     }
 
+    public class UserSummaryDto
+    {
+        public int TotalUsers { get; set; }
+        public int TotalManagers { get; set; }
+        public int TotalAdmins { get; set; }
+        public int ActiveUsers { get; set; }
+    }
+
+    public class UserListResponse
+    {
+        public List<UserDto> Users { get; set; } = [];
+        public UserSummaryDto Summary { get; set; } = new();
+    }
+
     public class UserListResult : BaseAdminResult
     {
-        public List<UserDto>? Data { get; set; }
+        public UserListResponse? Data { get; set; }
     }
 
     public class UserRateResult : BaseAdminResult

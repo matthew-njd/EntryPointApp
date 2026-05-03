@@ -33,6 +33,18 @@ export interface AdminTimesheetDetailResponse extends AdminTimesheetResponse {
   dailyLogs: AdminDailyLogResponse[];
 }
 
+export interface UserSummary {
+  totalUsers: number;
+  totalManagers: number;
+  totalAdmins: number;
+  activeUsers: number;
+}
+
+export interface UserListResponse {
+  users: UserDto[];
+  summary: UserSummary;
+}
+
 export interface UserDto {
   id: number;
   email: string;

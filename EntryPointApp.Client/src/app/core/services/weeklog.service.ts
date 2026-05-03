@@ -1,6 +1,6 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { WeeklyLog, WeeklyLogRequest } from '../models/weeklylog.model';
+import { WeeklyLog, WeeklyLogRequest, WeeklyLogSummary } from '../models/weeklylog.model';
 import { Observable } from 'rxjs';
 
 export interface PagedResult<T> {
@@ -13,12 +13,23 @@ export interface PagedResult<T> {
   hasPreviousPage: boolean;
 }
 
+export interface WeeklyLogPagedResult extends PagedResult<WeeklyLog> {
+  summary: WeeklyLogSummary;
+}
+
 export interface ApiResponse<T> {
   success: boolean;
   message: string;
   data?: T;
   errors?: string[];
 }
+
+const defaultSummary: WeeklyLogSummary = {
+  totalApproved: 0,
+  totalPending: 0,
+  totalDenied: 0,
+  totalDraft: 0,
+};
 
 @Injectable({ providedIn: 'root' })
 export class WeeklyLogService {
@@ -31,6 +42,7 @@ export class WeeklyLogService {
   private _totalCount = signal(0);
   private _page = signal(1);
   private _pageSize = signal(10);
+  private _summary = signal<WeeklyLogSummary>({ ...defaultSummary });
 
   readonly weeklyLogs = this._weeklyLogs.asReadonly();
   readonly isLoading = this._isLoading.asReadonly();
@@ -42,6 +54,11 @@ export class WeeklyLogService {
   readonly totalPages = computed(() =>
     Math.ceil(this._totalCount() / this._pageSize()),
   );
+
+  readonly totalApproved = computed(() => this._summary().totalApproved);
+  readonly totalPending = computed(() => this._summary().totalPending);
+  readonly totalDenied = computed(() => this._summary().totalDenied);
+  readonly totalDraft = computed(() => this._summary().totalDraft);
 
   loadWeeklyLogs(page?: number, pageSize?: number) {
     this._isLoading.set(true);
@@ -55,7 +72,7 @@ export class WeeklyLogService {
       .set('pageSize', ps.toString());
 
     this.http
-      .get<ApiResponse<PagedResult<WeeklyLog>>>(this.apiUrl, { params })
+      .get<ApiResponse<WeeklyLogPagedResult>>(this.apiUrl, { params })
       .subscribe({
         next: (response) => {
           if (response.success && response.data) {
@@ -63,6 +80,7 @@ export class WeeklyLogService {
             this._totalCount.set(response.data.totalCount);
             this._page.set(response.data.page);
             this._pageSize.set(response.data.pageSize);
+            this._summary.set(response.data.summary ?? { ...defaultSummary });
           } else {
             this._weeklyLogs.set([]);
             this._error.set(response.message || 'Failed to fetch WeeklyLogs');

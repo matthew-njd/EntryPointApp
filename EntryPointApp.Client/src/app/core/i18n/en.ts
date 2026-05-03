@@ -157,6 +157,8 @@ export const EN = {
     activeUsers: 'Active Users',
     filterByRole: 'Filter by Role',
     allRoles: 'All Roles',
+    filterByStatus: 'Filter by Status',
+    allStatuses: 'All Statuses',
     users: 'Users',
     managers: 'Managers',
     admins: 'Admins',
