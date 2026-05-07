@@ -20,7 +20,7 @@
 
       @if (weeklyLog()) {
         <form [formGroup]="timesheetForm" (ngSubmit)="onSubmit()">
-          <fieldset class="fieldset bg-base-200 border-base-300 rounded-box border p-6 mb-6">
+          <fieldset class="fieldset bg-base-200 border-base-300 rounded-box border p-4 sm:p-6 mb-6">
             <legend class="fieldset-legend">{{ 'timesheet.weekLabel' | translate }}</legend>
             <div class="mb-4">
               <div class="text-sm text-base-content/60">
@@ -34,7 +34,7 @@
           </fieldset>
 
           @if (dayForms().length > 0) {
-            <fieldset class="fieldset bg-base-200 border-base-300 rounded-box border p-6 mb-6">
+            <fieldset class="fieldset bg-base-200 border-base-300 rounded-box border p-4 sm:p-6 mb-6">
               <legend class="fieldset-legend">{{ 'timesheet.dailyEntries' | translate }}</legend>
 
               <div class="flex justify-between items-center mb-4">

@@ -24,7 +24,7 @@
         </button>
       </div>
 
-      <div class="flex justify-between items-start mb-6">
+      <div class="flex flex-col sm:flex-row justify-between items-start gap-2 mb-6">
         <div>
           <h1 class="text-3xl font-bold">{{ 'reviewTimesheet.title' | translate }}</h1>
           <p class="text-base-content/60 mt-2">
@@ -40,7 +40,7 @@
       </div>
 
       <fieldset
-        class="fieldset bg-base-200 border-base-300 rounded-box border p-6 mb-6"
+        class="fieldset bg-base-200 border-base-300 rounded-box border p-4 sm:p-6 mb-6"
       >
         <legend class="fieldset-legend">{{ 'reviewTimesheet.timesheet' | translate }}</legend>
 
@@ -103,7 +103,7 @@
       </fieldset>
 
       <fieldset
-        class="fieldset bg-base-200 border-base-300 rounded-box border p-6 mb-6"
+        class="fieldset bg-base-200 border-base-300 rounded-box border p-4 sm:p-6 mb-6"
       >
         <legend class="fieldset-legend">{{ 'reviewTimesheet.dailyBreakdown' | translate }}</legend>
 
@@ -206,7 +206,7 @@
 
         @if (showDenyForm()) {
           <fieldset
-            class="fieldset bg-base-200 rounded-box border p-6 mb-6 border-error"
+            class="fieldset bg-base-200 rounded-box border p-4 sm:p-6 mb-6 border-error"
           >
             <legend class="fieldset-legend text-error">{{ 'reviewTimesheet.denyTitle' | translate }}</legend>
 
@@ -233,7 +233,7 @@
                   <span class="label-text font-semibold">{{ 'reviewTimesheet.reasonForDenial' | translate }}</span>
                 </label>
                 <textarea
-                  class="textarea textarea-bordered h-32 w-auto`"
+                  class="textarea textarea-bordered h-32 w-full"
                   formControlName="reason"
                   [placeholder]="'reviewTimesheet.reasonPlaceholder' | translate"
                   maxlength="500"
