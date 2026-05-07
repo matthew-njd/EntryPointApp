@@ -10,6 +10,7 @@ import { TranslateService, TranslatePipe } from '@ngx-translate/core';
   imports: [TranslatePipe],
   templateUrl: './nav.html',
   styleUrl: './nav.css',
+  host: { class: 'sticky top-0 z-10 block' },
 })
 export class Nav {
   private authService = inject(AuthService);
