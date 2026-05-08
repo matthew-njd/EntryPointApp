@@ -17,6 +17,7 @@ import { managerGuard } from './core/guards/manager.guard';
 import { ReviewTimsheet } from './features/review-timsheet/review-timsheet';
 import { AdminUserTimesheets } from './features/admin-user-timesheets/admin-user-timesheets';
 import { AdminTimesheetDetail } from './features/admin-timesheet-detail/admin-timesheet-detail';
+import { AdminPayrollSchedule } from './features/admin-payroll-schedule/admin-payroll-schedule';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
@@ -47,6 +48,11 @@ export const routes: Routes = [
   {
     path: 'admin/users/:id/edit',
     component: UserEdit,
+    canActivate: [adminGuard],
+  },
+  {
+    path: 'admin/payroll-schedule',
+    component: AdminPayrollSchedule,
     canActivate: [adminGuard],
   },
   {

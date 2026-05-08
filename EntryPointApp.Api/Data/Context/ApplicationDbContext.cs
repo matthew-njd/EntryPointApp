@@ -11,6 +11,7 @@ namespace EntryPointApp.Api.Data.Context
         public DbSet<DailyLog> DailyLogs { get; set; }
         public DbSet<UserRate> UserRates { get; set; }
         public DbSet<DailyLogAttachment> DailyLogAttachments { get; set; }
+        public DbSet<PayrollSchedule> PayrollSchedules { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -22,6 +23,7 @@ namespace EntryPointApp.Api.Data.Context
             ConfigureDailyLog(modelBuilder);
             ConfigureUserRate(modelBuilder);
             ConfigureDailyLogAttachment(modelBuilder);
+            ConfigurePayrollSchedule(modelBuilder);
         }
 
         private void ConfigureUser(ModelBuilder modelBuilder)
@@ -146,6 +148,20 @@ namespace EntryPointApp.Api.Data.Context
                     .HasForeignKey(e => e.DailyLogId)
                     .OnDelete(DeleteBehavior.Cascade);
                 entity.HasIndex(e => e.DailyLogId);
+            });
+        }
+
+        private void ConfigurePayrollSchedule(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<PayrollSchedule>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.DateFrom).IsRequired();
+                entity.Property(e => e.DateTo).IsRequired();
+                entity.Property(e => e.PayrollDate).IsRequired();
+                entity.Property(e => e.CreatedAt).IsRequired();
+                entity.Property(e => e.UpdatedAt).IsRequired();
+                entity.HasIndex(e => e.DateFrom);
             });
         }
     }

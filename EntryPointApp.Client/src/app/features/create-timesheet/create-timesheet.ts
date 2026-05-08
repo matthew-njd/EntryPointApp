@@ -5,7 +5,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import {
   FormBuilder,
   FormGroup,
@@ -22,6 +22,7 @@ import { ToastService } from '../../core/services/toast.service';
 import { Footer } from '../../shared/footer/footer';
 import { Nav } from '../../shared/nav/nav';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { PayrollScheduleService } from '../../core/services/payroll-schedule.service';
 
 interface DayForm {
   dayName: string;
@@ -33,7 +34,7 @@ interface DayForm {
 
 @Component({
   selector: 'app-create-timesheet',
-  imports: [CommonModule, ReactiveFormsModule, Footer, Nav, TranslatePipe],
+  imports: [CommonModule, DatePipe, ReactiveFormsModule, Footer, Nav, TranslatePipe],
   templateUrl: './create-timesheet.html',
   styleUrl: './create-timesheet.css',
 })
@@ -45,10 +46,12 @@ export class CreateTimesheet {
   private translateService = inject(TranslateService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
+  private payrollScheduleService = inject(PayrollScheduleService);
 
   timesheetForm: FormGroup;
   isLoading = signal(false);
   calculatedDateTo = signal<string>('');
+  payrollDate = signal<string | null>(null);
   dayForms = signal<DayForm[]>([]);
   formChangeTrigger = signal(0);
 
@@ -78,9 +81,15 @@ export class CreateTimesheet {
         );
 
         this.generateDayForms(dateFrom);
+
+        this.payrollScheduleService.lookup(dateFrom).subscribe({
+          next: (res) => { this.payrollDate.set(res.data?.payrollDate ?? null); },
+          error: () => {},
+        });
       } else {
         this.calculatedDateTo.set('');
         this.dayForms.set([]);
+        this.payrollDate.set(null);
       }
     });
   }

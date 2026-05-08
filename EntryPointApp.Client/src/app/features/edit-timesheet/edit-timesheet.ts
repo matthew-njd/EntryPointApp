@@ -27,6 +27,7 @@ import { ToastService } from '../../core/services/toast.service';
 import { Footer } from '../../shared/footer/footer';
 import { Nav } from '../../shared/nav/nav';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { PayrollScheduleService } from '../../core/services/payroll-schedule.service';
 
 interface DayForm {
   dayName: string;
@@ -53,12 +54,14 @@ export class EditTimesheet {
   private translateService = inject(TranslateService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
+  private payrollScheduleService = inject(PayrollScheduleService);
 
   timesheetForm: FormGroup;
   weeklyLogId = toSignal(this.route.paramMap);
   isLoading = signal(false);
   isLoadingData = signal(true);
   weeklyLog = signal<WeeklyLog | null>(null);
+  payrollDate = signal<string | null>(null);
   dayForms = signal<DayForm[]>([]);
   formChangeTrigger = signal(0);
 
@@ -93,6 +96,11 @@ export class EditTimesheet {
         if (weeklyResponse.success && weeklyResponse.data) {
           const weeklyLog = weeklyResponse.data;
           this.weeklyLog.set(weeklyLog);
+
+          this.payrollScheduleService.lookup(weeklyLog.dateFrom).subscribe({
+            next: (res) => { this.payrollDate.set(res.data?.payrollDate ?? null); },
+            error: () => {},
+          });
 
           if (weeklyLog.status !== 'Draft') {
             this.toastService.error(this.translateService.instant('toast.onlyDraftEditable'));

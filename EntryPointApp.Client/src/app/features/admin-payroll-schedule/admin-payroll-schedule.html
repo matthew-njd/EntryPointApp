@@ -1,0 +1,183 @@
+<div class="flex flex-col min-h-screen">
+  <app-nav></app-nav>
+
+  <div class="grow mt-6 sm:mt-10 max-w-5xl mx-auto px-4 w-full">
+    <button class="btn btn-primary btn-sm mb-6" (click)="goBack()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+        <path fill="currentColor" d="m7.825 13l4.9 4.9q.3.3.288.7t-.313.7q-.3.275-.7.288t-.7-.288l-6.6-6.6q-.15-.15-.213-.325T4.426 12t.063-.375t.212-.325l6.6-6.6q.275-.275.688-.275t.712.275q.3.3.3.713t-.3.712L7.825 11H19q.425 0 .713.288T20 12t-.288.713T19 13z"/>
+      </svg>
+      Back to Admin
+    </button>
+
+    <h1 class="text-3xl font-bold mb-6">Payroll Schedule</h1>
+
+    <!-- CSV Import -->
+    <div class="bg-base-200 rounded-box p-4 mb-6">
+      <h2 class="text-lg font-semibold mb-3">Import from CSV</h2>
+      <p class="text-sm text-base-content/60 mb-3">
+        Expected format: <code>From,To,Payroll date</code> — dates like <code>15-Dec-25</code> or <code>2026-01-09</code>.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-end">
+        <div class="form-control">
+          <input
+            type="file"
+            accept=".csv"
+            class="file-input file-input-bordered file-input-sm"
+            (change)="onFileChange($event)"
+          />
+        </div>
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            class="checkbox checkbox-sm"
+            [checked]="replaceExisting()"
+            (change)="replaceExisting.set($any($event.target).checked)"
+          />
+          <span class="text-sm">Replace existing schedule</span>
+        </label>
+        <button
+          class="btn btn-primary btn-sm"
+          (click)="importCsv()"
+          [disabled]="isImporting() || !csvFile()"
+        >
+          @if (isImporting()) {
+            <span class="loading loading-spinner loading-xs"></span>
+          }
+          Upload
+        </button>
+      </div>
+    </div>
+
+    <!-- Add New Entry -->
+    <div class="bg-base-200 rounded-box p-4 mb-6">
+      <h2 class="text-lg font-semibold mb-3">Add Entry</h2>
+      <div class="flex flex-col sm:flex-row gap-3 items-end">
+        <div class="form-control">
+          <label class="label"><span class="label-text text-xs">From</span></label>
+          <input
+            type="date"
+            class="input input-bordered input-sm"
+            [(ngModel)]="newEntry.dateFrom"
+          />
+        </div>
+        <div class="form-control">
+          <label class="label"><span class="label-text text-xs">To</span></label>
+          <input
+            type="date"
+            class="input input-bordered input-sm"
+            [(ngModel)]="newEntry.dateTo"
+          />
+        </div>
+        <div class="form-control">
+          <label class="label"><span class="label-text text-xs">Payroll Date</span></label>
+          <input
+            type="date"
+            class="input input-bordered input-sm"
+            [(ngModel)]="newEntry.payrollDate"
+          />
+        </div>
+        <button
+          class="btn btn-success btn-sm"
+          (click)="addEntry()"
+          [disabled]="isAdding()"
+        >
+          @if (isAdding()) {
+            <span class="loading loading-spinner loading-xs"></span>
+          }
+          Add
+        </button>
+      </div>
+    </div>
+
+    <!-- Schedule Table -->
+    @if (isLoading()) {
+      <div class="flex justify-center py-10">
+        <span class="loading loading-spinner loading-xl"></span>
+      </div>
+    } @else {
+      <div class="overflow-x-auto rounded-box bg-base-300">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>From</th>
+              <th>To</th>
+              <th>Payroll Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (entry of entries(); track entry.id) {
+              @if (editingId() === entry.id) {
+                <tr>
+                  <td>
+                    <input
+                      type="date"
+                      class="input input-bordered input-xs w-36"
+                      [(ngModel)]="editState.dateFrom"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="date"
+                      class="input input-bordered input-xs w-36"
+                      [(ngModel)]="editState.dateTo"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="date"
+                      class="input input-bordered input-xs w-36"
+                      [(ngModel)]="editState.payrollDate"
+                    />
+                  </td>
+                  <td>
+                    <div class="flex gap-2">
+                      <button class="btn btn-xs btn-success" (click)="saveEdit(entry.id)">Save</button>
+                      <button class="btn btn-xs btn-ghost" (click)="cancelEdit()">Cancel</button>
+                    </div>
+                  </td>
+                </tr>
+              } @else {
+                <tr>
+                  <td>{{ formatDate(entry.dateFrom) }}</td>
+                  <td>{{ formatDate(entry.dateTo) }}</td>
+                  <td class="font-semibold">{{ formatDate(entry.payrollDate) }}</td>
+                  <td>
+                    <div class="flex gap-2">
+                      <button
+                        class="btn btn-xs btn-outline btn-primary"
+                        (click)="startEdit(entry)"
+                        title="Edit"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24">
+                          <path fill="currentColor" d="M5 19h1.425L16.2 9.225L14.775 7.8L5 17.575zm-2 2v-4.25L16.2 3.575q.3-.275.663-.425t.762-.15t.775.15t.65.45L20.425 5q.3.275.438.65T21 6.4q0 .4-.137.763t-.438.662L7.25 21zM19 6.4L17.6 5zm-3.525 2.125l-.7-.725L16.2 9.225z"/>
+                        </svg>
+                      </button>
+                      <button
+                        class="btn btn-xs btn-outline btn-error"
+                        (click)="deleteEntry(entry.id)"
+                        title="Delete"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24">
+                          <path fill="currentColor" d="M7 21q-.825 0-1.412-.587T5 19V6H4V4h5V3h6v1h5v2h-1v13q0 .825-.587 1.413T17 21zm2-4h2V8H9zm4 0h2V8h-2z"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            } @empty {
+              <tr>
+                <td colspan="4" class="text-center py-8 text-base-content/50">
+                  No payroll schedule entries. Upload a CSV or add entries manually.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+
+  <app-footer class="mt-8"></app-footer>
+</div>

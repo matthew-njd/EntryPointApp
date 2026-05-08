@@ -12,6 +12,7 @@ using EntryPointApp.Api.Services.Excel;
 using EntryPointApp.Api.Services.FileStorage;
 using EntryPointApp.Api.Services.Manager;
 using EntryPointApp.Api.Services.Receipt;
+using EntryPointApp.Api.Services.PayrollSchedule;
 using EntryPointApp.Api.Services.WeeklyLog;
 using Mailjet.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -64,6 +65,7 @@ builder.Services.AddScoped<IDailyLogService, DailyLogService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IUserRateService, UserRateService>();
 builder.Services.AddScoped<IManagerService, ManagerService>();
+builder.Services.AddScoped<IPayrollScheduleService, PayrollScheduleService>();
 builder.Services.AddScoped<IExcelService, ExcelService>();
 
 builder.Services.Configure<FileStorageSettings>(builder.Configuration.GetSection("FileStorage"));

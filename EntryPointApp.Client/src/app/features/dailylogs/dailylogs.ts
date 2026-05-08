@@ -10,6 +10,7 @@ import { WeeklyLogService } from '../../core/services/weeklog.service';
 import { WeeklyLog } from '../../core/models/weeklylog.model';
 import { ToastService } from '../../core/services/toast.service';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { PayrollScheduleService } from '../../core/services/payroll-schedule.service';
 
 @Component({
   selector: 'app-dailylogs',
@@ -26,9 +27,12 @@ export class Dailylogs {
   private toastService = inject(ToastService);
   private translateService = inject(TranslateService);
 
+  private payrollScheduleService = inject(PayrollScheduleService);
+
   weeklyLogId = toSignal(this.route.paramMap);
   weeklyLog = signal<WeeklyLog | null>(null);
   isLoadingWeeklyLog = signal(false);
+  payrollDate = signal<string | null>(null);
 
   loadEffect = effect(() => {
     const id = this.weeklyLogId()?.get('id');
@@ -42,6 +46,12 @@ export class Dailylogs {
         next: (response) => {
           if (response.success && response.data) {
             this.weeklyLog.set(response.data);
+            this.payrollScheduleService.lookup(response.data.dateFrom).subscribe({
+              next: (res) => {
+                this.payrollDate.set(res.data?.payrollDate ?? null);
+              },
+              error: () => {},
+            });
           }
           this.isLoadingWeeklyLog.set(false);
         },

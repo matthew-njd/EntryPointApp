@@ -9,144 +9,294 @@
     } @else {
       <div class="mb-8">
         <button class="btn btn-sm btn-primary" (click)="goBack()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-            <path fill="currentColor" d="m7.825 13l4.9 4.9q.3.3.288.7t-.313.7q-.3.275-.7.288t-.7-.288l-6.6-6.6q-.15-.15-.213-.325T4.426 12t.063-.375t.212-.325l6.6-6.6q.275-.275.688-.275t.712.275q.3.3.3.713t-.3.712L7.825 11H19q.425 0 .713.288T20 12t-.288.713T19 13z"/>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="m7.825 13l4.9 4.9q.3.3.288.7t-.313.7q-.3.275-.7.288t-.7-.288l-6.6-6.6q-.15-.15-.213-.325T4.426 12t.063-.375t.212-.325l6.6-6.6q.275-.275.688-.275t.712.275q.3.3.3.713t-.3.712L7.825 11H19q.425 0 .713.288T20 12t-.288.713T19 13z"
+            />
           </svg>
-          {{ 'common.back' | translate }}
+          {{ "common.back" | translate }}
         </button>
       </div>
 
-      <h1 class="text-3xl mb-6">{{ 'timesheet.editTitle' | translate }}</h1>
+      <h1 class="text-3xl mb-6">{{ "timesheet.editTitle" | translate }}</h1>
+
+      @if (payrollDate()) {
+        <div class="alert alert-info mb-4">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            class="shrink-0"
+          >
+            <path
+              fill="currentColor"
+              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2m1 15h-2v-6h2zm0-8h-2V7h2z"
+            />
+          </svg>
+          <span>Timesheets submitted for
+            <strong>{{ weeklyLog()!.dateFrom | date: "MMM d, y" }} – {{ weeklyLog()!.dateTo | date: "MMM d, y" }}</strong>
+            are scheduled for payment on
+            <strong>{{ payrollDate() | date: "MMM d, y" }}</strong>.</span
+          >
+        </div>
+      }
 
       @if (weeklyLog()) {
         <form [formGroup]="timesheetForm" (ngSubmit)="onSubmit()">
-          <fieldset class="fieldset bg-base-200 border-base-300 rounded-box border p-4 sm:p-6 mb-6">
-            <legend class="fieldset-legend">{{ 'timesheet.weekLabel' | translate }}</legend>
+          <fieldset
+            class="fieldset bg-base-200 border-base-300 rounded-box border p-4 sm:p-6 mb-6"
+          >
+            <legend class="fieldset-legend">
+              {{ "timesheet.weekLabel" | translate }}
+            </legend>
             <div class="mb-4">
               <div class="text-sm text-base-content/60">
                 {{ weeklyLog()!.dateFrom | date: "MMM d, y" }} -
                 {{ weeklyLog()!.dateTo | date: "MMM d, y" }}
               </div>
               <div class="text-xs text-base-content/50 mt-1">
-                {{ 'timesheet.weekDatesCannotChange' | translate }}
+                {{ "timesheet.weekDatesCannotChange" | translate }}
               </div>
             </div>
           </fieldset>
 
           @if (dayForms().length > 0) {
-            <fieldset class="fieldset bg-base-200 border-base-300 rounded-box border p-4 sm:p-6 mb-6">
-              <legend class="fieldset-legend">{{ 'timesheet.dailyEntries' | translate }}</legend>
+            <fieldset
+              class="fieldset bg-base-200 border-base-300 rounded-box border p-4 sm:p-6 mb-6"
+            >
+              <legend class="fieldset-legend">
+                {{ "timesheet.dailyEntries" | translate }}
+              </legend>
 
               <div class="flex justify-between items-center mb-4">
                 <div class="text-sm text-base-content/60">
-                  {{ 'timesheet.updateDays' | translate }}
+                  {{ "timesheet.updateDays" | translate }}
                 </div>
                 <div class="text-sm font-semibold">
-                  {{ 'timesheet.daysCompleted' | translate }} {{ filledDaysCount() }}/7
+                  {{ "timesheet.daysCompleted" | translate }}
+                  {{ filledDaysCount() }}/7
                   @if (allDaysFilled()) {
-                    <span class="text-success ml-2">{{ 'timesheet.readyToSubmit' | translate }}</span>
+                    <span class="text-success ml-2">{{
+                      "timesheet.readyToSubmit" | translate
+                    }}</span>
                   }
                 </div>
               </div>
 
               <div class="space-y-6">
                 @for (day of dayForms(); track day.date) {
-                  <div class="bg-base-100 rounded-lg p-4 border border-base-300">
+                  <div
+                    class="bg-base-100 rounded-lg p-4 border border-base-300"
+                  >
                     <div class="flex justify-between items-center mb-3">
                       <h3 class="font-semibold">
                         {{ day.dayName }}, {{ day.date | date: "MMM d, y" }}
                       </h3>
                       <label class="label cursor-pointer gap-2">
-                        <span class="label-text text-sm">{{ 'timesheet.dayOff' | translate }}</span>
-                        <input type="checkbox" class="checkbox checkbox-sm"
-                          [formControl]="$any(day.formGroup.get('isDayOff'))"/>
+                        <span class="label-text text-sm">{{
+                          "timesheet.dayOff" | translate
+                        }}</span>
+                        <input
+                          type="checkbox"
+                          class="checkbox checkbox-sm"
+                          [formControl]="$any(day.formGroup.get('isDayOff'))"
+                        />
                       </label>
                     </div>
 
-                    <div [formGroup]="day.formGroup" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    <div
+                      [formGroup]="day.formGroup"
+                      class="grid grid-cols-2 sm:grid-cols-3 gap-3"
+                    >
                       <div>
                         <label class="label py-1">
-                          <span class="label-text text-xs">{{ 'timesheet.timeIn' | translate }}</span>
+                          <span class="label-text text-xs">{{
+                            "timesheet.timeIn" | translate
+                          }}</span>
                         </label>
-                        <input type="time" class="input input-sm w-full" formControlName="timeIn"/>
+                        <input
+                          type="time"
+                          class="input input-sm w-full"
+                          formControlName="timeIn"
+                        />
                       </div>
                       <div>
                         <label class="label py-1">
-                          <span class="label-text text-xs">{{ 'timesheet.timeOut' | translate }}</span>
+                          <span class="label-text text-xs">{{
+                            "timesheet.timeOut" | translate
+                          }}</span>
                         </label>
-                        <input type="time" class="input input-sm w-full" formControlName="timeOut"/>
+                        <input
+                          type="time"
+                          class="input input-sm w-full"
+                          formControlName="timeOut"
+                        />
                       </div>
                       <div>
                         <label class="label py-1">
-                          <span class="label-text text-xs">{{ 'timesheet.mileage' | translate }}</span>
+                          <span class="label-text text-xs">{{
+                            "timesheet.mileage" | translate
+                          }}</span>
                         </label>
-                        <input type="number" class="input input-sm w-full" formControlName="mileage" step="0.1" min="0" placeholder="0"/>
+                        <input
+                          type="number"
+                          class="input input-sm w-full"
+                          formControlName="mileage"
+                          step="0.1"
+                          min="0"
+                          placeholder="0"
+                        />
                       </div>
                       <div>
                         <label class="label py-1">
-                          <span class="label-text text-xs">{{ 'timesheet.tollCharge' | translate }}</span>
+                          <span class="label-text text-xs">{{
+                            "timesheet.tollCharge" | translate
+                          }}</span>
                         </label>
-                        <input type="number" class="input input-sm w-full" formControlName="tollCharge" step="0.01" min="0" placeholder="0.00"/>
+                        <input
+                          type="number"
+                          class="input input-sm w-full"
+                          formControlName="tollCharge"
+                          step="0.01"
+                          min="0"
+                          placeholder="0.00"
+                        />
                       </div>
                       <div>
                         <label class="label py-1">
-                          <span class="label-text text-xs">{{ 'timesheet.parkingFee' | translate }}</span>
+                          <span class="label-text text-xs">{{
+                            "timesheet.parkingFee" | translate
+                          }}</span>
                         </label>
-                        <input type="number" class="input input-sm w-full" formControlName="parkingFee" step="0.01" min="0" placeholder="0.00"/>
+                        <input
+                          type="number"
+                          class="input input-sm w-full"
+                          formControlName="parkingFee"
+                          step="0.01"
+                          min="0"
+                          placeholder="0.00"
+                        />
                       </div>
                       <div>
                         <label class="label py-1">
-                          <span class="label-text text-xs">{{ 'timesheet.otherCharges' | translate }}</span>
+                          <span class="label-text text-xs">{{
+                            "timesheet.otherCharges" | translate
+                          }}</span>
                         </label>
-                        <input type="number" class="input input-sm w-full" formControlName="otherCharges" step="0.01" min="0" placeholder="0.00"/>
+                        <input
+                          type="number"
+                          class="input input-sm w-full"
+                          formControlName="otherCharges"
+                          step="0.01"
+                          min="0"
+                          placeholder="0.00"
+                        />
                       </div>
                       <div class="col-span-2 sm:col-span-3">
                         <label class="label py-1">
-                          <span class="label-text text-xs">{{ 'timesheet.comment' | translate }}</span>
+                          <span class="label-text text-xs">{{
+                            "timesheet.comment" | translate
+                          }}</span>
                         </label>
-                        <textarea class="textarea textarea-sm w-full" formControlName="comment" rows="2" maxlength="500"
-                          [placeholder]="'timesheet.commentPlaceholder' | translate"></textarea>
+                        <textarea
+                          class="textarea textarea-sm w-full"
+                          formControlName="comment"
+                          rows="2"
+                          maxlength="500"
+                          [placeholder]="
+                            'timesheet.commentPlaceholder' | translate
+                          "
+                        ></textarea>
                       </div>
                     </div>
 
                     @if (day.existingId) {
                       <div class="mt-3 pt-3 border-t border-base-300">
                         <div class="flex items-center justify-between mb-2">
-                          <span class="label-text text-xs font-medium">{{ 'timesheet.receipts' | translate }}</span>
-                          <label class="btn btn-xs btn-outline"
-                                 [class.cursor-pointer]="day.canAddReceipt && !day.isUploadingReceipt"
-                                 [class.opacity-50]="!day.canAddReceipt || day.isUploadingReceipt"
-                                 [class.pointer-events-none]="!day.canAddReceipt">
+                          <span class="label-text text-xs font-medium">{{
+                            "timesheet.receipts" | translate
+                          }}</span>
+                          <label
+                            class="btn btn-xs btn-outline"
+                            [class.cursor-pointer]="
+                              day.canAddReceipt && !day.isUploadingReceipt
+                            "
+                            [class.opacity-50]="
+                              !day.canAddReceipt || day.isUploadingReceipt
+                            "
+                            [class.pointer-events-none]="!day.canAddReceipt"
+                          >
                             @if (day.isUploadingReceipt) {
-                              <span class="loading loading-spinner loading-xs"></span>
-                              {{ 'timesheet.uploading' | translate }}
+                              <span
+                                class="loading loading-spinner loading-xs"
+                              ></span>
+                              {{ "timesheet.uploading" | translate }}
                             } @else {
-                              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24">
-                                <path fill="currentColor" d="M11 16V7.85l-2.6 2.6L7 9l5-5l5 5l-1.4 1.45L13 7.85V16zm-5 4q-.825 0-1.412-.587T4 18v-3h2v3h12v-3h2v3q0 .825-.587 1.413T18 20z"/>
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="14"
+                                height="14"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  fill="currentColor"
+                                  d="M11 16V7.85l-2.6 2.6L7 9l5-5l5 5l-1.4 1.45L13 7.85V16zm-5 4q-.825 0-1.412-.587T4 18v-3h2v3h12v-3h2v3q0 .825-.587 1.413T18 20z"
+                                />
                               </svg>
-                              {{ 'timesheet.upload' | translate }}
+                              {{ "timesheet.upload" | translate }}
                             }
-                            <input type="file" class="hidden" accept=".jpg,.jpeg,.png,.pdf"
-                              [disabled]="!day.canAddReceipt || day.isUploadingReceipt"
-                              (change)="onFileSelected(day, $event)"/>
+                            <input
+                              type="file"
+                              class="hidden"
+                              accept=".jpg,.jpeg,.png,.pdf"
+                              [disabled]="
+                                !day.canAddReceipt || day.isUploadingReceipt
+                              "
+                              (change)="onFileSelected(day, $event)"
+                            />
                           </label>
                         </div>
 
                         @if (day.receipts.length > 0) {
                           <ul class="space-y-1">
                             @for (receipt of day.receipts; track receipt.id) {
-                              <li class="flex items-center justify-between text-xs bg-base-200 rounded px-2 py-1.5">
-                                <button type="button" class="link link-primary text-left truncate max-w-[200px] sm:max-w-xs"
-                                  (click)="downloadReceipt(day.existingId!, receipt.id, receipt.originalFileName)">
+                              <li
+                                class="flex items-center justify-between text-xs bg-base-200 rounded px-2 py-1.5"
+                              >
+                                <button
+                                  type="button"
+                                  class="link link-primary text-left truncate max-w-[200px] sm:max-w-xs"
+                                  (click)="
+                                    downloadReceipt(
+                                      day.existingId!,
+                                      receipt.id,
+                                      receipt.originalFileName
+                                    )
+                                  "
+                                >
                                   {{ receipt.originalFileName }}
                                 </button>
-                                <button type="button" class="btn btn-ghost btn-xs text-error ml-2 shrink-0"
-                                  (click)="deleteReceipt(day, receipt.id)">✕</button>
+                                <button
+                                  type="button"
+                                  class="btn btn-ghost btn-xs text-error ml-2 shrink-0"
+                                  (click)="deleteReceipt(day, receipt.id)"
+                                >
+                                  ✕
+                                </button>
                               </li>
                             }
                           </ul>
                         } @else {
-                          <p class="text-xs text-base-content/50">{{ 'timesheet.noReceipts' | translate }}</p>
+                          <p class="text-xs text-base-content/50">
+                            {{ "timesheet.noReceipts" | translate }}
+                          </p>
                         }
                       </div>
                     }
@@ -157,16 +307,33 @@
           }
 
           <div class="flex gap-2">
-            <button type="submit" class="btn btn-neutral flex-1" [disabled]="isLoading()">
+            <button
+              type="submit"
+              class="btn btn-neutral flex-1"
+              [disabled]="isLoading()"
+            >
               @if (isLoading()) {
                 <span class="loading loading-spinner loading-md"></span>
-                {{ allDaysFilled() ? ('timesheet.submittingForApproval' | translate) : ('timesheet.saving' | translate) }}
+                {{
+                  allDaysFilled()
+                    ? ("timesheet.submittingForApproval" | translate)
+                    : ("timesheet.saving" | translate)
+                }}
               } @else {
-                {{ allDaysFilled() ? ('timesheet.submitForApproval' | translate) : ('timesheet.saveChanges' | translate) }}
+                {{
+                  allDaysFilled()
+                    ? ("timesheet.submitForApproval" | translate)
+                    : ("timesheet.saveChanges" | translate)
+                }}
               }
             </button>
-            <button type="button" class="btn btn-ghost" (click)="goBack()" [disabled]="isLoading()">
-              {{ 'common.cancel' | translate }}
+            <button
+              type="button"
+              class="btn btn-ghost"
+              (click)="goBack()"
+              [disabled]="isLoading()"
+            >
+              {{ "common.cancel" | translate }}
             </button>
           </div>
         </form>

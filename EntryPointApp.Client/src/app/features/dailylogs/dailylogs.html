@@ -12,48 +12,104 @@
       </div>
     } @else {
       <button class="btn btn-primary btn-sm" (click)="goBack()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-          <path fill="currentColor" d="m7.825 13l4.9 4.9q.3.3.288.7t-.313.7q-.3.275-.7.288t-.7-.288l-6.6-6.6q-.15-.15-.213-.325T4.426 12t.063-.375t.212-.325l6.6-6.6q.275-.275.688-.275t.712.275q.3.3.3.713t-.3.712L7.825 11H19q.425 0 .713.288T20 12t-.288.713T19 13z"/>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill="currentColor"
+            d="m7.825 13l4.9 4.9q.3.3.288.7t-.313.7q-.3.275-.7.288t-.7-.288l-6.6-6.6q-.15-.15-.213-.325T4.426 12t.063-.375t.212-.325l6.6-6.6q.275-.275.688-.275t.712.275q.3.3.3.713t-.3.712L7.825 11H19q.425 0 .713.288T20 12t-.288.713T19 13z"
+          />
         </svg>
-        {{ 'timesheet.backToDashboardBtn' | translate }}
+        {{ "timesheet.backToDashboardBtn" | translate }}
       </button>
 
       <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6 mt-6">
-        <app-card [title]="'dailylogs.totalHours' | translate" value="{{ totalHours() }} {{ 'common.hrs' | translate }}"></app-card>
-        <app-card [title]="'dailylogs.totalMileage' | translate" value="{{ totalMileage() }} {{ 'common.mi' | translate }}"></app-card>
-        <app-card [title]="'dailylogs.totalCharges' | translate" value="${{ totalCharges() }}"></app-card>
+        <app-card
+          [title]="'dailylogs.totalHours' | translate"
+          value="{{ totalHours() }} {{ 'common.hrs' | translate }}"
+        ></app-card>
+        <app-card
+          [title]="'dailylogs.totalMileage' | translate"
+          value="{{ totalMileage() }} {{ 'common.mi' | translate }}"
+        ></app-card>
+        <app-card
+          [title]="'dailylogs.totalCharges' | translate"
+          value="${{ totalCharges() }}"
+        ></app-card>
       </div>
 
       @if (weeklyLog() && weeklyLog()!.status === "Draft") {
         <button class="btn btn-primary btn-sm" (click)="editTimesheet()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-            <path fill="currentColor" d="M5 19h1.425L16.2 9.225L14.775 7.8L5 17.575zm-2 2v-4.25L16.2 3.575q.3-.275.663-.425t.762-.15t.775.15t.65.45L20.425 5q.3.275.438.65T21 6.4q0 .4-.137.763t-.438.662L7.25 21zM19 6.4L17.6 5zm-3.525 2.125l-.7-.725L16.2 9.225z"/>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M5 19h1.425L16.2 9.225L14.775 7.8L5 17.575zm-2 2v-4.25L16.2 3.575q.3-.275.663-.425t.762-.15t.775.15t.65.45L20.425 5q.3.275.438.65T21 6.4q0 .4-.137.763t-.438.662L7.25 21zM19 6.4L17.6 5zm-3.525 2.125l-.7-.725L16.2 9.225z"
+            />
           </svg>
-          {{ 'timesheet.editDailylogs' | translate }}
+          {{ "timesheet.editDailylogs" | translate }}
         </button>
       }
 
+      @if (payrollDate()) {
+        <div class="alert alert-info mt-4">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            class="shrink-0"
+          >
+            <path
+              fill="currentColor"
+              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2m1 15h-2v-6h2zm0-8h-2V7h2z"
+            />
+          </svg>
+          <span>
+            Timesheets submitted for
+            <strong>{{ weeklyLog()!.dateFrom | date: "MMM d, y" }} – {{ weeklyLog()!.dateTo | date: "MMM d, y" }}</strong>
+            are scheduled for payment on
+            <strong>{{ payrollDate() | date: "MMM d, y" }}</strong>.
+          </span>
+        </div>
+      }
+
       <div class="flex flex-col items-center">
-        <div class="w-full overflow-x-auto overflow-y-auto mb-4 mt-4 rounded-box bg-base-300">
+        <div
+          class="w-full overflow-x-auto overflow-y-auto mb-4 mt-4 rounded-box bg-base-300"
+        >
           <table class="table">
             <thead>
               <tr>
-                <th>{{ 'dailylogs.tableDate' | translate }}</th>
-                <th>{{ 'dailylogs.tableHours' | translate }}</th>
-                <th>{{ 'dailylogs.tableMileage' | translate }}</th>
-                <th>{{ 'dailylogs.tableTollCharges' | translate }}</th>
-                <th>{{ 'dailylogs.tableParkingFees' | translate }}</th>
-                <th>{{ 'dailylogs.tableOtherCharges' | translate }}</th>
-                <th>{{ 'dailylogs.tableComments' | translate }}</th>
-                <th>{{ 'dailylogs.tableReceipts' | translate }}</th>
+                <th>{{ "dailylogs.tableDate" | translate }}</th>
+                <th>{{ "dailylogs.tableHours" | translate }}</th>
+                <th>{{ "dailylogs.tableMileage" | translate }}</th>
+                <th>{{ "dailylogs.tableTollCharges" | translate }}</th>
+                <th>{{ "dailylogs.tableParkingFees" | translate }}</th>
+                <th>{{ "dailylogs.tableOtherCharges" | translate }}</th>
+                <th>{{ "dailylogs.tableComments" | translate }}</th>
+                <th>{{ "dailylogs.tableReceipts" | translate }}</th>
               </tr>
             </thead>
             <tbody>
               @for (dailyLog of service.dailyLogs(); track dailyLog.id) {
                 <tr>
                   <td>{{ dailyLog.date | date: "EEE, MMM d, y" }}</td>
-                  <td>{{ dailyLog.timeIn.substring(0, 5) }} – {{ dailyLog.timeOut.substring(0, 5) }} ({{ dailyLog.hours.toFixed(2) }} {{ 'common.hrs' | translate }})</td>
-                  <td>{{ dailyLog.mileage }} {{ 'common.mi' | translate }}</td>
+                  <td>
+                    {{ dailyLog.timeIn.substring(0, 5) }} –
+                    {{ dailyLog.timeOut.substring(0, 5) }} ({{
+                      dailyLog.hours.toFixed(2)
+                    }}
+                    {{ "common.hrs" | translate }})
+                  </td>
+                  <td>{{ dailyLog.mileage }} {{ "common.mi" | translate }}</td>
                   <td>${{ dailyLog.tollCharge }}</td>
                   <td>${{ dailyLog.parkingFee }}</td>
                   <td>${{ dailyLog.otherCharges }}</td>
@@ -62,8 +118,17 @@
                     @if (dailyLog.receipts && dailyLog.receipts.length > 0) {
                       <div class="flex flex-col gap-1">
                         @for (receipt of dailyLog.receipts; track receipt.id) {
-                          <button class="link link-primary text-xs text-left"
-                            (click)="downloadReceipt(dailyLog.weeklyLogId, dailyLog.id, receipt.id, receipt.originalFileName)">
+                          <button
+                            class="link link-primary text-xs text-left"
+                            (click)="
+                              downloadReceipt(
+                                dailyLog.weeklyLogId,
+                                dailyLog.id,
+                                receipt.id,
+                                receipt.originalFileName
+                              )
+                            "
+                          >
                             {{ receipt.originalFileName }}
                           </button>
                         }
@@ -76,7 +141,7 @@
               } @empty {
                 <tr>
                   <td colspan="8" class="text-center py-8">
-                    {{ 'dailylogs.noDailylogs' | translate }}
+                    {{ "dailylogs.noDailylogs" | translate }}
                   </td>
                 </tr>
               }

@@ -106,6 +106,10 @@ export class Admin {
     });
   }
 
+  goToPayrollSchedule(): void {
+    this.router.navigate(['/admin/payroll-schedule']);
+  }
+
   getUserFullName(user: UserDto): string {
     if (user.firstName && user.lastName) {
       return `${user.firstName} ${user.lastName}`;
