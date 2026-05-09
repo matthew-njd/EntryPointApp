@@ -127,6 +127,7 @@ export const ES = {
     submitForApproval: 'Enviar para aprobación',
     submittingForApproval: 'Enviando para aprobación...',
     createTimesheet: 'Crear hoja de tiempo',
+    saveDraft: 'Guardar borrador',
     creating: 'Creando...',
     saveChanges: 'Guardar cambios',
     saving: 'Guardando...',
@@ -329,5 +330,14 @@ export const ES = {
     rateSaved: '¡Tarifa guardada exitosamente!',
     failedSaveRate: 'Error al guardar la tarifa',
     failedLoadTimesheets: 'Error al cargar las hojas de tiempo',
+  },
+  payrollBanner: {
+    submittedAnd: 'Las hojas de tiempo enviadas y',
+    approved: 'aprobadas',
+    for: 'para',
+    areScheduledPaymentOn: 'están programadas para pago el',
+    ifThisTimesheetIs: 'Si esta hoja de tiempo es',
+    before: 'antes del',
+    itIsScheduledPaymentOn: ', está programada para pago el',
   },
 };

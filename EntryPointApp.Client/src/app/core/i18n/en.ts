@@ -127,6 +127,7 @@ export const EN = {
     submitForApproval: 'Submit for Approval',
     submittingForApproval: 'Submitting for Approval...',
     createTimesheet: 'Create Timesheet',
+    saveDraft: 'Save Draft',
     creating: 'Creating...',
     saveChanges: 'Save Changes',
     saving: 'Saving...',
@@ -329,5 +330,14 @@ export const EN = {
     rateSaved: 'Rate saved successfully!',
     failedSaveRate: 'Failed to save rate',
     failedLoadTimesheets: 'Failed to load timesheets',
+  },
+  payrollBanner: {
+    submittedAnd: 'Timesheets submitted and',
+    approved: 'approved',
+    for: 'for',
+    areScheduledPaymentOn: 'are scheduled for payment on',
+    ifThisTimesheetIs: 'If this timesheet is',
+    before: 'before',
+    itIsScheduledPaymentOn: ', it is scheduled for payment on',
   },
 };

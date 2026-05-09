@@ -33,6 +33,7 @@ export class Dailylogs {
   weeklyLog = signal<WeeklyLog | null>(null);
   isLoadingWeeklyLog = signal(false);
   payrollDate = signal<string | null>(null);
+  deadlineDate = signal<string | null>(null);
 
   loadEffect = effect(() => {
     const id = this.weeklyLogId()?.get('id');
@@ -49,6 +50,7 @@ export class Dailylogs {
             this.payrollScheduleService.lookup(response.data.dateFrom).subscribe({
               next: (res) => {
                 this.payrollDate.set(res.data?.payrollDate ?? null);
+                this.deadlineDate.set(res.data?.deadlineDate ?? null);
               },
               error: () => {},
             });

@@ -17,6 +17,7 @@ export interface PayrollScheduleRequest {
 
 export interface PayrollScheduleLookup {
   payrollDate: string | null;
+  deadlineDate: string | null;
 }
 
 export interface PayrollScheduleImportStats {

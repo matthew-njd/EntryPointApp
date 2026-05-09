@@ -124,7 +124,7 @@ namespace EntryPointApp.Api.Services.PayrollSchedule
             {
                 Success = true,
                 Message = schedule != null ? "Payroll date found" : "No payroll schedule found for this date",
-                Data = new PayrollScheduleLookupResponse { PayrollDate = schedule?.PayrollDate }
+                Data = new PayrollScheduleLookupResponse { PayrollDate = schedule?.PayrollDate, DeadlineDate = schedule?.DateTo }
             };
         }
 

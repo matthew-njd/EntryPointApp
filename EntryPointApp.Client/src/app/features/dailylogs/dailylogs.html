@@ -73,10 +73,20 @@
             />
           </svg>
           <span>
-            Timesheets submitted for
-            <strong>{{ weeklyLog()!.dateFrom | date: "MMM d, y" }} – {{ weeklyLog()!.dateTo | date: "MMM d, y" }}</strong>
-            are scheduled for payment on
-            <strong>{{ payrollDate() | date: "MMM d, y" }}</strong>.
+            @if (weeklyLog()?.status === "Pending" && deadlineDate()) {
+              {{ 'payrollBanner.ifThisTimesheetIs' | translate }}
+              <u>{{ 'payrollBanner.approved' | translate }}</u>
+              {{ 'payrollBanner.before' | translate }}
+              <strong>{{ deadlineDate() | date: "MMM d, y" }}</strong>{{ 'payrollBanner.itIsScheduledPaymentOn' | translate }}
+              <strong>{{ payrollDate() | date: "MMM d, y" }}</strong>.
+            } @else {
+              {{ 'payrollBanner.submittedAnd' | translate }}
+              <u>{{ 'payrollBanner.approved' | translate }}</u>
+              {{ 'payrollBanner.for' | translate }}
+              <strong>{{ weeklyLog()!.dateFrom | date: "MMM d, y" }} – {{ weeklyLog()!.dateTo | date: "MMM d, y" }}</strong>
+              {{ 'payrollBanner.areScheduledPaymentOn' | translate }}
+              <strong>{{ payrollDate() | date: "MMM d, y" }}</strong>.
+            }
           </span>
         </div>
       }

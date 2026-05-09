@@ -18,6 +18,7 @@ namespace EntryPointApp.Api.Models.Dtos.PayrollSchedule
     public class PayrollScheduleLookupResponse
     {
         public DateOnly? PayrollDate { get; set; }
+        public DateOnly? DeadlineDate { get; set; }
     }
 
     public class PayrollScheduleImportStats
