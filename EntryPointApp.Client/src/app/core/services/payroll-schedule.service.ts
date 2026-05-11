@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface PayrollScheduleEntry {
   id: number;
@@ -34,8 +35,8 @@ export interface ApiResponse<T> {
 @Injectable({ providedIn: 'root' })
 export class PayrollScheduleService {
   private http = inject(HttpClient);
-  private adminUrl = 'http://localhost:5077/api/admin/payroll-schedule';
-  private lookupUrl = 'http://localhost:5077/api/payroll-schedule/lookup';
+  private adminUrl = `${environment.apiUrl}/admin/payroll-schedule`;
+  private lookupUrl = `${environment.apiUrl}/payroll-schedule/lookup`;
 
   getAll(): Observable<ApiResponse<PayrollScheduleEntry[]>> {
     return this.http.get<ApiResponse<PayrollScheduleEntry[]>>(this.adminUrl);

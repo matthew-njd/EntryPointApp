@@ -1,6 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import {
   TeamTimesheetResponse,
   TeamTimesheetDetailResponse,
@@ -39,7 +40,7 @@ const defaultSummary: TimesheetSummary = {
 @Injectable({ providedIn: 'root' })
 export class ManagerService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:5077/api/manager';
+  private apiUrl = `${environment.apiUrl}/manager`;
 
   private _timesheets = signal<TeamTimesheetResponse[]>([]);
   private _isLoading = signal(false);

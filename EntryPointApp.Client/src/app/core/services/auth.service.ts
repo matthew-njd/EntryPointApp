@@ -13,6 +13,7 @@ import {
   ForgotPasswordRequest,
   ResetPasswordRequest,
 } from '../models/auth.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -20,7 +21,7 @@ import {
 export class AuthService {
   private http = inject(HttpClient);
   private platformId = inject(PLATFORM_ID);
-  private apiUrl = 'http://localhost:5077/api/Auth';
+  private apiUrl = `${environment.apiUrl}/Auth`;
 
   private isBrowser: boolean;
 

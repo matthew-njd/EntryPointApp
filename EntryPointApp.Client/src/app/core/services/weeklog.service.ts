@@ -2,6 +2,7 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { WeeklyLog, WeeklyLogRequest, WeeklyLogSummary } from '../models/weeklylog.model';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface PagedResult<T> {
   data: T[];
@@ -34,7 +35,7 @@ const defaultSummary: WeeklyLogSummary = {
 @Injectable({ providedIn: 'root' })
 export class WeeklyLogService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:5077/api/weeklylog';
+  private apiUrl = `${environment.apiUrl}/weeklylog`;
 
   private _weeklyLogs = signal<WeeklyLog[]>([]);
   private _isLoading = signal(false);

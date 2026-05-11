@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
+import { environment } from '../../../environments/environment';
 import {
   DailyLog,
   DailyLogRequest,
@@ -30,7 +31,7 @@ export class DailyLogService {
     this._isLoading.set(true);
     this._error.set(null);
 
-    const apiUrl = `http://localhost:5077/api/weeklylogs/${weeklyLogId}/dailylog`;
+    const apiUrl = `${environment.apiUrl}/weeklylogs/${weeklyLogId}/dailylog`;
 
     this.http.get<ApiResponse<DailyLog[]>>(apiUrl).subscribe({
       next: (response) => {
@@ -52,29 +53,29 @@ export class DailyLogService {
   }
 
   createDailyLogsBatch(weeklyLogId: number, requests: DailyLogRequest[]) {
-    const apiUrl = `http://localhost:5077/api/weeklylogs/${weeklyLogId}/dailylog/batch`;
+    const apiUrl = `${environment.apiUrl}/weeklylogs/${weeklyLogId}/dailylog/batch`;
     return this.http.post<ApiResponse<DailyLog[]>>(apiUrl, requests);
   }
 
   updateDailyLogs(weeklyLogId: number, request: UpdateDailyLogsRequest) {
-    const apiUrl = `http://localhost:5077/api/weeklylogs/${weeklyLogId}/dailylog`;
+    const apiUrl = `${environment.apiUrl}/weeklylogs/${weeklyLogId}/dailylog`;
     return this.http.put<ApiResponse<DailyLog[]>>(apiUrl, request);
   }
 
   uploadReceipt(weeklyLogId: number, dailyLogId: number, file: File) {
     const formData = new FormData();
     formData.append('file', file);
-    const url = `http://localhost:5077/api/weeklylogs/${weeklyLogId}/dailylog/${dailyLogId}/receipts`;
+    const url = `${environment.apiUrl}/weeklylogs/${weeklyLogId}/dailylog/${dailyLogId}/receipts`;
     return this.http.post<ApiResponse<ReceiptResponse>>(url, formData);
   }
 
   deleteReceipt(weeklyLogId: number, dailyLogId: number, attachmentId: number) {
-    const url = `http://localhost:5077/api/weeklylogs/${weeklyLogId}/dailylog/${dailyLogId}/receipts/${attachmentId}`;
+    const url = `${environment.apiUrl}/weeklylogs/${weeklyLogId}/dailylog/${dailyLogId}/receipts/${attachmentId}`;
     return this.http.delete<ApiResponse<void>>(url);
   }
 
   downloadReceipt(weeklyLogId: number, dailyLogId: number, attachmentId: number) {
-    const url = `http://localhost:5077/api/weeklylogs/${weeklyLogId}/dailylog/${dailyLogId}/receipts/${attachmentId}`;
+    const url = `${environment.apiUrl}/weeklylogs/${weeklyLogId}/dailylog/${dailyLogId}/receipts/${attachmentId}`;
     return this.http.get(url, { responseType: 'blob' });
   }
 

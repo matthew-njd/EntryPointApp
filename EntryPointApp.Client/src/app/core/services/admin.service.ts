@@ -1,6 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import {
   AdminTimesheetDetailResponse,
   AdminTimesheetResponse,
@@ -31,7 +32,7 @@ const defaultSummary: UserSummary = {
 @Injectable({ providedIn: 'root' })
 export class AdminService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:5077/api/admin';
+  private apiUrl = `${environment.apiUrl}/admin`;
 
   private _users = signal<UserDto[]>([]);
   private _isLoading = signal(false);
