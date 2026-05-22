@@ -15,7 +15,7 @@ A full-stack web application for managing employee timesheets, daily work logs, 
 | Concern            | Library                                                      |
 | ------------------ | ------------------------------------------------------------ |
 | ORM                | Entity Framework Core 10                                     |
-| Database           | SQLite [SQL Server for prod]                                 |
+| Database           | SQL Server (SQLite for dev)                                  |
 | Authentication     | JWT Bearer (`Microsoft.AspNetCore.Authentication.JwtBearer`) |
 | Password hashing   | BCrypt.Net-Next                                              |
 | Request validation | FluentValidation.AspNetCore                                  |
@@ -28,7 +28,6 @@ A full-stack web application for managing employee timesheets, daily work logs, 
 | Concern          | Library                                             |
 | ---------------- | --------------------------------------------------- |
 | Framework        | Angular 20 (standalone components, no NgModules)    |
-| Rendering        | Angular SSR (Express 5)                             |
 | Reactivity       | Signals (`signal`, `computed`, `effect`) — zoneless |
 | Styling          | Tailwind CSS 4 + DaisyUI 5                          |
 | HTTP             | Angular `HttpClient` with a JWT auth interceptor    |
@@ -77,5 +76,5 @@ Both servers must run simultaneously. The Angular dev server proxies API request
 dotnet run
 
 # Frontend (from EntryPointApp.Client/)
-npm start
+ng serve
 ```
