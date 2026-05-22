@@ -1,4 +1,4 @@
-using EntryPointApp.Api.Data.Context;
+﻿using EntryPointApp.Api.Data.Context;
 using EntryPointApp.Api.Models.Dtos.DailyLog;
 using EntryPointApp.Api.Models.Dtos.Users;
 using EntryPointApp.Api.Models.Enums;
@@ -19,7 +19,7 @@ namespace EntryPointApp.Api.Services.Admin
             {
                 _logger.LogInformation("Retrieving all users");
 
-                var query = _context.Users.Include(u => u.Manager);
+                var query = _context.Timesheet_Users.Include(u => u.Manager);
 
                 var roleCounts = await query
                     .GroupBy(u => u.Role)
@@ -84,7 +84,7 @@ namespace EntryPointApp.Api.Services.Admin
             {
                 _logger.LogInformation("Retrieving user {UserId}", userId);
 
-                var user = await _context.Users
+                var user = await _context.Timesheet_Users
                     .Include(u => u.Manager)
                     .Where(u => u.Id == userId)
                     .Select(u => new UserDto
@@ -142,7 +142,7 @@ namespace EntryPointApp.Api.Services.Admin
             {
                 _logger.LogInformation("Updating role for user {UserId} to {NewRole}", userId, newRole);
 
-                var user = await _context.Users
+                var user = await _context.Timesheet_Users
                     .Include(u => u.Manager)
                     .Include(u => u.ManagedUsers)
                     .FirstOrDefaultAsync(u => u.Id == userId);
@@ -251,7 +251,7 @@ namespace EntryPointApp.Api.Services.Admin
                     };
                 }
 
-                var user = await _context.Users
+                var user = await _context.Timesheet_Users
                     .Include(u => u.Manager)
                     .FirstOrDefaultAsync(u => u.Id == userId);
 
@@ -277,7 +277,7 @@ namespace EntryPointApp.Api.Services.Admin
                     };
                 }
 
-                var manager = await _context.Users
+                var manager = await _context.Timesheet_Users
                     .FirstOrDefaultAsync(u => u.Id == managerId);
 
                 if (manager == null)
@@ -316,7 +316,7 @@ namespace EntryPointApp.Api.Services.Admin
 
                 await _context.SaveChangesAsync();
 
-                user = await _context.Users
+                user = await _context.Timesheet_Users
                     .Include(u => u.Manager)
                     .FirstOrDefaultAsync(u => u.Id == userId);
 
@@ -363,7 +363,7 @@ namespace EntryPointApp.Api.Services.Admin
             {
                 _logger.LogInformation("Removing manager from user {UserId}", userId);
 
-                var user = await _context.Users
+                var user = await _context.Timesheet_Users
                     .Include(u => u.Manager)
                     .FirstOrDefaultAsync(u => u.Id == userId);
 
@@ -434,7 +434,7 @@ namespace EntryPointApp.Api.Services.Admin
             {
                 _logger.LogInformation("Deactivating user {UserId}", userId);
 
-                var user = await _context.Users
+                var user = await _context.Timesheet_Users
                     .Include(u => u.Manager)
                     .Include(u => u.ManagedUsers)
                     .FirstOrDefaultAsync(u => u.Id == userId);
@@ -523,7 +523,7 @@ namespace EntryPointApp.Api.Services.Admin
             {
                 _logger.LogInformation("Activating user {UserId}", userId);
 
-                var user = await _context.Users
+                var user = await _context.Timesheet_Users
                     .Include(u => u.Manager)
                     .FirstOrDefaultAsync(u => u.Id == userId);
 
@@ -596,7 +596,7 @@ namespace EntryPointApp.Api.Services.Admin
             {
                 _logger.LogInformation("Retrieving timesheets for user {UserId}", userId);
 
-                var userExists = await _context.Users.AnyAsync(u => u.Id == userId);
+                var userExists = await _context.Timesheet_Users.AnyAsync(u => u.Id == userId);
                 if (!userExists)
                 {
                     return new AdminTimesheetListResult
@@ -607,7 +607,7 @@ namespace EntryPointApp.Api.Services.Admin
                     };
                 }
 
-                var timesheets = await _context.WeeklyLogs
+                var timesheets = await _context.Timesheet_WeeklyLogs
                     .Where(w => w.UserId == userId && !w.IsDeleted)
                     .OrderByDescending(w => w.DateFrom)
                     .Select(w => new AdminTimesheetResponse
@@ -651,7 +651,7 @@ namespace EntryPointApp.Api.Services.Admin
             {
                 _logger.LogInformation("Retrieving timesheet {WeeklyLogId} for user {UserId}", weeklyLogId, userId);
 
-                var weeklyLog = await _context.WeeklyLogs
+                var weeklyLog = await _context.Timesheet_WeeklyLogs
                     .Include(w => w.User)
                     .Include(w => w.DailyLogs.Where(d => !d.IsDeleted))
                         .ThenInclude(d => d.Attachments)

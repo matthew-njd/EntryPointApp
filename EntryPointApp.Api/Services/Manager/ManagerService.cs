@@ -1,4 +1,4 @@
-using EntryPointApp.Api.Data.Context;
+﻿using EntryPointApp.Api.Data.Context;
 using EntryPointApp.Api.Models.Dtos.Common;
 using EntryPointApp.Api.Models.Dtos.DailyLog;
 using EntryPointApp.Api.Models.Dtos.Manager;
@@ -27,7 +27,7 @@ namespace EntryPointApp.Api.Services.Manager
                 _logger.LogInformation("Retrieving team timesheets for manager {ManagerId} - Page: {Page}, PageSize: {PageSize}, Filter: {Filter}",
                     managerId, page, pageSize, statusFilter ?? "All");
 
-                var baseQuery = _context.WeeklyLogs
+                var baseQuery = _context.Timesheet_WeeklyLogs
                     .Include(w => w.User)
                     .Where(w => w.User.ManagerId == managerId && !w.IsDeleted);
 
@@ -119,7 +119,7 @@ namespace EntryPointApp.Api.Services.Manager
             {
                 _logger.LogInformation("Retrieving pending timesheets for manager {ManagerId}", managerId);
 
-                var timesheets = await _context.WeeklyLogs
+                var timesheets = await _context.Timesheet_WeeklyLogs
                     .Include(w => w.User)
                     .Where(w => w.User.ManagerId == managerId
                         && w.Status == TimesheetStatus.Pending
@@ -171,7 +171,7 @@ namespace EntryPointApp.Api.Services.Manager
                 _logger.LogInformation("Retrieving timesheet detail {WeeklyLogId} for manager {ManagerId}",
                     weeklyLogId, managerId);
 
-                var weeklyLog = await _context.WeeklyLogs
+                var weeklyLog = await _context.Timesheet_WeeklyLogs
                     .Include(w => w.User)
                     .Include(w => w.DailyLogs.Where(d => !d.IsDeleted))
                         .ThenInclude(d => d.Attachments)
@@ -262,7 +262,7 @@ namespace EntryPointApp.Api.Services.Manager
                 _logger.LogInformation("Manager {ManagerId} approving timesheet {WeeklyLogId}",
                     managerId, weeklyLogId);
 
-                var weeklyLog = await _context.WeeklyLogs
+                var weeklyLog = await _context.Timesheet_WeeklyLogs
                     .Include(w => w.User)
                         .ThenInclude(u => u.Manager)
                     .FirstOrDefaultAsync(w => w.Id == weeklyLogId
@@ -371,7 +371,7 @@ namespace EntryPointApp.Api.Services.Manager
                 _logger.LogInformation("Manager {ManagerId} denying timesheet {WeeklyLogId}",
                     managerId, weeklyLogId);
 
-                var weeklyLog = await _context.WeeklyLogs
+                var weeklyLog = await _context.Timesheet_WeeklyLogs
                     .Include(w => w.User)
                     .FirstOrDefaultAsync(w => w.Id == weeklyLogId
                         && w.User.ManagerId == managerId

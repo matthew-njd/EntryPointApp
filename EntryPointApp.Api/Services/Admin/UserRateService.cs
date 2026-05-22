@@ -1,4 +1,4 @@
-using EntryPointApp.Api.Data.Context;
+﻿using EntryPointApp.Api.Data.Context;
 using EntryPointApp.Api.Models.Dtos.Users;
 using EntryPointApp.Api.Models.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -16,7 +16,7 @@ namespace EntryPointApp.Api.Services.Admin
         {
             try
             {
-                var userExists = await _context.Users.AnyAsync(u => u.Id == userId);
+                var userExists = await _context.Timesheet_Users.AnyAsync(u => u.Id == userId);
                 if (!userExists)
                 {
                     return new UserRateListResult
@@ -27,7 +27,7 @@ namespace EntryPointApp.Api.Services.Admin
                     };
                 }
 
-                var rates = await _context.UserRates
+                var rates = await _context.Timesheet_UserRates
                     .Where(r => r.UserId == userId)
                     .OrderByDescending(r => r.EffectiveDate)
                     .Select(r => new UserRateDto
@@ -65,7 +65,7 @@ namespace EntryPointApp.Api.Services.Admin
         {
             try
             {
-                var userExists = await _context.Users.AnyAsync(u => u.Id == userId);
+                var userExists = await _context.Timesheet_Users.AnyAsync(u => u.Id == userId);
                 if (!userExists)
                 {
                     return new UserRateResult
@@ -77,7 +77,7 @@ namespace EntryPointApp.Api.Services.Admin
                 }
 
                 var now = DateTime.UtcNow;
-                var rate = await _context.UserRates
+                var rate = await _context.Timesheet_UserRates
                     .Where(r => r.UserId == userId && r.EffectiveDate <= now)
                     .OrderByDescending(r => r.EffectiveDate)
                     .Select(r => new UserRateDto
@@ -125,7 +125,7 @@ namespace EntryPointApp.Api.Services.Admin
         {
             try
             {
-                var userExists = await _context.Users.AnyAsync(u => u.Id == userId);
+                var userExists = await _context.Timesheet_Users.AnyAsync(u => u.Id == userId);
                 if (!userExists)
                 {
                     return new UserRateResult
@@ -146,7 +146,7 @@ namespace EntryPointApp.Api.Services.Admin
                     CreatedByAdminId = adminId
                 };
 
-                _context.UserRates.Add(rate);
+                _context.Timesheet_UserRates.Add(rate);
                 await _context.SaveChangesAsync();
 
                 _logger.LogInformation(

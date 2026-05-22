@@ -1,4 +1,4 @@
-using EntryPointApp.Api.Data.Context;
+﻿using EntryPointApp.Api.Data.Context;
 using EntryPointApp.Api.Models.Dtos.PayrollSchedule;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,7 +10,7 @@ namespace EntryPointApp.Api.Services.PayrollSchedule
 
         public async Task<PayrollScheduleListResult> GetAllAsync()
         {
-            var schedules = await _context.PayrollSchedules
+            var schedules = await _context.Timesheet_PayrollSchedules
                 .OrderBy(s => s.DateFrom)
                 .Select(s => new PayrollScheduleResponse
                 {
@@ -41,7 +41,7 @@ namespace EntryPointApp.Api.Services.PayrollSchedule
                 UpdatedAt = now
             };
 
-            _context.PayrollSchedules.Add(schedule);
+            _context.Timesheet_PayrollSchedules.Add(schedule);
             await _context.SaveChangesAsync();
 
             return new PayrollScheduleResult
@@ -54,7 +54,7 @@ namespace EntryPointApp.Api.Services.PayrollSchedule
 
         public async Task<PayrollScheduleResult> UpdateAsync(int id, DateOnly dateFrom, DateOnly dateTo, DateOnly payrollDate)
         {
-            var schedule = await _context.PayrollSchedules.FindAsync(id);
+            var schedule = await _context.Timesheet_PayrollSchedules.FindAsync(id);
             if (schedule == null)
                 return new PayrollScheduleResult { Success = false, Message = "Schedule entry not found" };
 
@@ -75,11 +75,11 @@ namespace EntryPointApp.Api.Services.PayrollSchedule
 
         public async Task<BasePayrollScheduleResult> DeleteAsync(int id)
         {
-            var schedule = await _context.PayrollSchedules.FindAsync(id);
+            var schedule = await _context.Timesheet_PayrollSchedules.FindAsync(id);
             if (schedule == null)
                 return new BasePayrollScheduleResult { Success = false, Message = "Schedule entry not found" };
 
-            _context.PayrollSchedules.Remove(schedule);
+            _context.Timesheet_PayrollSchedules.Remove(schedule);
             await _context.SaveChangesAsync();
 
             return new BasePayrollScheduleResult { Success = true, Message = "Payroll schedule entry deleted" };
@@ -89,8 +89,8 @@ namespace EntryPointApp.Api.Services.PayrollSchedule
         {
             if (replace)
             {
-                var existing = await _context.PayrollSchedules.ToListAsync();
-                _context.PayrollSchedules.RemoveRange(existing);
+                var existing = await _context.Timesheet_PayrollSchedules.ToListAsync();
+                _context.Timesheet_PayrollSchedules.RemoveRange(existing);
             }
 
             var now = DateTime.UtcNow;
@@ -103,7 +103,7 @@ namespace EntryPointApp.Api.Services.PayrollSchedule
                 UpdatedAt = now
             }).ToList();
 
-            _context.PayrollSchedules.AddRange(schedules);
+            _context.Timesheet_PayrollSchedules.AddRange(schedules);
             await _context.SaveChangesAsync();
 
             return new PayrollScheduleImportResult
@@ -116,7 +116,7 @@ namespace EntryPointApp.Api.Services.PayrollSchedule
 
         public async Task<PayrollScheduleLookupResult> LookupAsync(DateOnly timesheetDateFrom)
         {
-            var schedule = await _context.PayrollSchedules
+            var schedule = await _context.Timesheet_PayrollSchedules
                 .Where(s => s.DateFrom <= timesheetDateFrom && timesheetDateFrom <= s.DateTo)
                 .FirstOrDefaultAsync();
 

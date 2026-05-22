@@ -1,4 +1,4 @@
-using EntryPointApp.Api.Data.Context;
+﻿using EntryPointApp.Api.Data.Context;
 using EntryPointApp.Api.Models.Dtos.DailyLog;
 using EntryPointApp.Api.Models.Entities;
 using EntryPointApp.Api.Models.Enums;
@@ -63,7 +63,7 @@ namespace EntryPointApp.Api.Services.Receipt
                     UploadedAt = DateTime.UtcNow
                 };
 
-                _context.DailyLogAttachments.Add(attachment);
+                _context.Timesheet_DailyLogAttachments.Add(attachment);
                 await _context.SaveChangesAsync();
 
                 _logger.LogInformation("User {UserId} uploaded receipt {AttachmentId} for daily log {DailyLogId}",
@@ -110,7 +110,7 @@ namespace EntryPointApp.Api.Services.Receipt
                         Errors = ["You do not have permission to view receipts for this daily log"]
                     };
 
-                var receipts = await _context.DailyLogAttachments
+                var receipts = await _context.Timesheet_DailyLogAttachments
                     .Where(a => a.DailyLogId == dailyLogId)
                     .OrderBy(a => a.UploadedAt)
                     .Select(a => new ReceiptResponse
@@ -165,7 +165,7 @@ namespace EntryPointApp.Api.Services.Receipt
                         Errors = ["You do not have permission to download receipts for this daily log"]
                     };
 
-                var attachment = await _context.DailyLogAttachments
+                var attachment = await _context.Timesheet_DailyLogAttachments
                     .FirstOrDefaultAsync(a => a.Id == attachmentId && a.DailyLogId == dailyLogId);
 
                 if (attachment == null)
@@ -231,7 +231,7 @@ namespace EntryPointApp.Api.Services.Receipt
                         Errors = ["Only the owner or an admin can delete receipts"]
                     };
 
-                var attachment = await _context.DailyLogAttachments
+                var attachment = await _context.Timesheet_DailyLogAttachments
                     .FirstOrDefaultAsync(a => a.Id == attachmentId && a.DailyLogId == dailyLogId);
 
                 if (attachment == null)
@@ -244,7 +244,7 @@ namespace EntryPointApp.Api.Services.Receipt
 
                 _fileStorageService.DeleteFile(attachment.FileName);
 
-                _context.DailyLogAttachments.Remove(attachment);
+                _context.Timesheet_DailyLogAttachments.Remove(attachment);
                 await _context.SaveChangesAsync();
 
                 _logger.LogInformation("User {UserId} deleted receipt {AttachmentId} for daily log {DailyLogId}",
@@ -276,14 +276,14 @@ namespace EntryPointApp.Api.Services.Receipt
             int requestingUserId,
             bool requireOwnerOrAdmin = false)
         {
-            var dailyLog = await _context.DailyLogs
+            var dailyLog = await _context.Timesheet_DailyLogs
                 .Include(d => d.User)
                 .FirstOrDefaultAsync(d => d.Id == dailyLogId && d.WeeklyLogId == weeklyLogId && !d.IsDeleted);
 
             if (dailyLog == null)
                 return (AccessResult.NotFound, null);
 
-            var requestingUser = await _context.Users
+            var requestingUser = await _context.Timesheet_Users
                 .AsNoTracking()
                 .FirstOrDefaultAsync(u => u.Id == requestingUserId);
 

@@ -1,4 +1,4 @@
-using EntryPointApp.Api.Data.Context;
+﻿using EntryPointApp.Api.Data.Context;
 using EntryPointApp.Api.Models.Dtos.Common;
 using EntryPointApp.Api.Models.Dtos.WeeklyLog;
 using EntryPointApp.Api.Models.Enums;
@@ -25,7 +25,7 @@ namespace EntryPointApp.Api.Services.WeeklyLog
                 _logger.LogInformation("Retrieving weeklylogs for user {UserId} - Page: {Page}, PageSize: {PageSize}",
                     userId, request.Page, request.PageSize);
 
-                var query = _context.WeeklyLogs
+                var query = _context.Timesheet_WeeklyLogs
                     .Where(w => w.UserId == userId && !w.IsDeleted);
 
                 if (request.StartDate.HasValue)
@@ -110,7 +110,7 @@ namespace EntryPointApp.Api.Services.WeeklyLog
             {
                 _logger.LogInformation("Retrieving weeklylog {WeeklyLogId} for user {UserId}", id, userId);
 
-                var weeklyLog = await _context.WeeklyLogs
+                var weeklyLog = await _context.Timesheet_WeeklyLogs
                     .Where(w => w.Id == id && w.UserId == userId && !w.IsDeleted)
                     .Select(w => new WeeklyLogResponse
                     {
@@ -166,7 +166,7 @@ namespace EntryPointApp.Api.Services.WeeklyLog
                     userId, request.DateFrom, request.DateTo);
 
                 // Check for overlapping weeklylogs
-                var hasOverlap = await _context.WeeklyLogs
+                var hasOverlap = await _context.Timesheet_WeeklyLogs
                     .AnyAsync(w => w.UserId == userId 
                         && !w.IsDeleted
                         && ((w.DateFrom <= request.DateFrom && w.DateTo >= request.DateFrom)
@@ -195,7 +195,7 @@ namespace EntryPointApp.Api.Services.WeeklyLog
                     UpdatedAt = DateTime.UtcNow
                 };
 
-                _context.WeeklyLogs.Add(weeklyLog);
+                _context.Timesheet_WeeklyLogs.Add(weeklyLog);
                 await _context.SaveChangesAsync();
 
                 var response = new WeeklyLogResponse
@@ -238,7 +238,7 @@ namespace EntryPointApp.Api.Services.WeeklyLog
             {
                 _logger.LogInformation("Updating weeklylog {WeeklyLogId} for user {UserId}", id, userId);
 
-                var weeklyLog = await _context.WeeklyLogs
+                var weeklyLog = await _context.Timesheet_WeeklyLogs
                     .FirstOrDefaultAsync(w => w.Id == id && w.UserId == userId && !w.IsDeleted);
 
                 if (weeklyLog == null)
@@ -254,7 +254,7 @@ namespace EntryPointApp.Api.Services.WeeklyLog
                 }
 
                 // Check for overlapping weeklylogs (excluding current one)
-                var hasOverlap = await _context.WeeklyLogs
+                var hasOverlap = await _context.Timesheet_WeeklyLogs
                     .AnyAsync(w => w.UserId == userId 
                         && w.Id != id
                         && !w.IsDeleted
@@ -317,7 +317,7 @@ namespace EntryPointApp.Api.Services.WeeklyLog
             {
                 _logger.LogInformation("Deleting weeklylog {WeeklyLogId} for user {UserId}", id, userId);
 
-                var weeklyLog = await _context.WeeklyLogs
+                var weeklyLog = await _context.Timesheet_WeeklyLogs
                     .Include(w => w.DailyLogs)
                     .FirstOrDefaultAsync(w => w.Id == id && w.UserId == userId && !w.IsDeleted);
 
@@ -370,7 +370,7 @@ namespace EntryPointApp.Api.Services.WeeklyLog
             {
                 _logger.LogInformation("Recalculating totals for weeklylog {WeeklyLogId}", weeklyLogId);
 
-                var weeklyLog = await _context.WeeklyLogs
+                var weeklyLog = await _context.Timesheet_WeeklyLogs
                     .Include(w => w.DailyLogs.Where(d => !d.IsDeleted))
                     .FirstOrDefaultAsync(w => w.Id == weeklyLogId && !w.IsDeleted);
 
@@ -399,13 +399,13 @@ namespace EntryPointApp.Api.Services.WeeklyLog
 
         public async Task<bool> WeeklyLogExistsAsync(int weeklyLogId, int userId)
         {
-            return await _context.WeeklyLogs
+            return await _context.Timesheet_WeeklyLogs
                 .AnyAsync(w => w.Id == weeklyLogId && w.UserId == userId && !w.IsDeleted);
         }
 
         public async Task<WeeklyLogResult> UpdateStatusAsync(int weeklyLogId, TimesheetStatus newStatus, int userId)
         {
-            var weeklyLog = await _context.WeeklyLogs
+            var weeklyLog = await _context.Timesheet_WeeklyLogs
                 .FirstOrDefaultAsync(w => w.Id == weeklyLogId && w.UserId == userId && !w.IsDeleted);
                 
             if (weeklyLog == null)
@@ -433,7 +433,7 @@ namespace EntryPointApp.Api.Services.WeeklyLog
 
             if (newStatus == TimesheetStatus.Pending)
             {
-                var emailData = await _context.WeeklyLogs
+                var emailData = await _context.Timesheet_WeeklyLogs
                     .Where(w => w.Id == weeklyLogId && !w.IsDeleted)
                     .Select(w => new
                     {

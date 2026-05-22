@@ -1,4 +1,4 @@
-using EntryPointApp.Api.Data.Context;
+﻿using EntryPointApp.Api.Data.Context;
 using EntryPointApp.Api.Models.Dtos.DailyLog;
 using EntryPointApp.Api.Services.WeeklyLog;
 using Microsoft.EntityFrameworkCore;
@@ -29,7 +29,7 @@ namespace EntryPointApp.Api.Services.DailyLog
                     };
                 }
 
-                var dailyLogs = await _context.DailyLogs
+                var dailyLogs = await _context.Timesheet_DailyLogs
                     .Where(d => d.WeeklyLogId == weeklyLogId && d.UserId == userId && !d.IsDeleted)
                     .OrderBy(d => d.Date)
                     .Select(d => new DailyLogResponse
@@ -87,7 +87,7 @@ namespace EntryPointApp.Api.Services.DailyLog
                 _logger.LogInformation("Retrieving dailylog {DailyLogId} for weeklylog {WeeklyLogId} and user {UserId}",
                     id, weeklyLogId, userId);
 
-                var dailyLog = await _context.DailyLogs
+                var dailyLog = await _context.Timesheet_DailyLogs
                     .Where(d => d.Id == id
                         && d.WeeklyLogId == weeklyLogId
                         && d.UserId == userId
@@ -159,7 +159,7 @@ namespace EntryPointApp.Api.Services.DailyLog
                 _logger.LogInformation("Creating dailylog for weeklylog {WeeklyLogId} and user {UserId}",
                     weeklyLogId, userId);
 
-                var weeklyLog = await _context.WeeklyLogs
+                var weeklyLog = await _context.Timesheet_WeeklyLogs
                     .FirstOrDefaultAsync(w => w.Id == weeklyLogId && w.UserId == userId && !w.IsDeleted);
 
                 if (weeklyLog == null)
@@ -192,7 +192,7 @@ namespace EntryPointApp.Api.Services.DailyLog
                     };
                 }
 
-                var duplicateExists = await _context.DailyLogs
+                var duplicateExists = await _context.Timesheet_DailyLogs
                     .AnyAsync(d => d.WeeklyLogId == weeklyLogId
                         && d.Date == request.Date
                         && !d.IsDeleted);
@@ -223,7 +223,7 @@ namespace EntryPointApp.Api.Services.DailyLog
                     UpdatedAt = DateTime.UtcNow
                 };
 
-                _context.DailyLogs.Add(dailyLog);
+                _context.Timesheet_DailyLogs.Add(dailyLog);
                 await _context.SaveChangesAsync();
 
                 await _weeklyLogService.RecalculateWeeklyTotalsAsync(weeklyLogId);
@@ -272,7 +272,7 @@ namespace EntryPointApp.Api.Services.DailyLog
                 _logger.LogInformation("Creating {Count} dailylogs for weeklylog {WeeklyLogId} and user {UserId}",
                     requests.Count, weeklyLogId, userId);
 
-                var weeklyLog = await _context.WeeklyLogs
+                var weeklyLog = await _context.Timesheet_WeeklyLogs
                     .FirstOrDefaultAsync(w => w.Id == weeklyLogId && w.UserId == userId && !w.IsDeleted);
 
                 if (weeklyLog == null)
@@ -302,7 +302,7 @@ namespace EntryPointApp.Api.Services.DailyLog
                         continue;
                     }
 
-                    var duplicateExists = await _context.DailyLogs
+                    var duplicateExists = await _context.Timesheet_DailyLogs
                         .AnyAsync(d => d.WeeklyLogId == weeklyLogId && d.Date == request.Date && !d.IsDeleted);
 
                     if (duplicateExists)
@@ -333,7 +333,7 @@ namespace EntryPointApp.Api.Services.DailyLog
                         UpdatedAt = DateTime.UtcNow
                     };
 
-                    _context.DailyLogs.Add(dailyLog);
+                    _context.Timesheet_DailyLogs.Add(dailyLog);
                     await _context.SaveChangesAsync();
 
                     responses.Add(new DailyLogResponse
@@ -411,7 +411,7 @@ namespace EntryPointApp.Api.Services.DailyLog
                 _logger.LogInformation("Updating dailylog {DailyLogId} for weeklylog {WeeklyLogId}",
                     id, weeklyLogId);
 
-                var dailyLog = await _context.DailyLogs
+                var dailyLog = await _context.Timesheet_DailyLogs
                     .FirstOrDefaultAsync(d => d.Id == id
                         && d.WeeklyLogId == weeklyLogId
                         && d.UserId == userId
@@ -430,7 +430,7 @@ namespace EntryPointApp.Api.Services.DailyLog
                     };
                 }
 
-                var weeklyLog = await _context.WeeklyLogs
+                var weeklyLog = await _context.Timesheet_WeeklyLogs
                     .FirstOrDefaultAsync(w => w.Id == weeklyLogId && !w.IsDeleted);
 
                 if (weeklyLog == null)
@@ -463,7 +463,7 @@ namespace EntryPointApp.Api.Services.DailyLog
                     };
                 }
 
-                var duplicateExists = await _context.DailyLogs
+                var duplicateExists = await _context.Timesheet_DailyLogs
                     .AnyAsync(d => d.WeeklyLogId == weeklyLogId
                         && d.Date == request.Date
                         && d.Id != id
@@ -535,7 +535,7 @@ namespace EntryPointApp.Api.Services.DailyLog
                 _logger.LogInformation("Deleting dailylog {DailyLogId} for weeklylog {WeeklyLogId}",
                     id, weeklyLogId);
 
-                var dailyLog = await _context.DailyLogs
+                var dailyLog = await _context.Timesheet_DailyLogs
                     .FirstOrDefaultAsync(d => d.Id == id
                         && d.WeeklyLogId == weeklyLogId
                         && d.UserId == userId
@@ -589,7 +589,7 @@ namespace EntryPointApp.Api.Services.DailyLog
                 _logger.LogInformation("Updating daily logs for weeklylog {WeeklyLogId} and user {UserId}",
                     weeklyLogId, userId);
 
-                var weeklyLog = await _context.WeeklyLogs
+                var weeklyLog = await _context.Timesheet_WeeklyLogs
                     .FirstOrDefaultAsync(w => w.Id == weeklyLogId && w.UserId == userId && !w.IsDeleted);
 
                 if (weeklyLog == null)
@@ -612,7 +612,7 @@ namespace EntryPointApp.Api.Services.DailyLog
                     };
                 }
 
-                var existingDailyLogs = await _context.DailyLogs
+                var existingDailyLogs = await _context.Timesheet_DailyLogs
                     .Where(d => d.WeeklyLogId == weeklyLogId && !d.IsDeleted)
                     .ToListAsync();
 
@@ -717,7 +717,7 @@ namespace EntryPointApp.Api.Services.DailyLog
                             UpdatedAt = DateTime.UtcNow
                         };
 
-                        _context.DailyLogs.Add(newLog);
+                        _context.Timesheet_DailyLogs.Add(newLog);
                         await _context.SaveChangesAsync();
 
                         processedIds.Add(newLog.Id);

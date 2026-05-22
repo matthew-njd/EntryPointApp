@@ -1,4 +1,4 @@
-using ClosedXML.Excel;
+﻿using ClosedXML.Excel;
 using EntryPointApp.Api.Data.Context;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +17,7 @@ namespace EntryPointApp.Api.Services.Excel
             {
                 _logger.LogInformation("Generating Excel for weeklylog {WeeklyLogId}", weeklyLogId);
  
-                var weeklyLog = await _context.WeeklyLogs
+                var weeklyLog = await _context.Timesheet_WeeklyLogs
                     .Include(w => w.User)
                     .Include(w => w.DailyLogs.Where(d => !d.IsDeleted))
                     .FirstOrDefaultAsync(w => w.Id == weeklyLogId && !w.IsDeleted);

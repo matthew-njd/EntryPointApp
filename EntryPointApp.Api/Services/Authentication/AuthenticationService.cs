@@ -1,4 +1,4 @@
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
 using EntryPointApp.Api.Data.Context;
 using EntryPointApp.Api.Models.Configuration;
@@ -53,7 +53,7 @@ namespace EntryPointApp.Api.Services.Authentication
                     IsActive = true
                 };
 
-                _context.Users.Add(user);
+                _context.Timesheet_Users.Add(user);
                 await _context.SaveChangesAsync();
 
                 var accessToken = _jwtService.GenerateToken(user);
@@ -69,7 +69,7 @@ namespace EntryPointApp.Api.Services.Authentication
                     IsRevoked = false
                 };
 
-                _context.RefreshTokens.Add(refreshTokenEntity);
+                _context.Timesheet_RefreshTokens.Add(refreshTokenEntity);
                 await _context.SaveChangesAsync();
 
                 var response = new RegisterResponse
@@ -146,7 +146,7 @@ namespace EntryPointApp.Api.Services.Authentication
                     IsRevoked = false
                 };
 
-                _context.RefreshTokens.Add(refreshTokenEntity);
+                _context.Timesheet_RefreshTokens.Add(refreshTokenEntity);
                 await _context.SaveChangesAsync();
 
                 var response = new LoginResponse
@@ -188,7 +188,7 @@ namespace EntryPointApp.Api.Services.Authentication
         {
             try
             {
-                var refreshToken = await _context.RefreshTokens
+                var refreshToken = await _context.Timesheet_RefreshTokens
                     .Include(rt => rt.User)
                     .FirstOrDefaultAsync(rt => rt.Token == request.RefreshToken);
 
@@ -240,7 +240,7 @@ namespace EntryPointApp.Api.Services.Authentication
                     IsRevoked = false
                 };
 
-                _context.RefreshTokens.Add(newRefreshTokenEntity);
+                _context.Timesheet_RefreshTokens.Add(newRefreshTokenEntity);
                 await _context.SaveChangesAsync();
 
                 var response = new LoginResponse
@@ -282,7 +282,7 @@ namespace EntryPointApp.Api.Services.Authentication
         {
             try
             {
-                var token = await _context.RefreshTokens
+                var token = await _context.Timesheet_RefreshTokens
                     .FirstOrDefaultAsync(rt => rt.Token == refreshToken);
 
                 if (token != null)
@@ -305,7 +305,7 @@ namespace EntryPointApp.Api.Services.Authentication
         {
             try
             {
-                var user = await _context.Users
+                var user = await _context.Timesheet_Users
                     .Include(u => u.RefreshTokens)
                     .FirstOrDefaultAsync(u => u.Id == userId);
 
@@ -347,13 +347,13 @@ namespace EntryPointApp.Api.Services.Authentication
 
         public async Task<User?> GetUserByEmailAsync(string email)
         {
-            return await _context.Users
+            return await _context.Timesheet_Users
                 .FirstOrDefaultAsync(u => u.Email == email.ToLowerInvariant());
         }
 
         public async Task<User?> GetUserByIdAsync(int id)
         {
-            return await _context.Users
+            return await _context.Timesheet_Users
                 .FirstOrDefaultAsync(u => u.Id == id);
         }
 
@@ -371,7 +371,7 @@ namespace EntryPointApp.Api.Services.Authentication
         {
             try
             {
-                var user = await _context.Users
+                var user = await _context.Timesheet_Users
                     .FirstOrDefaultAsync(u => u.Email.ToLower() == request.Email.ToLower());
 
                 if (user == null || !user.IsActive)
@@ -426,7 +426,7 @@ namespace EntryPointApp.Api.Services.Authentication
             {
                 var decodedToken = Uri.UnescapeDataString(request.Token);
 
-                var user = await _context.Users
+                var user = await _context.Timesheet_Users
                     .FirstOrDefaultAsync(u => u.Email.ToLower() == request.Email.ToLower());
 
                 if (user == null || !user.IsActive)
@@ -469,11 +469,11 @@ namespace EntryPointApp.Api.Services.Authentication
                 user.PasswordResetTokenExpiry = null;
                 user.UpdatedAt = DateTime.UtcNow;
 
-                var refreshTokens = await _context.RefreshTokens
+                var refreshTokens = await _context.Timesheet_RefreshTokens
                     .Where(rt => rt.UserId == user.Id)
                     .ToListAsync();
 
-                _context.RefreshTokens.RemoveRange(refreshTokens);
+                _context.Timesheet_RefreshTokens.RemoveRange(refreshTokens);
 
                 await _context.SaveChangesAsync();
 

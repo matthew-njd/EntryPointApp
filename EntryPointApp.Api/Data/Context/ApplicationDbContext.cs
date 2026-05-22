@@ -5,13 +5,13 @@ namespace EntryPointApp.Api.Data.Context
 {
     public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
     {
-        public DbSet<User> Users { get; set; }
-        public DbSet<RefreshToken> RefreshTokens { get; set; }
-        public DbSet<WeeklyLog> WeeklyLogs { get; set; }
-        public DbSet<DailyLog> DailyLogs { get; set; }
-        public DbSet<UserRate> UserRates { get; set; }
-        public DbSet<DailyLogAttachment> DailyLogAttachments { get; set; }
-        public DbSet<PayrollSchedule> PayrollSchedules { get; set; }
+        public DbSet<User> Timesheet_Users { get; set; }
+        public DbSet<RefreshToken> Timesheet_RefreshTokens { get; set; }
+        public DbSet<WeeklyLog> Timesheet_WeeklyLogs { get; set; }
+        public DbSet<DailyLog> Timesheet_DailyLogs { get; set; }
+        public DbSet<UserRate> Timesheet_UserRates { get; set; }
+        public DbSet<DailyLogAttachment> Timesheet_DailyLogAttachments { get; set; }
+        public DbSet<PayrollSchedule> Timesheet_PayrollSchedules { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
