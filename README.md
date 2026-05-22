@@ -15,7 +15,7 @@ A full-stack web application for managing employee timesheets, daily work logs, 
 | Concern            | Library                                                      |
 | ------------------ | ------------------------------------------------------------ |
 | ORM                | Entity Framework Core 10                                     |
-| Database           | SQL Server (SQLite for dev)                                  |
+| Database           | SQL Server                                                   |
 | Authentication     | JWT Bearer (`Microsoft.AspNetCore.Authentication.JwtBearer`) |
 | Password hashing   | BCrypt.Net-Next                                              |
 | Request validation | FluentValidation.AspNetCore                                  |
@@ -56,7 +56,7 @@ EntryPointApp/
 │   ├── Models/
 │   │   ├── Entities/           # EF Core entities
 │   │   └── Dtos/               # Request/response types
-│   └── Data/                   # ApplicationDbContext, SQLite DB file
+│   └── Data/                   # ApplicationDbContext
 └── EntryPointApp.Client/       # Angular frontend
     └── src/app/
         ├── core/
