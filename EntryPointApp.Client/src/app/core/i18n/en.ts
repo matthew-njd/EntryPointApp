@@ -15,7 +15,7 @@ export const EN = {
     view: 'View',
     edit: 'Edit',
     support: 'Support',
-    appTitle: 'EntryPoint, a Timesheet App',
+    appTitle: 'PCF Timesheet App',
     hrs: 'hrs',
     mi: 'mi',
   },
@@ -71,7 +71,8 @@ export const EN = {
     emailInvalid: 'Invalid email format',
     passwordRequired: 'Password is required',
     passwordMinLength: 'Password must be at least 8 characters.',
-    passwordStrength: 'Password must contain uppercase, lowercase, number, and special character.',
+    passwordStrength:
+      'Password must contain uppercase, lowercase, number, and special character.',
     firstNameRequired: 'First name is required',
     lastNameRequired: 'Last name is required',
     confirmPasswordRequired: 'Please confirm your password',
@@ -196,8 +197,10 @@ export const EN = {
     managerAssignment: 'Manager Assignment',
     assignManager: 'Assign Manager:',
     noManagerAssigned: 'No manager assigned',
-    noManagersAvailable: 'No active managers available. Please promote a user to Manager role first.',
-    mustAssignManager: 'Users must be assigned to a manager to submit timesheets',
+    noManagersAvailable:
+      'No active managers available. Please promote a user to Manager role first.',
+    mustAssignManager:
+      'Users must be assigned to a manager to submit timesheets',
     rateManagement: 'Rate Management',
     hourlyRate: 'Hourly Rate ($)',
     mileageRate: 'Mileage Rate ($/mi)',
@@ -213,9 +216,12 @@ export const EN = {
     saveChanges: 'Save Changes',
     saving: 'Saving Changes...',
     cancel: 'Cancel',
-    roleDescUser: 'Can create and submit timesheets. Must be assigned to a manager.',
-    roleDescManager: 'Can approve/deny team timesheets. Cannot submit their own timesheets.',
-    roleDescAdmin: 'Full system access. Can manage users, roles, and view all data.',
+    roleDescUser:
+      'Can create and submit timesheets. Must be assigned to a manager.',
+    roleDescManager:
+      'Can approve/deny team timesheets. Cannot submit their own timesheets.',
+    roleDescAdmin:
+      'Full system access. Can manage users, roles, and view all data.',
   },
   manager: {
     title: 'Team Timesheets',
@@ -259,9 +265,11 @@ export const EN = {
     denyTimesheet: 'Deny Timesheet',
     cancelDeny: 'Cancel Deny',
     denyTitle: 'Deny Timesheet',
-    employeeNotified: 'The employee will be notified and can revise their timesheet.',
+    employeeNotified:
+      'The employee will be notified and can revise their timesheet.',
     reasonForDenial: 'Reason for denial*',
-    reasonPlaceholder: 'Please explain why this timesheet is being denied so the employee can make corrections...',
+    reasonPlaceholder:
+      'Please explain why this timesheet is being denied so the employee can make corrections...',
     confirmDenial: 'Confirm Denial',
     denying: 'Denying Timesheet...',
     cancel: 'Cancel',

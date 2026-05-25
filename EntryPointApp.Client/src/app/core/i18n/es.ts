@@ -5,7 +5,8 @@ export const ES = {
   },
   footer: {
     support: 'Para cualquier consulta o soporte, envíe un correo a',
-    copyright: 'Copyright © 2026 - Todos los derechos reservados por The Postcard Factory',
+    copyright:
+      'Copyright © 2026 - Todos los derechos reservados por The Postcard Factory',
   },
   common: {
     back: 'Atrás',
@@ -15,7 +16,7 @@ export const ES = {
     view: 'Ver',
     edit: 'Editar',
     support: 'Soporte',
-    appTitle: 'EntryPoint, una aplicación de hojas de tiempo',
+    appTitle: 'Aplicación de hojas de horas de PCF',
     hrs: 'hrs',
     mi: 'mi',
   },
@@ -57,7 +58,8 @@ export const ES = {
     },
     resetPassword: {
       legend: 'Crear nueva contraseña',
-      invalidLink: 'Enlace de restablecimiento inválido. Por favor solicite un nuevo restablecimiento de contraseña.',
+      invalidLink:
+        'Enlace de restablecimiento inválido. Por favor solicite un nuevo restablecimiento de contraseña.',
       newPassword: 'Nueva contraseña*',
       newPasswordPlaceholder: 'Nueva contraseña',
       confirmPassword: 'Confirmar contraseña*',
@@ -71,7 +73,8 @@ export const ES = {
     emailInvalid: 'Formato de correo electrónico inválido',
     passwordRequired: 'La contraseña es requerida',
     passwordMinLength: 'La contraseña debe tener al menos 8 caracteres.',
-    passwordStrength: 'La contraseña debe contener mayúsculas, minúsculas, números y caracteres especiales.',
+    passwordStrength:
+      'La contraseña debe contener mayúsculas, minúsculas, números y caracteres especiales.',
     firstNameRequired: 'El nombre es requerido',
     lastNameRequired: 'El apellido es requerido',
     confirmPasswordRequired: 'Por favor confirme su contraseña',
@@ -196,8 +199,10 @@ export const ES = {
     managerAssignment: 'Asignación de gerente',
     assignManager: 'Asignar gerente:',
     noManagerAssigned: 'Sin gerente asignado',
-    noManagersAvailable: 'No hay gerentes activos disponibles. Promueva un usuario al rol de Gerente primero.',
-    mustAssignManager: 'Los usuarios deben ser asignados a un gerente para enviar hojas de tiempo',
+    noManagersAvailable:
+      'No hay gerentes activos disponibles. Promueva un usuario al rol de Gerente primero.',
+    mustAssignManager:
+      'Los usuarios deben ser asignados a un gerente para enviar hojas de tiempo',
     rateManagement: 'Gestión de tarifas',
     hourlyRate: 'Tarifa por hora ($)',
     mileageRate: 'Tarifa de millaje ($/mi)',
@@ -213,9 +218,12 @@ export const ES = {
     saveChanges: 'Guardar cambios',
     saving: 'Guardando cambios...',
     cancel: 'Cancelar',
-    roleDescUser: 'Puede crear y enviar hojas de tiempo. Debe estar asignado a un gerente.',
-    roleDescManager: 'Puede aprobar/denegar hojas de tiempo del equipo. No puede enviar sus propias hojas de tiempo.',
-    roleDescAdmin: 'Acceso completo al sistema. Puede gestionar usuarios, roles y ver todos los datos.',
+    roleDescUser:
+      'Puede crear y enviar hojas de tiempo. Debe estar asignado a un gerente.',
+    roleDescManager:
+      'Puede aprobar/denegar hojas de tiempo del equipo. No puede enviar sus propias hojas de tiempo.',
+    roleDescAdmin:
+      'Acceso completo al sistema. Puede gestionar usuarios, roles y ver todos los datos.',
   },
   manager: {
     title: 'Hojas de tiempo del equipo',
@@ -234,7 +242,8 @@ export const ES = {
     tableSubmitted: 'Enviado',
     tableActions: 'Acciones',
     review: 'Revisar',
-    noTimesheets: 'No se encontraron hojas de tiempo que coincidan con los filtros',
+    noTimesheets:
+      'No se encontraron hojas de tiempo que coincidan con los filtros',
   },
   reviewTimesheet: {
     backToTeam: 'Volver a hojas del equipo',
@@ -259,9 +268,11 @@ export const ES = {
     denyTimesheet: 'Denegar hoja de tiempo',
     cancelDeny: 'Cancelar denegación',
     denyTitle: 'Denegar hoja de tiempo',
-    employeeNotified: 'El empleado será notificado y podrá revisar su hoja de tiempo.',
+    employeeNotified:
+      'El empleado será notificado y podrá revisar su hoja de tiempo.',
     reasonForDenial: 'Motivo de la denegación*',
-    reasonPlaceholder: 'Por favor explique por qué se está denegando esta hoja de tiempo para que el empleado pueda hacer correcciones...',
+    reasonPlaceholder:
+      'Por favor explique por qué se está denegando esta hoja de tiempo para que el empleado pueda hacer correcciones...',
     confirmDenial: 'Confirmar denegación',
     denying: 'Denegando hoja de tiempo...',
     cancel: 'Cancelar',
