@@ -1,13 +1,14 @@
 import { Component, computed, inject } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ToastService } from '../../core/services/toast.service';
 import { LanguageService } from '../../core/services/language.service';
 import { TranslateService, TranslatePipe } from '@ngx-translate/core';
+import { NgOptimizedImage } from '@angular/common';
 
 @Component({
   selector: 'app-nav',
-  imports: [TranslatePipe],
+  imports: [TranslatePipe, RouterLink, NgOptimizedImage],
   templateUrl: './nav.html',
   styleUrl: './nav.css',
   host: { class: 'sticky top-0 z-10 block' },
@@ -20,7 +21,7 @@ export class Nav {
   private translateService = inject(TranslateService);
 
   languageLabel = computed(() =>
-    this.languageService.currentLang() === 'en' ? 'Español' : 'English'
+    this.languageService.currentLang() === 'en' ? 'Español' : 'English',
   );
 
   toggleLanguage(): void {
