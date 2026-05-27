@@ -37,6 +37,12 @@ interface DayForm {
   receipts: ReceiptResponse[];
   isUploadingReceipt: boolean;
   canAddReceipt: boolean;
+  isFuture: boolean;
+}
+
+interface DayErrors {
+  timeInError: string | null;
+  timeOutError: string | null;
 }
 
 @Component({
@@ -59,6 +65,7 @@ export class EditTimesheet {
   timesheetForm: FormGroup;
   weeklyLogId = toSignal(this.route.paramMap);
   isLoading = signal(false);
+  submissionAttempted = signal(false);
   isLoadingData = signal(true);
   weeklyLog = signal<WeeklyLog | null>(null);
   payrollDate = signal<string | null>(null);
@@ -75,6 +82,14 @@ export class EditTimesheet {
 
   allDaysFilled = computed(() => {
     return this.filledDaysCount() === 7;
+  });
+
+  hasAnyDayErrors = computed(() => {
+    this.formChangeTrigger();
+    return this.dayForms().some(day => {
+      const e = this.getDayErrors(day);
+      return e.timeInError !== null || e.timeOutError !== null || day.formGroup.invalid;
+    });
   });
 
   constructor() {
@@ -145,6 +160,9 @@ export class EditTimesheet {
     ];
     const existingLogs = this.dailyLogService.dailyLogs();
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     const daysDiff =
       Math.round(
         (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24),
@@ -155,6 +173,7 @@ export class EditTimesheet {
       currentDate.setDate(startDate.getDate() + i);
       const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
       const dayName = dayNames[currentDate.getDay()];
+      const isFuture = currentDate > today;
 
       const existingLog = existingLogs.find((log) => log.date === dateStr);
 
@@ -165,7 +184,37 @@ export class EditTimesheet {
         existingLog.timeOut === '00:00:00' &&
         !isDayOff;
 
-      const hasRealTimes = !!existingLog && !isEmptyTime && !isDayOff;
+      const hasRealTimes = !!existingLog && !isEmptyTime && !isDayOff && !isFuture;
+
+      const formGroup = this.fb.group({
+        isDayOff: [isDayOff],
+        timeIn: [{ value: isEmptyTime ? '' : (existingLog?.timeIn?.substring(0, 5) ?? ''), disabled: isDayOff || isFuture }],
+        timeOut: [{ value: isEmptyTime ? '' : (existingLog?.timeOut?.substring(0, 5) ?? ''), disabled: isDayOff || isFuture }],
+        mileage: [
+          { value: existingLog?.mileage || 0, disabled: !hasRealTimes },
+          [Validators.min(0), Validators.max(500)],
+        ],
+        tollCharge: [
+          { value: existingLog?.tollCharge || 0, disabled: !hasRealTimes },
+          [Validators.min(0), Validators.max(999.99)],
+        ],
+        parkingFee: [
+          { value: existingLog?.parkingFee || 0, disabled: !hasRealTimes },
+          [Validators.min(0), Validators.max(999.99)],
+        ],
+        otherCharges: [
+          { value: existingLog?.otherCharges || 0, disabled: !hasRealTimes },
+          [Validators.min(0), Validators.max(999.99)],
+        ],
+        comment: [
+          { value: existingLog?.comment || '', disabled: !hasRealTimes },
+          [Validators.maxLength(500)],
+        ],
+      });
+
+      if (isFuture) {
+        formGroup.get('isDayOff')?.disable();
+      }
 
       forms.push({
         dayName,
@@ -174,39 +223,19 @@ export class EditTimesheet {
         receipts: existingLog?.receipts ?? [],
         isUploadingReceipt: false,
         canAddReceipt: hasRealTimes,
-        formGroup: this.fb.group({
-          isDayOff: [isDayOff],
-          timeIn: [{ value: isEmptyTime ? '' : (existingLog?.timeIn?.substring(0, 5) ?? ''), disabled: isDayOff }],
-          timeOut: [{ value: isEmptyTime ? '' : (existingLog?.timeOut?.substring(0, 5) ?? ''), disabled: isDayOff }],
-          mileage: [
-            { value: existingLog?.mileage || 0, disabled: !hasRealTimes },
-            [Validators.min(0)],
-          ],
-          tollCharge: [
-            { value: existingLog?.tollCharge || 0, disabled: !hasRealTimes },
-            [Validators.min(0)],
-          ],
-          parkingFee: [
-            { value: existingLog?.parkingFee || 0, disabled: !hasRealTimes },
-            [Validators.min(0)],
-          ],
-          otherCharges: [
-            { value: existingLog?.otherCharges || 0, disabled: !hasRealTimes },
-            [Validators.min(0)],
-          ],
-          comment: [
-            { value: existingLog?.comment || '', disabled: !hasRealTimes },
-            [Validators.maxLength(500)],
-          ],
-        }),
+        isFuture,
+        formGroup,
       });
 
       const lastForm = forms[forms.length - 1];
-      lastForm.formGroup.get('isDayOff')?.valueChanges.subscribe((isDayOff) => {
-        this.handleDayOffChange(lastForm, isDayOff ?? false);
-      });
 
-      this.subscribeToTimeChanges(lastForm);
+      if (!isFuture) {
+        lastForm.formGroup.get('isDayOff')?.valueChanges.subscribe((isDayOff) => {
+          this.handleDayOffChange(lastForm, isDayOff ?? false);
+        });
+
+        this.subscribeToTimeChanges(lastForm);
+      }
     }
 
     forms.forEach((form) => {
@@ -280,6 +309,18 @@ export class EditTimesheet {
     const file = input.files?.[0];
     if (!file || !day.existingId) return;
 
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+    if (!allowedTypes.includes(file.type)) {
+      this.toastService.error(this.translateService.instant('toast.invalidFileType'));
+      input.value = '';
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      this.toastService.error(this.translateService.instant('toast.fileTooLarge'));
+      input.value = '';
+      return;
+    }
+
     const weeklyLogId = this.weeklyLog()?.id;
     if (!weeklyLogId) return;
 
@@ -346,9 +387,45 @@ export class EditTimesheet {
     });
   }
 
+  getDayErrors(day: DayForm): DayErrors {
+    if (day.formGroup.get('isDayOff')?.value || day.isFuture) {
+      return { timeInError: null, timeOutError: null };
+    }
+    const timeIn = day.formGroup.get('timeIn')?.value;
+    const timeOut = day.formGroup.get('timeOut')?.value;
+
+    let timeInError: string | null = null;
+    let timeOutError: string | null = null;
+
+    if (!timeIn && timeOut) {
+      timeInError = this.translateService.instant('errors.timeInRequired');
+    }
+    if (timeIn && !timeOut) {
+      timeOutError = this.translateService.instant('errors.timeOutRequired');
+    }
+    if (timeIn && timeOut && timeOut <= timeIn) {
+      timeOutError = this.translateService.instant('errors.timeOutAfterTimeIn');
+    }
+    return { timeInError, timeOutError };
+  }
+
+  shouldShowDayErrors(day: DayForm): boolean {
+    return this.submissionAttempted() ||
+      !!(day.formGroup.get('timeIn')?.touched) ||
+      !!(day.formGroup.get('timeOut')?.touched) ||
+      day.formGroup.dirty;
+  }
+
   onSubmit(): void {
     const weeklyLog = this.weeklyLog();
     if (!weeklyLog) return;
+
+    this.submissionAttempted.set(true);
+    this.dayForms().forEach(day => day.formGroup.markAllAsTouched());
+
+    if (this.hasAnyDayErrors()) {
+      return;
+    }
 
     this.isLoading.set(true);
     this.cdr.detectChanges();
@@ -399,6 +476,15 @@ export class EditTimesheet {
         );
       },
     });
+  }
+
+  getDayHours(day: DayForm): number {
+    const timeIn = day.formGroup.get('timeIn')?.value as string;
+    const timeOut = day.formGroup.get('timeOut')?.value as string;
+    if (!timeIn || !timeOut) return 0;
+    const [inH, inM] = timeIn.split(':').map(Number);
+    const [outH, outM] = timeOut.split(':').map(Number);
+    return (outH * 60 + outM - (inH * 60 + inM)) / 60;
   }
 
   goBack(): void {

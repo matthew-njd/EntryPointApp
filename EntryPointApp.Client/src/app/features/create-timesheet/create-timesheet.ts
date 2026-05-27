@@ -7,8 +7,10 @@ import {
 } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import {
+  AbstractControl,
   FormBuilder,
   FormGroup,
+  ValidatorFn,
   Validators,
   ReactiveFormsModule,
 } from '@angular/forms';
@@ -30,6 +32,12 @@ interface DayForm {
   formGroup: FormGroup;
   pendingFiles: File[];
   canAddReceipt: boolean;
+  isFuture: boolean;
+}
+
+interface DayErrors {
+  timeInError: string | null;
+  timeOutError: string | null;
 }
 
 @Component({
@@ -50,10 +58,27 @@ export class CreateTimesheet {
 
   timesheetForm: FormGroup;
   isLoading = signal(false);
+  submissionAttempted = signal(false);
   calculatedDateTo = signal<string>('');
   payrollDate = signal<string | null>(null);
   dayForms = signal<DayForm[]>([]);
   formChangeTrigger = signal(0);
+
+  readonly maxDateStr: string = (() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const day = today.getDay();
+    const diff = day === 0 ? -6 : 1 - day;
+    const monday = new Date(today);
+    monday.setDate(today.getDate() + diff);
+    return `${monday.getFullYear()}-${String(monday.getMonth() + 1).padStart(2, '0')}-${String(monday.getDate()).padStart(2, '0')}`;
+  })();
+
+  readonly minDateStr: string = (() => {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - 56);
+    return `${cutoff.getFullYear()}-${String(cutoff.getMonth() + 1).padStart(2, '0')}-${String(cutoff.getDate()).padStart(2, '0')}`;
+  })();
 
   filledDaysCount = computed(() => {
     this.formChangeTrigger();
@@ -67,9 +92,17 @@ export class CreateTimesheet {
     return this.filledDaysCount() === 7;
   });
 
+  hasAnyDayErrors = computed(() => {
+    this.formChangeTrigger();
+    return this.dayForms().some(day => {
+      const e = this.getDayErrors(day);
+      return e.timeInError !== null || e.timeOutError !== null || day.formGroup.invalid;
+    });
+  });
+
   constructor() {
     this.timesheetForm = this.fb.group({
-      dateFrom: ['', [Validators.required]],
+      dateFrom: ['', [Validators.required, this.dateFromValidator()]],
     });
 
     this.timesheetForm.get('dateFrom')?.valueChanges.subscribe((dateFrom) => {
@@ -108,22 +141,32 @@ export class CreateTimesheet {
       'Saturday',
     ];
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     for (let i = 0; i < 7; i++) {
       const currentDate = new Date(startDate);
       currentDate.setDate(startDate.getDate() + i);
       const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
       const dayName = dayNames[currentDate.getDay()];
+      const isFuture = currentDate > today;
 
       const formGroup = this.fb.group({
         isDayOff: [false],
         timeIn: [''],
         timeOut: [''],
-        mileage: [{ value: 0, disabled: true }, [Validators.min(0)]],
-        tollCharge: [{ value: 0, disabled: true }, [Validators.min(0)]],
-        parkingFee: [{ value: 0, disabled: true }, [Validators.min(0)]],
-        otherCharges: [{ value: 0, disabled: true }, [Validators.min(0)]],
+        mileage: [{ value: 0, disabled: true }, [Validators.min(0), Validators.max(500)]],
+        tollCharge: [{ value: 0, disabled: true }, [Validators.min(0), Validators.max(999.99)]],
+        parkingFee: [{ value: 0, disabled: true }, [Validators.min(0), Validators.max(999.99)]],
+        otherCharges: [{ value: 0, disabled: true }, [Validators.min(0), Validators.max(999.99)]],
         comment: [{ value: '', disabled: true }, [Validators.maxLength(500)]],
       });
+
+      if (isFuture) {
+        formGroup.get('isDayOff')?.disable();
+        formGroup.get('timeIn')?.disable();
+        formGroup.get('timeOut')?.disable();
+      }
 
       const dayForm: DayForm = {
         dayName,
@@ -131,14 +174,17 @@ export class CreateTimesheet {
         formGroup,
         pendingFiles: [],
         canAddReceipt: false,
+        isFuture,
       };
       forms.push(dayForm);
 
-      formGroup.get('isDayOff')?.valueChanges.subscribe((isDayOff) => {
-        this.handleDayOffChange(dayForm, isDayOff ?? false);
-      });
+      if (!isFuture) {
+        formGroup.get('isDayOff')?.valueChanges.subscribe((isDayOff) => {
+          this.handleDayOffChange(dayForm, isDayOff ?? false);
+        });
 
-      this.subscribeToTimeChanges(dayForm);
+        this.subscribeToTimeChanges(dayForm);
+      }
     }
 
     forms.forEach((form) => {
@@ -207,9 +253,45 @@ export class CreateTimesheet {
     formGroup.get('timeOut')?.valueChanges.subscribe(onTimeChange);
   }
 
+  getDayErrors(day: DayForm): DayErrors {
+    if (day.formGroup.get('isDayOff')?.value || day.isFuture) {
+      return { timeInError: null, timeOutError: null };
+    }
+    const timeIn = day.formGroup.get('timeIn')?.value;
+    const timeOut = day.formGroup.get('timeOut')?.value;
+
+    let timeInError: string | null = null;
+    let timeOutError: string | null = null;
+
+    if (!timeIn && timeOut) {
+      timeInError = this.translateService.instant('errors.timeInRequired');
+    }
+    if (timeIn && !timeOut) {
+      timeOutError = this.translateService.instant('errors.timeOutRequired');
+    }
+    if (timeIn && timeOut && timeOut <= timeIn) {
+      timeOutError = this.translateService.instant('errors.timeOutAfterTimeIn');
+    }
+    return { timeInError, timeOutError };
+  }
+
+  shouldShowDayErrors(day: DayForm): boolean {
+    return this.submissionAttempted() ||
+      !!(day.formGroup.get('timeIn')?.touched) ||
+      !!(day.formGroup.get('timeOut')?.touched) ||
+      day.formGroup.dirty;
+  }
+
   onSubmit(): void {
+    this.submissionAttempted.set(true);
+    this.dayForms().forEach(day => day.formGroup.markAllAsTouched());
+
     if (this.timesheetForm.invalid) {
       this.timesheetForm.markAllAsTouched();
+      return;
+    }
+
+    if (this.hasAnyDayErrors()) {
       return;
     }
 
@@ -326,6 +408,19 @@ export class CreateTimesheet {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
+
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+    if (!allowedTypes.includes(file.type)) {
+      this.toastService.error(this.translateService.instant('toast.invalidFileType'));
+      input.value = '';
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      this.toastService.error(this.translateService.instant('toast.fileTooLarge'));
+      input.value = '';
+      return;
+    }
+
     day.pendingFiles = [...day.pendingFiles, file];
     input.value = '';
     this.dayForms.update((days) => [...days]);
@@ -334,6 +429,44 @@ export class CreateTimesheet {
   removeQueuedFile(day: DayForm, index: number): void {
     day.pendingFiles = day.pendingFiles.filter((_, i) => i !== index);
     this.dayForms.update((days) => [...days]);
+  }
+
+  getDayHours(day: DayForm): number {
+    const timeIn = day.formGroup.get('timeIn')?.value as string;
+    const timeOut = day.formGroup.get('timeOut')?.value as string;
+    if (!timeIn || !timeOut) return 0;
+    const [inH, inM] = timeIn.split(':').map(Number);
+    const [outH, outM] = timeOut.split(':').map(Number);
+    return (outH * 60 + outM - (inH * 60 + inM)) / 60;
+  }
+
+  private dateFromValidator(): ValidatorFn {
+    return (control: AbstractControl) => {
+      const value = control.value as string;
+      if (!value) return null;
+
+      const [y, m, d] = value.split('-').map(Number);
+      const selected = new Date(y, m - 1, d);
+
+      if (selected.getDay() !== 1) {
+        return { notMonday: true };
+      }
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      if (selected > today) {
+        return { futureWeek: true };
+      }
+
+      const cutoff = new Date(today);
+      cutoff.setDate(today.getDate() - 56);
+      if (selected < cutoff) {
+        return { tooFarPast: true };
+      }
+
+      return null;
+    };
   }
 
   get dateFrom() {

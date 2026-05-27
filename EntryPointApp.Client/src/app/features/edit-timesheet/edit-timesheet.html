@@ -95,14 +95,24 @@
 
               <div class="space-y-6">
                 @for (day of dayForms(); track day.date) {
-                  <div
-                    class="bg-base-100 rounded-lg p-4 border border-base-300"
+                  <div class="bg-base-100 rounded-lg p-4 border"
+                       [class.border-base-300]="!shouldShowDayErrors(day) || (getDayErrors(day).timeInError === null && getDayErrors(day).timeOutError === null)"
+                       [class.border-error]="shouldShowDayErrors(day) && (getDayErrors(day).timeInError !== null || getDayErrors(day).timeOutError !== null || day.formGroup.invalid)"
+                       [class.opacity-50]="day.isFuture"
+                       [class.select-none]="day.isFuture"
                   >
                     <div class="flex justify-between items-center mb-3">
-                      <h3 class="font-semibold">
-                        {{ day.dayName }}, {{ day.date | date: "MMM d, y" }}
-                      </h3>
-                      <label class="label cursor-pointer gap-2">
+                      <div class="flex items-center gap-2">
+                        <h3 class="font-semibold">
+                          {{ day.dayName }}, {{ day.date | date: "MMM d, y" }}
+                        </h3>
+                        @if (day.isFuture) {
+                          <span class="badge badge-ghost text-xs">{{ 'timesheet.futureDay' | translate }}</span>
+                        }
+                      </div>
+                      <label class="label cursor-pointer gap-2"
+                             [class.opacity-0]="day.isFuture"
+                             [class.pointer-events-none]="day.isFuture">
                         <span class="label-text text-sm">{{
                           "timesheet.dayOff" | translate
                         }}</span>
@@ -129,6 +139,9 @@
                           class="input input-sm w-full"
                           formControlName="timeIn"
                         />
+                        @if (shouldShowDayErrors(day) && getDayErrors(day).timeInError) {
+                          <p class="text-error text-xs mt-1">{{ getDayErrors(day).timeInError }}</p>
+                        }
                       </div>
                       <div>
                         <label class="label py-1">
@@ -141,6 +154,9 @@
                           class="input input-sm w-full"
                           formControlName="timeOut"
                         />
+                        @if (shouldShowDayErrors(day) && getDayErrors(day).timeOutError) {
+                          <p class="text-error text-xs mt-1">{{ getDayErrors(day).timeOutError }}</p>
+                        }
                       </div>
                       <div>
                         <label class="label py-1">
@@ -156,6 +172,12 @@
                           min="0"
                           placeholder="0"
                         />
+                        @if ((day.formGroup.get('mileage')?.touched || submissionAttempted()) && day.formGroup.get('mileage')?.errors?.['min']) {
+                          <p class="text-error text-xs mt-1">{{ 'errors.mustBePositive' | translate }}</p>
+                        }
+                        @if ((day.formGroup.get('mileage')?.touched || submissionAttempted()) && day.formGroup.get('mileage')?.errors?.['max']) {
+                          <p class="text-error text-xs mt-1">{{ 'errors.mileageMax' | translate }}</p>
+                        }
                       </div>
                       <div>
                         <label class="label py-1">
@@ -171,6 +193,12 @@
                           min="0"
                           placeholder="0.00"
                         />
+                        @if ((day.formGroup.get('tollCharge')?.touched || submissionAttempted()) && day.formGroup.get('tollCharge')?.errors?.['min']) {
+                          <p class="text-error text-xs mt-1">{{ 'errors.mustBePositive' | translate }}</p>
+                        }
+                        @if ((day.formGroup.get('tollCharge')?.touched || submissionAttempted()) && day.formGroup.get('tollCharge')?.errors?.['max']) {
+                          <p class="text-error text-xs mt-1">{{ 'errors.chargeMax' | translate }}</p>
+                        }
                       </div>
                       <div>
                         <label class="label py-1">
@@ -186,6 +214,12 @@
                           min="0"
                           placeholder="0.00"
                         />
+                        @if ((day.formGroup.get('parkingFee')?.touched || submissionAttempted()) && day.formGroup.get('parkingFee')?.errors?.['min']) {
+                          <p class="text-error text-xs mt-1">{{ 'errors.mustBePositive' | translate }}</p>
+                        }
+                        @if ((day.formGroup.get('parkingFee')?.touched || submissionAttempted()) && day.formGroup.get('parkingFee')?.errors?.['max']) {
+                          <p class="text-error text-xs mt-1">{{ 'errors.chargeMax' | translate }}</p>
+                        }
                       </div>
                       <div>
                         <label class="label py-1">
@@ -201,6 +235,12 @@
                           min="0"
                           placeholder="0.00"
                         />
+                        @if ((day.formGroup.get('otherCharges')?.touched || submissionAttempted()) && day.formGroup.get('otherCharges')?.errors?.['min']) {
+                          <p class="text-error text-xs mt-1">{{ 'errors.mustBePositive' | translate }}</p>
+                        }
+                        @if ((day.formGroup.get('otherCharges')?.touched || submissionAttempted()) && day.formGroup.get('otherCharges')?.errors?.['max']) {
+                          <p class="text-error text-xs mt-1">{{ 'errors.chargeMax' | translate }}</p>
+                        }
                       </div>
                       <div class="col-span-2 sm:col-span-3">
                         <label class="label py-1">
@@ -217,8 +257,27 @@
                             'timesheet.commentPlaceholder' | translate
                           "
                         ></textarea>
+                        <div class="flex justify-end mt-1">
+                          <span class="text-xs"
+                                [class.text-error]="(day.formGroup.get('comment')?.value?.length || 0) >= 500"
+                                [class.text-base-content]="(day.formGroup.get('comment')?.value?.length || 0) < 500">
+                            {{ day.formGroup.get('comment')?.value?.length || 0 }} / 500
+                          </span>
+                        </div>
+                        @if ((day.formGroup.get('comment')?.touched || submissionAttempted()) && day.formGroup.get('comment')?.errors?.['maxlength']) {
+                          <p class="text-error text-xs mt-1">{{ 'errors.commentMaxLength' | translate }}</p>
+                        }
                       </div>
                     </div>
+
+                    @if (getDayHours(day) > 14) {
+                      <div class="alert alert-warning py-2 mt-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" class="shrink-0">
+                          <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                        </svg>
+                        <span class="text-xs">{{ 'timesheet.longDayWarning' | translate: { hours: (getDayHours(day) | number:'1.1-1') } }}</span>
+                      </div>
+                    }
 
                     @if (day.existingId) {
                       <div class="mt-3 pt-3 border-t border-base-300">
@@ -307,6 +366,15 @@
                 }
               </div>
             </fieldset>
+          }
+
+          @if (submissionAttempted() && hasAnyDayErrors()) {
+            <div class="alert alert-error mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" class="shrink-0">
+                <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+              </svg>
+              <span>{{ 'errors.fixDayErrors' | translate }}</span>
+            </div>
           }
 
           <div class="flex gap-2">
