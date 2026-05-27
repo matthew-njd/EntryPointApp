@@ -266,6 +266,9 @@ namespace EntryPointApp.Api.Services.DailyLog
 
         public async Task<DailyLogListResult> CreateDailyLogsBatchAsync(int weeklyLogId, List<DailyLogRequest> requests, int userId)
         {
+            var strategy = _context.Database.CreateExecutionStrategy();
+            return await strategy.ExecuteAsync(async () =>
+            {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
@@ -402,6 +405,7 @@ namespace EntryPointApp.Api.Services.DailyLog
                     Errors = [ex.Message]
                 };
             }
+            });
         }
 
         public async Task<DailyLogResult> UpdateDailyLogAsync(int id, int weeklyLogId, DailyLogRequest request, int userId)
@@ -583,6 +587,9 @@ namespace EntryPointApp.Api.Services.DailyLog
 
         public async Task<DailyLogListResult> UpdateDailyLogsAsync(int weeklyLogId, UpdateDailyLogsRequest request, int userId)
         {
+            var strategy = _context.Database.CreateExecutionStrategy();
+            return await strategy.ExecuteAsync(async () =>
+            {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
@@ -800,6 +807,7 @@ namespace EntryPointApp.Api.Services.DailyLog
                     Errors = [ex.Message]
                 };
             }
+            });
         }
     }
 }
