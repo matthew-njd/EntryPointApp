@@ -292,6 +292,40 @@ export class CreateTimesheet {
     }
 
     if (this.hasAnyDayErrors()) {
+      const errorCount = this.dayForms().filter(day => {
+        if (day.isFuture) return false;
+        const e = this.getDayErrors(day);
+        return e.timeInError !== null || e.timeOutError !== null || day.formGroup.invalid;
+      }).length;
+      this.toastService.error(
+        this.translateService.instant('toast.dayErrorsOnSubmit', { count: errorCount })
+      );
+      return;
+    }
+
+    const dailyLogRequests: DailyLogRequest[] = this.dayForms()
+      .filter((day) => {
+        const isDayOff = day.formGroup.get('isDayOff')?.value;
+        const timeIn = day.formGroup.get('timeIn')?.value;
+        const timeOut = day.formGroup.get('timeOut')?.value;
+        return isDayOff || (timeIn && timeOut);
+      })
+      .map((day) => {
+        const isDayOff = day.formGroup.get('isDayOff')?.value;
+        return {
+          date: day.date,
+          timeIn: isDayOff ? '00:00' : day.formGroup.get('timeIn')?.value || '00:00',
+          timeOut: isDayOff ? '00:00' : day.formGroup.get('timeOut')?.value || '00:00',
+          mileage: isDayOff ? 0 : day.formGroup.get('mileage')?.value || 0,
+          tollCharge: isDayOff ? 0 : day.formGroup.get('tollCharge')?.value || 0,
+          parkingFee: isDayOff ? 0 : day.formGroup.get('parkingFee')?.value || 0,
+          otherCharges: isDayOff ? 0 : day.formGroup.get('otherCharges')?.value || 0,
+          comment: isDayOff ? 'Day off' : day.formGroup.get('comment')?.value || '',
+        };
+      });
+
+    if (dailyLogRequests.length === 0) {
+      this.toastService.error(this.translateService.instant('toast.atLeastOneDayRequired'));
       return;
     }
 
@@ -307,38 +341,6 @@ export class CreateTimesheet {
       next: (weeklyLogResponse) => {
         if (weeklyLogResponse.success && weeklyLogResponse.data) {
           const weeklyLogId = weeklyLogResponse.data.id;
-
-          const dailyLogRequests: DailyLogRequest[] = this.dayForms()
-            .filter((day) => {
-              const isDayOff = day.formGroup.get('isDayOff')?.value;
-              const timeIn = day.formGroup.get('timeIn')?.value;
-              const timeOut = day.formGroup.get('timeOut')?.value;
-              return isDayOff || (timeIn && timeOut);
-            })
-            .map((day) => {
-              const isDayOff = day.formGroup.get('isDayOff')?.value;
-              return {
-                date: day.date,
-                timeIn: isDayOff ? '00:00' : day.formGroup.get('timeIn')?.value || '00:00',
-                timeOut: isDayOff ? '00:00' : day.formGroup.get('timeOut')?.value || '00:00',
-                mileage: isDayOff
-                  ? 0
-                  : day.formGroup.get('mileage')?.value || 0,
-                tollCharge: isDayOff
-                  ? 0
-                  : day.formGroup.get('tollCharge')?.value || 0,
-                parkingFee: isDayOff
-                  ? 0
-                  : day.formGroup.get('parkingFee')?.value || 0,
-                otherCharges: isDayOff
-                  ? 0
-                  : day.formGroup.get('otherCharges')?.value || 0,
-                comment: isDayOff
-                  ? 'Day off'
-                  : day.formGroup.get('comment')?.value || '',
-              };
-            },
-          );
 
           this.dailyLogService
             .createDailyLogsBatch(weeklyLogId, dailyLogRequests)
@@ -375,7 +377,7 @@ export class CreateTimesheet {
                 } else {
                   this.isLoading.set(false);
                   this.toastService.error(
-                    dailyLogResponse.message || 'Failed to create daily logs',
+                    this.errorMessage(dailyLogResponse, this.translateService.instant('toast.failedSaveDailyLogs'))
                   );
                 }
               },
@@ -383,14 +385,14 @@ export class CreateTimesheet {
                 this.isLoading.set(false);
                 this.cdr.detectChanges();
                 this.toastService.error(
-                  error.error?.message || 'Failed to create daily logs',
+                  this.errorMessage(error.error, this.translateService.instant('toast.failedSaveDailyLogs'))
                 );
               },
             });
         } else {
           this.isLoading.set(false);
           this.toastService.error(
-            weeklyLogResponse.message || 'Failed to create timesheet',
+            this.errorMessage(weeklyLogResponse, this.translateService.instant('toast.failedCreateTimesheet'))
           );
         }
       },
@@ -398,7 +400,7 @@ export class CreateTimesheet {
         this.isLoading.set(false);
         this.cdr.detectChanges();
         this.toastService.error(
-          error.error?.message || 'Failed to create timesheet',
+          this.errorMessage(error.error, this.translateService.instant('toast.failedCreateTimesheet'))
         );
       },
     });
@@ -429,6 +431,32 @@ export class CreateTimesheet {
   removeQueuedFile(day: DayForm, index: number): void {
     day.pendingFiles = day.pendingFiles.filter((_, i) => i !== index);
     this.dayForms.update((days) => [...days]);
+  }
+
+  blockNumericSpecialChars(event: KeyboardEvent): void {
+    if (['-', '+', 'e', 'E'].includes(event.key)) {
+      event.preventDefault();
+    }
+  }
+
+  onNumericInput(event: Event, control: AbstractControl | null): void {
+    const input = event.target as HTMLInputElement;
+    const raw = input.value;
+    let value = raw.replace(/[^\d.]/g, '');
+    const dotIndex = value.indexOf('.');
+    if (dotIndex !== -1) {
+      value = value.substring(0, dotIndex + 1) + value.substring(dotIndex + 1).replace(/\./g, '');
+    }
+    const finalDot = value.indexOf('.');
+    if (finalDot !== -1 && value.length - finalDot - 1 > 2) {
+      value = value.substring(0, finalDot + 3);
+    }
+    if (raw !== value) {
+      input.value = value;
+      if (value !== '') {
+        control?.setValue(parseFloat(value), { emitEvent: false });
+      }
+    }
   }
 
   getDayHours(day: DayForm): number {
@@ -471,6 +499,12 @@ export class CreateTimesheet {
 
   get dateFrom() {
     return this.timesheetForm.get('dateFrom');
+  }
+
+  private errorMessage(source: any, fallback: string): string {
+    const message: string = source?.message || fallback;
+    const first: string | undefined = (source?.errors as string[])?.[0];
+    return first ? `${message}: ${first}` : message;
   }
 
   goBack(): void {

@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
+  AbstractControl,
   FormBuilder,
   FormGroup,
   ReactiveFormsModule,
@@ -424,6 +425,14 @@ export class EditTimesheet {
     this.dayForms().forEach(day => day.formGroup.markAllAsTouched());
 
     if (this.hasAnyDayErrors()) {
+      const errorCount = this.dayForms().filter(day => {
+        if (day.isFuture) return false;
+        const e = this.getDayErrors(day);
+        return e.timeInError !== null || e.timeOutError !== null || day.formGroup.invalid;
+      }).length;
+      this.toastService.error(
+        this.translateService.instant('toast.dayErrorsOnSubmit', { count: errorCount })
+      );
       return;
     }
 
@@ -464,7 +473,7 @@ export class EditTimesheet {
           this.router.navigate(['/dashboard/week', weeklyLog.id]);
         } else {
           this.toastService.error(
-            response.message || this.translateService.instant('toast.timesheetUpdated'),
+            this.errorMessage(response, this.translateService.instant('toast.failedUpdateTimesheet'))
           );
         }
       },
@@ -472,10 +481,42 @@ export class EditTimesheet {
         this.isLoading.set(false);
         this.cdr.detectChanges();
         this.toastService.error(
-          error.error?.message || this.translateService.instant('toast.timesheetUpdated'),
+          this.errorMessage(error.error, this.translateService.instant('toast.failedUpdateTimesheet'))
         );
       },
     });
+  }
+
+  blockNumericSpecialChars(event: KeyboardEvent): void {
+    if (['-', '+', 'e', 'E'].includes(event.key)) {
+      event.preventDefault();
+    }
+  }
+
+  onNumericInput(event: Event, control: AbstractControl | null): void {
+    const input = event.target as HTMLInputElement;
+    const raw = input.value;
+    let value = raw.replace(/[^\d.]/g, '');
+    const dotIndex = value.indexOf('.');
+    if (dotIndex !== -1) {
+      value = value.substring(0, dotIndex + 1) + value.substring(dotIndex + 1).replace(/\./g, '');
+    }
+    const finalDot = value.indexOf('.');
+    if (finalDot !== -1 && value.length - finalDot - 1 > 2) {
+      value = value.substring(0, finalDot + 3);
+    }
+    if (raw !== value) {
+      input.value = value;
+      if (value !== '') {
+        control?.setValue(parseFloat(value), { emitEvent: false });
+      }
+    }
+  }
+
+  private errorMessage(source: any, fallback: string): string {
+    const message: string = source?.message || fallback;
+    const first: string | undefined = (source?.errors as string[])?.[0];
+    return first ? `${message}: ${first}` : message;
   }
 
   getDayHours(day: DayForm): number {

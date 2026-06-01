@@ -168,9 +168,11 @@
                           type="number"
                           class="input input-sm w-full"
                           formControlName="mileage"
-                          step="0.1"
+                          step="0.01"
                           min="0"
-                          placeholder="0"
+                          placeholder="0.00"
+                          (keydown)="blockNumericSpecialChars($event)"
+                          (input)="onNumericInput($event, day.formGroup.get('mileage'))"
                         />
                         @if ((day.formGroup.get('mileage')?.touched || submissionAttempted()) && day.formGroup.get('mileage')?.errors?.['min']) {
                           <p class="text-error text-xs mt-1">{{ 'errors.mustBePositive' | translate }}</p>
@@ -192,6 +194,8 @@
                           step="0.01"
                           min="0"
                           placeholder="0.00"
+                          (keydown)="blockNumericSpecialChars($event)"
+                          (input)="onNumericInput($event, day.formGroup.get('tollCharge'))"
                         />
                         @if ((day.formGroup.get('tollCharge')?.touched || submissionAttempted()) && day.formGroup.get('tollCharge')?.errors?.['min']) {
                           <p class="text-error text-xs mt-1">{{ 'errors.mustBePositive' | translate }}</p>
@@ -213,6 +217,8 @@
                           step="0.01"
                           min="0"
                           placeholder="0.00"
+                          (keydown)="blockNumericSpecialChars($event)"
+                          (input)="onNumericInput($event, day.formGroup.get('parkingFee'))"
                         />
                         @if ((day.formGroup.get('parkingFee')?.touched || submissionAttempted()) && day.formGroup.get('parkingFee')?.errors?.['min']) {
                           <p class="text-error text-xs mt-1">{{ 'errors.mustBePositive' | translate }}</p>
@@ -234,6 +240,8 @@
                           step="0.01"
                           min="0"
                           placeholder="0.00"
+                          (keydown)="blockNumericSpecialChars($event)"
+                          (input)="onNumericInput($event, day.formGroup.get('otherCharges'))"
                         />
                         @if ((day.formGroup.get('otherCharges')?.touched || submissionAttempted()) && day.formGroup.get('otherCharges')?.errors?.['min']) {
                           <p class="text-error text-xs mt-1">{{ 'errors.mustBePositive' | translate }}</p>

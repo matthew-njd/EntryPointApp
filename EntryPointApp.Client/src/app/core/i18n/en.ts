@@ -84,7 +84,8 @@ export const EN = {
     timeInRequired: 'Time in is required',
     timeOutRequired: 'Time out is required',
     timeOutAfterTimeIn: 'Time out must be after time in',
-    fixDayErrors: 'Please fix the errors on the highlighted days above before continuing.',
+    fixDayErrors:
+      'Please fix the errors on the highlighted day(s) above before continuing.',
     mustBePositive: 'Value must be 0 or greater',
     mileageMax: 'Mileage cannot exceed 500 mi',
     chargeMax: 'Amount cannot exceed $999.99',
@@ -136,7 +137,8 @@ export const EN = {
     upload: 'Upload',
     uploading: 'Uploading...',
     noReceipts: 'No receipts attached.',
-    longDayWarning: 'This entry logs {{hours}} hrs — please double-check your times.',
+    longDayWarning:
+      'This entry logs {{hours}} hrs — please double-check your times.',
     futureDay: 'Not yet available',
     submitForApproval: 'Submit for Approval',
     submittingForApproval: 'Submitting for Approval...',
@@ -336,6 +338,14 @@ export const EN = {
     timesheetUpdated: 'Timesheet updated successfully!',
     invalidFileType: 'Only JPG, PNG, and PDF files are accepted.',
     fileTooLarge: 'File must be under 10 MB.',
+    atLeastOneDayRequired: 'Please fill in at least one day before saving.',
+    dayErrorsOnSubmit:
+      '{{count}} day(s) have errors — please review the highlighted entries.',
+    failedCreateTimesheet: 'Unable to create the timesheet — please try again.',
+    failedSaveDailyLogs:
+      'The timesheet draft was created but daily entries failed to save — edit the draft from your dashboard.',
+    failedUpdateTimesheet:
+      'Unable to save timesheet changes — please try again.',
     onlyPendingApprovable: 'Only pending timesheets can be approved',
     timesheetApproved: 'Timesheet approved successfully!',
     failedApproveTimesheet: 'Failed to approve timesheet',
