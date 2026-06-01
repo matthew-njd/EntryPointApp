@@ -1,1 +1,0 @@
-EntryPoint a Timesheet App
