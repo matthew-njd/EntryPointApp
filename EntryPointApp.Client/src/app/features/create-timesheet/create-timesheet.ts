@@ -63,6 +63,8 @@ export class CreateTimesheet {
   payrollDate = signal<string | null>(null);
   dayForms = signal<DayForm[]>([]);
   formChangeTrigger = signal(0);
+  existingWeeks = signal<{ dateFrom: string; dateTo: string }[]>([]);
+  overlappingWeek = signal<{ dateFrom: string; dateTo: string } | null>(null);
 
   readonly maxDateStr: string = (() => {
     const today = new Date();
@@ -105,24 +107,52 @@ export class CreateTimesheet {
       dateFrom: ['', [Validators.required, this.dateFromValidator()]],
     });
 
+    this.weeklyLogService.getDateRanges().subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          this.existingWeeks.set(
+            response.data.data.map(w => ({ dateFrom: w.dateFrom, dateTo: w.dateTo }))
+          );
+        }
+      },
+      error: () => {},
+    });
+
     this.timesheetForm.get('dateFrom')?.valueChanges.subscribe((dateFrom) => {
       if (dateFrom) {
         const [y, m, d] = dateFrom.split('-').map(Number);
         const endDate = new Date(y, m - 1, d + 6);
-        this.calculatedDateTo.set(
-          `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')}`
-        );
+        const dateTo = `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')}`;
+        this.calculatedDateTo.set(dateTo);
 
-        this.generateDayForms(dateFrom);
+        const dateErrors = this.timesheetForm.get('dateFrom')?.errors;
 
-        this.payrollScheduleService.lookup(dateFrom).subscribe({
-          next: (res) => { this.payrollDate.set(res.data?.payrollDate ?? null); },
-          error: () => {},
-        });
+        if (dateErrors) {
+          this.overlappingWeek.set(null);
+          this.dayForms.set([]);
+          this.payrollDate.set(null);
+        } else {
+          const overlap = this.existingWeeks().find(w =>
+            dateFrom <= w.dateTo && dateTo >= w.dateFrom
+          ) ?? null;
+          this.overlappingWeek.set(overlap);
+
+          if (!overlap) {
+            this.generateDayForms(dateFrom);
+            this.payrollScheduleService.lookup(dateFrom).subscribe({
+              next: (res) => { this.payrollDate.set(res.data?.payrollDate ?? null); },
+              error: () => {},
+            });
+          } else {
+            this.dayForms.set([]);
+            this.payrollDate.set(null);
+          }
+        }
       } else {
         this.calculatedDateTo.set('');
         this.dayForms.set([]);
         this.payrollDate.set(null);
+        this.overlappingWeek.set(null);
       }
     });
   }
@@ -288,6 +318,10 @@ export class CreateTimesheet {
 
     if (this.timesheetForm.invalid) {
       this.timesheetForm.markAllAsTouched();
+      return;
+    }
+
+    if (this.overlappingWeek()) {
       return;
     }
 

@@ -91,6 +91,7 @@ export const ES = {
     mileageMax: 'El millaje no puede exceder 500 mi',
     chargeMax: 'El monto no puede exceder $999.99',
     commentMaxLength: 'El comentario no puede exceder 500 caracteres',
+    timesheetOverlap: 'Ya existe una hoja de tiempo para esta semana',
     weekMustStartMonday: 'Las hojas de tiempo deben comenzar un lunes',
     weekInFuture: 'No se puede crear una hoja de tiempo para una semana futura',
     weekTooFarInPast: 'No se puede crear una hoja de tiempo con más de 8 semanas de antigüedad',

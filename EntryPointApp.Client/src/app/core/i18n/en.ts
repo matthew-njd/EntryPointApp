@@ -90,6 +90,7 @@ export const EN = {
     mileageMax: 'Mileage cannot exceed 500 mi',
     chargeMax: 'Amount cannot exceed $999.99',
     commentMaxLength: 'Comment cannot exceed 500 characters',
+    timesheetOverlap: 'A timesheet already exists for this week',
     weekMustStartMonday: 'Timesheets must start on a Monday',
     weekInFuture: 'Cannot create a timesheet for a future week',
     weekTooFarInPast: 'Cannot create a timesheet more than 8 weeks in the past',

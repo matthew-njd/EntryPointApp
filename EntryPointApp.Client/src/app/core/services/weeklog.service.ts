@@ -101,6 +101,13 @@ export class WeeklyLogService {
     return this.http.get<ApiResponse<WeeklyLog>>(`${this.apiUrl}/${id}`);
   }
 
+  getDateRanges(): Observable<ApiResponse<WeeklyLogPagedResult>> {
+    const params = new HttpParams()
+      .set('page', '1')
+      .set('pageSize', '52');
+    return this.http.get<ApiResponse<WeeklyLogPagedResult>>(this.apiUrl, { params });
+  }
+
   createWeeklyLog(request: WeeklyLogRequest) {
     return this.http.post<ApiResponse<WeeklyLog>>(this.apiUrl, request);
   }

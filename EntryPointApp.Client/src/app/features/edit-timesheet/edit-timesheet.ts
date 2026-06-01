@@ -15,6 +15,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { WeeklyLogService } from '../../core/services/weeklog.service';
 import { DailyLogService } from '../../core/services/dailylog.service';
@@ -36,6 +37,7 @@ interface DayForm {
   formGroup: FormGroup;
   existingId?: number;
   receipts: ReceiptResponse[];
+  pendingFiles: File[];
   isUploadingReceipt: boolean;
   canAddReceipt: boolean;
   isFuture: boolean;
@@ -222,6 +224,7 @@ export class EditTimesheet {
         date: dateStr,
         existingId: existingLog?.id,
         receipts: existingLog?.receipts ?? [],
+        pendingFiles: [],
         isUploadingReceipt: false,
         canAddReceipt: hasRealTimes,
         isFuture,
@@ -308,7 +311,7 @@ export class EditTimesheet {
   onFileSelected(day: DayForm, event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
-    if (!file || !day.existingId) return;
+    if (!file) return;
 
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
     if (!allowedTypes.includes(file.type)) {
@@ -319,6 +322,13 @@ export class EditTimesheet {
     if (file.size > 10 * 1024 * 1024) {
       this.toastService.error(this.translateService.instant('toast.fileTooLarge'));
       input.value = '';
+      return;
+    }
+
+    if (!day.existingId) {
+      day.pendingFiles = [...day.pendingFiles, file];
+      input.value = '';
+      this.dayForms.update((days) => [...days]);
       return;
     }
 
@@ -347,6 +357,11 @@ export class EditTimesheet {
         this.dayForms.update((days) => [...days]);
       },
     });
+  }
+
+  removeQueuedFile(day: DayForm, index: number): void {
+    day.pendingFiles = day.pendingFiles.filter((_, i) => i !== index);
+    this.dayForms.update((days) => [...days]);
   }
 
   deleteReceipt(day: DayForm, attachmentId: number): void {
@@ -467,11 +482,38 @@ export class EditTimesheet {
 
     this.dailyLogService.updateDailyLogs(weeklyLog.id, request).subscribe({
       next: (response) => {
-        this.isLoading.set(false);
         if (response.success) {
-          this.toastService.success(this.translateService.instant('toast.timesheetUpdated'));
-          this.router.navigate(['/dashboard/week', weeklyLog.id]);
+          const updatedLogs = response.data ?? [];
+          const uploadTasks = this.dayForms().flatMap((dayForm) => {
+            if (!dayForm.pendingFiles.length) return [];
+            const savedLog = updatedLogs.find((log) => log.date === dayForm.date);
+            if (!savedLog) return [];
+            return dayForm.pendingFiles.map((file) =>
+              this.dailyLogService.uploadReceipt(weeklyLog.id, savedLog.id, file)
+            );
+          });
+
+          const navigate = () => {
+            this.isLoading.set(false);
+            this.toastService.success(this.translateService.instant('toast.timesheetUpdated'));
+            this.router.navigate(['/dashboard/week', weeklyLog.id]);
+          };
+
+          if (uploadTasks.length === 0) {
+            navigate();
+          } else {
+            forkJoin(uploadTasks).subscribe({
+              next: () => navigate(),
+              error: () => {
+                this.isLoading.set(false);
+                this.toastService.success(this.translateService.instant('toast.timesheetUpdated'));
+                this.toastService.error(this.translateService.instant('toast.receiptUploadFailed'));
+                this.router.navigate(['/dashboard/week', weeklyLog.id]);
+              },
+            });
+          }
         } else {
+          this.isLoading.set(false);
           this.toastService.error(
             this.errorMessage(response, this.translateService.instant('toast.failedUpdateTimesheet'))
           );
