@@ -392,7 +392,7 @@ namespace EntryPointApp.Api.Services.Authentication
 
                 await _context.SaveChangesAsync();
 
-                var frontendUrl = _configuration["Frontend:Url"] ?? "http://localhost:4200";
+                var frontendUrl = _configuration["AppSettings:BaseUrl"] ?? "http://localhost:4200";
                 var resetLink = $"{frontendUrl}/reset-password?token={Uri.EscapeDataString(token)}&email={Uri.EscapeDataString(user.Email)}";
 
                 var emailSent = await _emailService.SendPasswordResetEmailAsync(user.Email, resetLink);

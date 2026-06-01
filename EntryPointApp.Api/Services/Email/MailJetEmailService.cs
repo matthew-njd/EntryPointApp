@@ -25,7 +25,7 @@ namespace EntryPointApp.Api.Services.Email
             {
                 var fromEmail = _configuration["MailJet:FromEmail"]
                     ?? throw new InvalidOperationException("MailJet:FromEmail not configured");
-                var fromName = _configuration["MailJet:FromName"] ?? "EntryPoint App";
+                var fromName = _configuration["MailJet:FromName"] ?? "PCF Timesheet App";
 
                 var email = new TransactionalEmailBuilder()
                             .WithFrom(new SendContact(fromEmail, fromName))
@@ -43,7 +43,7 @@ namespace EntryPointApp.Api.Services.Email
 
                                         <!-- Body text -->
                                         <p style='margin:0 0 30px 0; font-size:15px; color:#5f6b7a; line-height:1.6;'>
-                                            You have requested to reset your password for your EntryPoint App account.<br>
+                                            You have requested to reset your password for your PCF Timesheet App account.<br>
                                             If you did not make this request, please ignore this email.
                                         </p>
 
@@ -92,7 +92,7 @@ namespace EntryPointApp.Api.Services.Email
                             .WithTextPart($@"
                                 Password Reset Request
 
-                                You have requested to reset your password for your EntryPoint App account.
+                                You have requested to reset your password for your PCF Timesheet App account.
 
                                 Click the link below to reset your password:
                                 {resetLink}
@@ -147,7 +147,7 @@ namespace EntryPointApp.Api.Services.Email
             {
                 var fromEmail = _configuration["MailJet:FromEmail"]
                     ?? throw new InvalidOperationException("MailJet:FromEmail not configured");
-                var fromName = _configuration["MailJet:FromName"] ?? "EntryPoint Timesheets";
+                var fromName = _configuration["MailJet:FromName"] ?? "PCF Timesheet App";
                 var hrEmail = _configuration["MailJet:HrEmail"]
                     ?? throw new InvalidOperationException("MailJet:HrEmail not configured");
 
@@ -290,7 +290,7 @@ namespace EntryPointApp.Api.Services.Email
             {
                 var fromEmail = _configuration["MailJet:FromEmail"]
                     ?? throw new InvalidOperationException("MailJet:FromEmail not configured");
-                var fromName = _configuration["MailJet:FromName"] ?? "EntryPoint App";
+                var fromName = _configuration["MailJet:FromName"] ?? "PCF Timesheet App";
 
                 _logger.LogInformation("Sending timesheet submission email to Manager: {ManagerEmail} for Employee: {EmployeeName}",
                     managerEmail, employeeName);
