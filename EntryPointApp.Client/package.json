@@ -44,7 +44,6 @@
     "@types/express": "^5.0.1",
     "@types/jasmine": "~5.1.0",
     "@types/node": "^20.17.19",
-    "baseline-browser-mapping": "^2.10.20",
     "daisyui": "^5.3.7",
     "jasmine-core": "~5.8.0",
     "karma": "~6.4.0",
