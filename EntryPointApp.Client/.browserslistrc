@@ -1,9 +1,11 @@
 # PCF Souvenirs — internal enterprise timesheet app
-# Targets the last 2 major versions of evergreen browsers only.
-last 2 Chrome versions
-last 2 ChromeAndroid versions
-last 2 Edge versions
-last 2 Firefox versions
-last 2 FirefoxAndroid versions
-last 2 Safari versions
-last 2 iOS versions
+# Matches Angular's own minimum browser floor (Chrome/Edge 107, Firefox 104, Safari/iOS 16).
+# Keeping the floor below CSS nesting support (Chrome 112) ensures Angular's build tool
+# un-nests DaisyUI 5's CSS output correctly rather than validating and dropping rules.
+Chrome >= 107
+ChromeAndroid >= 107
+Edge >= 107
+Firefox >= 104
+FirefoxAndroid >= 104
+Safari >= 16
+iOS >= 16
