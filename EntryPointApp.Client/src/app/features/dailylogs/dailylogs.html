@@ -111,7 +111,7 @@
             <tbody>
               @for (dailyLog of service.dailyLogs(); track dailyLog.id) {
                 <tr>
-                  <td>{{ dailyLog.date | date: "EEE, MMM d, y" }}</td>
+                  <td>{{ getDayKey(dailyLog.date) | translate }}, {{ getMonthKey(dailyLog.date) | translate }} {{ dailyLog.date | date: 'd' }}, {{ dailyLog.date | date: 'y' }}</td>
                   <td>
                     {{ dailyLog.timeIn.substring(0, 5) }} –
                     {{ dailyLog.timeOut.substring(0, 5) }} ({{

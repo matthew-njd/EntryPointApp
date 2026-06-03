@@ -140,7 +140,7 @@
                 <div class="flex justify-between items-center mb-3">
                   <div class="flex items-center gap-2">
                     <h3 class="font-semibold">
-                      {{ day.dayName }}, {{ day.date | date: "MMM d, y" }}
+                      {{ getDayKey(day.date) | translate }}, {{ getMonthKey(day.date) | translate }} {{ day.date | date: 'd' }}, {{ day.date | date: 'y' }}
                     </h3>
                     @if (day.isFuture) {
                       <span class="badge badge-ghost text-xs">{{ 'timesheet.futureDay' | translate }}</span>

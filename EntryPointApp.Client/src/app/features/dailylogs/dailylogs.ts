@@ -26,7 +26,6 @@ export class Dailylogs {
   private weeklyLogService = inject(WeeklyLogService);
   private toastService = inject(ToastService);
   private translateService = inject(TranslateService);
-
   private payrollScheduleService = inject(PayrollScheduleService);
 
   weeklyLogId = toSignal(this.route.paramMap);
@@ -114,5 +113,18 @@ export class Dailylogs {
 
   goBack() {
     this.router.navigate(['/dashboard']);
+  }
+
+  private readonly DAY_KEYS = ['days.sunday', 'days.monday', 'days.tuesday', 'days.wednesday', 'days.thursday', 'days.friday', 'days.saturday'];
+  private readonly MONTH_KEYS = ['months.january', 'months.february', 'months.march', 'months.april', 'months.may', 'months.june', 'months.july', 'months.august', 'months.september', 'months.october', 'months.november', 'months.december'];
+
+  getDayKey(dateStr: string): string {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    return this.DAY_KEYS[new Date(y, m - 1, d).getDay()];
+  }
+
+  getMonthKey(dateStr: string): string {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    return this.MONTH_KEYS[new Date(y, m - 1, d).getMonth()];
   }
 }

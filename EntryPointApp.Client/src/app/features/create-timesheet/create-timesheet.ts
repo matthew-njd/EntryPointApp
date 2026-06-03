@@ -27,7 +27,6 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { PayrollScheduleService } from '../../core/services/payroll-schedule.service';
 
 interface DayForm {
-  dayName: string;
   date: string;
   formGroup: FormGroup;
   pendingFiles: File[];
@@ -55,7 +54,6 @@ export class CreateTimesheet {
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
   private payrollScheduleService = inject(PayrollScheduleService);
-
   timesheetForm: FormGroup;
   isLoading = signal(false);
   submissionAttempted = signal(false);
@@ -161,16 +159,6 @@ export class CreateTimesheet {
     const forms: DayForm[] = [];
     const [y, m, d] = startDateStr.split('-').map(Number);
     const startDate = new Date(y, m - 1, d);
-    const dayNames = [
-      'Sunday',
-      'Monday',
-      'Tuesday',
-      'Wednesday',
-      'Thursday',
-      'Friday',
-      'Saturday',
-    ];
-
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -178,7 +166,6 @@ export class CreateTimesheet {
       const currentDate = new Date(startDate);
       currentDate.setDate(startDate.getDate() + i);
       const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
-      const dayName = dayNames[currentDate.getDay()];
       const isFuture = currentDate > today;
 
       const formGroup = this.fb.group({
@@ -199,7 +186,6 @@ export class CreateTimesheet {
       }
 
       const dayForm: DayForm = {
-        dayName,
         date: dateStr,
         formGroup,
         pendingFiles: [],
@@ -281,6 +267,19 @@ export class CreateTimesheet {
 
     formGroup.get('timeIn')?.valueChanges.subscribe(onTimeChange);
     formGroup.get('timeOut')?.valueChanges.subscribe(onTimeChange);
+  }
+
+  private readonly DAY_KEYS = ['days.sunday', 'days.monday', 'days.tuesday', 'days.wednesday', 'days.thursday', 'days.friday', 'days.saturday'];
+  private readonly MONTH_KEYS = ['months.january', 'months.february', 'months.march', 'months.april', 'months.may', 'months.june', 'months.july', 'months.august', 'months.september', 'months.october', 'months.november', 'months.december'];
+
+  getDayKey(dateStr: string): string {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    return this.DAY_KEYS[new Date(y, m - 1, d).getDay()];
+  }
+
+  getMonthKey(dateStr: string): string {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    return this.MONTH_KEYS[new Date(y, m - 1, d).getMonth()];
   }
 
   getDayErrors(day: DayForm): DayErrors {

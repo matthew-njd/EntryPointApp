@@ -23,7 +23,6 @@ export class AdminTimesheetDetail {
   private dailyLogService = inject(DailyLogService);
   private toastService = inject(ToastService);
   private translateService = inject(TranslateService);
-
   params = toSignal(this.route.paramMap);
   isLoading = signal(true);
   timesheet = signal<AdminTimesheetDetailResponse | null>(null);
@@ -89,5 +88,18 @@ export class AdminTimesheetDetail {
       case 'Draft': return 'badge-ghost';
       default: return '';
     }
+  }
+
+  private readonly DAY_KEYS = ['days.sunday', 'days.monday', 'days.tuesday', 'days.wednesday', 'days.thursday', 'days.friday', 'days.saturday'];
+  private readonly MONTH_KEYS = ['months.january', 'months.february', 'months.march', 'months.april', 'months.may', 'months.june', 'months.july', 'months.august', 'months.september', 'months.october', 'months.november', 'months.december'];
+
+  getDayKey(dateStr: string): string {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    return this.DAY_KEYS[new Date(y, m - 1, d).getDay()];
+  }
+
+  getMonthKey(dateStr: string): string {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    return this.MONTH_KEYS[new Date(y, m - 1, d).getMonth()];
   }
 }
