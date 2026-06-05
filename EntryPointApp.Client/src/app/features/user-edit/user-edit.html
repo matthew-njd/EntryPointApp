@@ -151,9 +151,9 @@
                   roleControl.invalid && roleControl.touched
                 "
               >
-                <option [value]="UserRole.User">User</option>
-                <option [value]="UserRole.Manager">Manager</option>
-                <option [value]="UserRole.Admin">Admin</option>
+                <option [ngValue]="UserRole.User">User</option>
+                <option [ngValue]="UserRole.Manager">Manager</option>
+                <option [ngValue]="UserRole.Admin">Admin</option>
               </select>
               @if (roleControl.invalid && roleControl.touched) {
                 <div class="text-error text-sm mt-1">
