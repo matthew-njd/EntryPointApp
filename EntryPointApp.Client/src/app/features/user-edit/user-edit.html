@@ -148,14 +148,14 @@
                 class="select select-bordered"
                 formControlName="role"
                 [class.select-error]="
-                  roleControl?.invalid && roleControl?.touched
+                  roleControl.invalid && roleControl.touched
                 "
               >
                 <option [value]="UserRole.User">User</option>
                 <option [value]="UserRole.Manager">Manager</option>
                 <option [value]="UserRole.Admin">Admin</option>
               </select>
-              @if (roleControl?.invalid && roleControl?.touched) {
+              @if (roleControl.invalid && roleControl.touched) {
                 <div class="text-error text-sm mt-1">
                   <span>{{ 'errors.roleRequired' | translate }}</span>
                 </div>
@@ -176,11 +176,11 @@
                   d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                 ></path>
               </svg>
-              <span>{{ getRoleDescription(roleControl?.value) | translate }}</span>
+              <span>{{ getRoleDescription(selectedRole()) | translate }}</span>
             </div>
           </fieldset>
 
-          @if (roleControl?.value === UserRole.User) {
+          @if (selectedRole() === UserRole.User) {
             <fieldset
               class="fieldset bg-base-200 border-base-300 rounded-box border p-6 mb-6"
             >
@@ -229,7 +229,7 @@
             </fieldset>
           }
 
-          @if (user()!.role === "User") {
+          @if (selectedRole() === UserRole.User) {
             <fieldset
               class="fieldset bg-base-200 border-base-300 rounded-box border p-6 mb-6 mt-6"
             >
@@ -249,11 +249,11 @@
                       class="input input-bordered"
                       formControlName="hourlyRate"
                       [class.input-error]="
-                        hourlyRateControl?.invalid && hourlyRateControl?.touched
+                        hourlyRateControl.invalid && hourlyRateControl.touched
                       "
                     />
                     @if (
-                      hourlyRateControl?.invalid && hourlyRateControl?.touched
+                      hourlyRateControl.invalid && hourlyRateControl.touched
                     ) {
                       <div class="text-error text-sm mt-1">
                         {{ 'errors.hourlyRateRequired' | translate }}
@@ -273,12 +273,12 @@
                       class="input input-bordered"
                       formControlName="mileageRate"
                       [class.input-error]="
-                        mileageRateControl?.invalid &&
-                        mileageRateControl?.touched
+                        mileageRateControl.invalid &&
+                        mileageRateControl.touched
                       "
                     />
                     @if (
-                      mileageRateControl?.invalid && mileageRateControl?.touched
+                      mileageRateControl.invalid && mileageRateControl.touched
                     ) {
                       <div class="text-error text-sm mt-1">
                         {{ 'errors.mileageRateRequired' | translate }}
@@ -295,13 +295,13 @@
                       class="input input-bordered"
                       formControlName="effectiveDate"
                       [class.input-error]="
-                        effectiveDateControl?.invalid &&
-                        effectiveDateControl?.touched
+                        effectiveDateControl.invalid &&
+                        effectiveDateControl.touched
                       "
                     />
                     @if (
-                      effectiveDateControl?.invalid &&
-                      effectiveDateControl?.touched
+                      effectiveDateControl.invalid &&
+                      effectiveDateControl.touched
                     ) {
                       <div class="text-error text-sm mt-1">
                         {{ 'errors.effectiveDateRequired' | translate }}

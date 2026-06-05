@@ -43,6 +43,7 @@ export class UserEdit {
   isSavingRate = signal(false);
   user = signal<UserDto | null>(null);
   rates = signal<UserRateDto[]>([]);
+  selectedRole = signal<UserRole>(UserRole.User);
 
   UserRole = UserRole;
   getRoleDisplayName = getRoleDisplayName;
@@ -113,6 +114,7 @@ export class UserEdit {
   }
 
   handleRoleChange(role: UserRole): void {
+    this.selectedRole.set(role);
     const managerIdControl = this.userForm.get('managerId');
 
     if (role === UserRole.User) {
@@ -289,23 +291,23 @@ export class UserEdit {
   }
 
   get roleControl() {
-    return this.userForm.get('role');
+    return this.userForm.get('role')!;
   }
 
   get managerIdControl() {
-    return this.userForm.get('managerId');
+    return this.userForm.get('managerId')!;
   }
 
   get hourlyRateControl() {
-    return this.rateForm.get('hourlyRate');
+    return this.rateForm.get('hourlyRate')!;
   }
 
   get mileageRateControl() {
-    return this.rateForm.get('mileageRate');
+    return this.rateForm.get('mileageRate')!;
   }
 
   get effectiveDateControl() {
-    return this.rateForm.get('effectiveDate');
+    return this.rateForm.get('effectiveDate')!;
   }
 
   getRoleDescription(role: UserRole): string {
