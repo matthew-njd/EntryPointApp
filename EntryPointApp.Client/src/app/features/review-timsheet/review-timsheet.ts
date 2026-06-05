@@ -202,7 +202,7 @@ export class ReviewTimsheet {
   }
 
   get reasonControl() {
-    return this.denyForm.get('reason');
+    return this.denyForm.get('reason')!;
   }
 
   private readonly DAY_KEYS = ['days.sunday', 'days.monday', 'days.tuesday', 'days.wednesday', 'days.thursday', 'days.friday', 'days.saturday'];

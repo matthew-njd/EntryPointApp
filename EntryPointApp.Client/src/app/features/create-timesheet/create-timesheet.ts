@@ -531,7 +531,7 @@ export class CreateTimesheet {
   }
 
   get dateFrom() {
-    return this.timesheetForm.get('dateFrom');
+    return this.timesheetForm.get('dateFrom')!;
   }
 
   private errorMessage(source: any, fallback: string): string {

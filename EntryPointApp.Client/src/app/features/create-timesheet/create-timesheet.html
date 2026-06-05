@@ -42,17 +42,17 @@
               formControlName="dateFrom"
               [min]="minDateStr"
               [max]="maxDateStr"
-              [class.input-error]="(dateFrom?.invalid && (dateFrom?.touched || !!dateFrom?.value)) || overlappingWeek() !== null"
+              [class.input-error]="(dateFrom.invalid && (dateFrom.touched || !!dateFrom.value)) || overlappingWeek() !== null"
             />
-            @if (dateFrom?.invalid && (dateFrom?.touched || !!dateFrom?.value)) {
+            @if (dateFrom.invalid && (dateFrom.touched || !!dateFrom.value)) {
               <div class="text-error text-sm mt-1">
-                @if (dateFrom?.errors?.['required']) {
+                @if (dateFrom.errors?.['required']) {
                   <span>{{ 'errors.startDateRequired' | translate }}</span>
-                } @else if (dateFrom?.errors?.['notMonday']) {
+                } @else if (dateFrom.errors?.['notMonday']) {
                   <span>{{ 'errors.weekMustStartMonday' | translate }}</span>
-                } @else if (dateFrom?.errors?.['futureWeek']) {
+                } @else if (dateFrom.errors?.['futureWeek']) {
                   <span>{{ 'errors.weekInFuture' | translate }}</span>
-                } @else if (dateFrom?.errors?.['tooFarPast']) {
+                } @else if (dateFrom.errors?.['tooFarPast']) {
                   <span>{{ 'errors.weekTooFarInPast' | translate }}</span>
                 }
               </div>

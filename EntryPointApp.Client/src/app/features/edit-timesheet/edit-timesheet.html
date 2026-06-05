@@ -174,10 +174,10 @@
                           (keydown)="blockNumericSpecialChars($event)"
                           (input)="onNumericInput($event, day.formGroup.get('mileage'))"
                         />
-                        @if ((day.formGroup.get('mileage')?.touched || submissionAttempted()) && day.formGroup.get('mileage')?.errors?.['min']) {
+                        @if ((day.formGroup.get('mileage')!.touched || submissionAttempted()) && day.formGroup.get('mileage')!.errors?.['min']) {
                           <p class="text-error text-xs mt-1">{{ 'errors.mustBePositive' | translate }}</p>
                         }
-                        @if ((day.formGroup.get('mileage')?.touched || submissionAttempted()) && day.formGroup.get('mileage')?.errors?.['max']) {
+                        @if ((day.formGroup.get('mileage')!.touched || submissionAttempted()) && day.formGroup.get('mileage')!.errors?.['max']) {
                           <p class="text-error text-xs mt-1">{{ 'errors.mileageMax' | translate }}</p>
                         }
                       </div>
@@ -197,10 +197,10 @@
                           (keydown)="blockNumericSpecialChars($event)"
                           (input)="onNumericInput($event, day.formGroup.get('tollCharge'))"
                         />
-                        @if ((day.formGroup.get('tollCharge')?.touched || submissionAttempted()) && day.formGroup.get('tollCharge')?.errors?.['min']) {
+                        @if ((day.formGroup.get('tollCharge')!.touched || submissionAttempted()) && day.formGroup.get('tollCharge')!.errors?.['min']) {
                           <p class="text-error text-xs mt-1">{{ 'errors.mustBePositive' | translate }}</p>
                         }
-                        @if ((day.formGroup.get('tollCharge')?.touched || submissionAttempted()) && day.formGroup.get('tollCharge')?.errors?.['max']) {
+                        @if ((day.formGroup.get('tollCharge')!.touched || submissionAttempted()) && day.formGroup.get('tollCharge')!.errors?.['max']) {
                           <p class="text-error text-xs mt-1">{{ 'errors.chargeMax' | translate }}</p>
                         }
                       </div>
@@ -220,10 +220,10 @@
                           (keydown)="blockNumericSpecialChars($event)"
                           (input)="onNumericInput($event, day.formGroup.get('parkingFee'))"
                         />
-                        @if ((day.formGroup.get('parkingFee')?.touched || submissionAttempted()) && day.formGroup.get('parkingFee')?.errors?.['min']) {
+                        @if ((day.formGroup.get('parkingFee')!.touched || submissionAttempted()) && day.formGroup.get('parkingFee')!.errors?.['min']) {
                           <p class="text-error text-xs mt-1">{{ 'errors.mustBePositive' | translate }}</p>
                         }
-                        @if ((day.formGroup.get('parkingFee')?.touched || submissionAttempted()) && day.formGroup.get('parkingFee')?.errors?.['max']) {
+                        @if ((day.formGroup.get('parkingFee')!.touched || submissionAttempted()) && day.formGroup.get('parkingFee')!.errors?.['max']) {
                           <p class="text-error text-xs mt-1">{{ 'errors.chargeMax' | translate }}</p>
                         }
                       </div>
@@ -243,10 +243,10 @@
                           (keydown)="blockNumericSpecialChars($event)"
                           (input)="onNumericInput($event, day.formGroup.get('otherCharges'))"
                         />
-                        @if ((day.formGroup.get('otherCharges')?.touched || submissionAttempted()) && day.formGroup.get('otherCharges')?.errors?.['min']) {
+                        @if ((day.formGroup.get('otherCharges')!.touched || submissionAttempted()) && day.formGroup.get('otherCharges')!.errors?.['min']) {
                           <p class="text-error text-xs mt-1">{{ 'errors.mustBePositive' | translate }}</p>
                         }
-                        @if ((day.formGroup.get('otherCharges')?.touched || submissionAttempted()) && day.formGroup.get('otherCharges')?.errors?.['max']) {
+                        @if ((day.formGroup.get('otherCharges')!.touched || submissionAttempted()) && day.formGroup.get('otherCharges')!.errors?.['max']) {
                           <p class="text-error text-xs mt-1">{{ 'errors.chargeMax' | translate }}</p>
                         }
                       </div>
@@ -267,12 +267,12 @@
                         ></textarea>
                         <div class="flex justify-end mt-1">
                           <span class="text-xs"
-                                [class.text-error]="(day.formGroup.get('comment')?.value?.length || 0) >= 500"
-                                [class.text-base-content]="(day.formGroup.get('comment')?.value?.length || 0) < 500">
-                            {{ day.formGroup.get('comment')?.value?.length || 0 }} / 500
+                                [class.text-error]="(day.formGroup.get('comment')!.value?.length || 0) >= 500"
+                                [class.text-base-content]="(day.formGroup.get('comment')!.value?.length || 0) < 500">
+                            {{ day.formGroup.get('comment')!.value?.length || 0 }} / 500
                           </span>
                         </div>
-                        @if ((day.formGroup.get('comment')?.touched || submissionAttempted()) && day.formGroup.get('comment')?.errors?.['maxlength']) {
+                        @if ((day.formGroup.get('comment')!.touched || submissionAttempted()) && day.formGroup.get('comment')!.errors?.['maxlength']) {
                           <p class="text-error text-xs mt-1">{{ 'errors.commentMaxLength' | translate }}</p>
                         }
                       </div>

@@ -40,7 +40,7 @@ export class ForgotPassword {
   }
 
   get email() {
-    return this.forgotPasswordForm.get('email');
+    return this.forgotPasswordForm.get('email')!;
   }
 
   onSubmit(): void {

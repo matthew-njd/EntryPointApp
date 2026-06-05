@@ -74,11 +74,11 @@ export class ResetPassword implements OnInit {
   }
 
   get newPassword() {
-    return this.resetPasswordForm.get('newPassword');
+    return this.resetPasswordForm.get('newPassword')!;
   }
 
   get confirmPassword() {
-    return this.resetPasswordForm.get('confirmPassword');
+    return this.resetPasswordForm.get('confirmPassword')!;
   }
 
   private passwordValidator(control: AbstractControl): ValidationErrors | null {

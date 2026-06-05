@@ -32,9 +32,9 @@
         class="input w-full"
         [placeholder]="'auth.register.firstNamePlaceholder' | translate"
         formControlName="firstName"
-        [class.input-error]="firstName?.invalid && firstName?.touched"
+        [class.input-error]="firstName.invalid && firstName.touched"
       />
-      @if (firstName?.invalid && firstName?.touched) {
+      @if (firstName.invalid && firstName.touched) {
         <div class="text-error text-sm mt-1">
           <span>{{ "errors.firstNameRequired" | translate }}</span>
         </div>
@@ -48,9 +48,9 @@
         class="input w-full"
         [placeholder]="'auth.register.lastNamePlaceholder' | translate"
         formControlName="lastName"
-        [class.input-error]="lastName?.invalid && lastName?.touched"
+        [class.input-error]="lastName.invalid && lastName.touched"
       />
-      @if (lastName?.invalid && lastName?.touched) {
+      @if (lastName.invalid && lastName.touched) {
         <div class="text-error text-sm mt-1">
           <span>{{ "errors.lastNameRequired" | translate }}</span>
         </div>
@@ -62,14 +62,14 @@
         class="input w-full"
         [placeholder]="'auth.register.emailPlaceholder' | translate"
         formControlName="email"
-        [class.input-error]="email?.invalid && email?.touched"
+        [class.input-error]="email.invalid && email.touched"
       />
-      @if (email?.invalid && email?.touched) {
+      @if (email.invalid && email.touched) {
         <div class="text-error text-sm mt-1">
-          @if (email?.errors?.["required"]) {
+          @if (email.errors?.["required"]) {
             <span>{{ "errors.emailRequired" | translate }}</span>
           }
-          @if (email?.errors?.["email"]) {
+          @if (email.errors?.["email"]) {
             <span>{{ "errors.emailInvalid" | translate }}</span>
           }
         </div>
@@ -84,7 +84,7 @@
           class="input w-full pr-10"
           [placeholder]="'auth.register.passwordPlaceholder' | translate"
           formControlName="password"
-          [class.input-error]="password?.invalid && password?.touched"
+          [class.input-error]="password.invalid && password.touched"
         />
         <button
           type="button"
@@ -129,15 +129,15 @@
           }
         </button>
       </div>
-      @if (password?.invalid && password?.touched) {
+      @if (password.invalid && password.touched) {
         <div class="text-error text-sm mt-1">
-          @if (password?.errors?.["required"]) {
+          @if (password.errors?.["required"]) {
             <span>{{ "errors.passwordRequired" | translate }} </span>
           }
-          @if (password?.errors?.["minlength"]) {
+          @if (password.errors?.["minlength"]) {
             <span>{{ "errors.passwordMinLength" | translate }} </span>
           }
-          @if (password?.errors?.["passwordStrength"]) {
+          @if (password.errors?.["passwordStrength"]) {
             <span>{{ "errors.passwordStrength" | translate }}</span>
           }
         </div>
@@ -153,9 +153,9 @@
           [placeholder]="'auth.register.confirmPasswordPlaceholder' | translate"
           formControlName="confirmPassword"
           [class.input-error]="
-            (confirmPassword?.invalid && confirmPassword?.touched) ||
+            (confirmPassword.invalid && confirmPassword.touched) ||
             (registerForm.errors?.['passwordMismatch'] &&
-              confirmPassword?.touched)
+              confirmPassword.touched)
           "
         />
         <button
@@ -201,14 +201,14 @@
           }
         </button>
       </div>
-      @if (confirmPassword?.touched) {
+      @if (confirmPassword.touched) {
         <div class="text-error text-sm mt-1">
-          @if (confirmPassword?.errors?.["required"]) {
+          @if (confirmPassword.errors?.["required"]) {
             <span>{{ "errors.confirmPasswordRequired" | translate }}</span>
           }
           @if (
             registerForm.errors?.["passwordMismatch"] &&
-            !confirmPassword?.errors?.["required"]
+            !confirmPassword.errors?.["required"]
           ) {
             <span>{{ "errors.passwordMismatch" | translate }}</span>
           }

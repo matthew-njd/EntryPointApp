@@ -14,14 +14,14 @@
         class="input w-full"
         [placeholder]="'auth.login.emailPlaceholder' | translate"
         formControlName="email"
-        [class.input-error]="email?.invalid && email?.touched"
+        [class.input-error]="email.invalid && email.touched"
       />
-      @if (email?.invalid && email?.touched) {
+      @if (email.invalid && email.touched) {
         <div class="text-error text-sm mt-1">
-          @if (email?.errors?.["required"]) {
+          @if (email.errors?.["required"]) {
             <span>{{ "errors.emailRequired" | translate }}</span>
           }
-          @if (email?.errors?.["email"]) {
+          @if (email.errors?.["email"]) {
             <span>{{ "errors.emailInvalid" | translate }}</span>
           }
         </div>
@@ -34,7 +34,7 @@
           class="input w-full pr-10"
           [placeholder]="'auth.login.passwordPlaceholder' | translate"
           formControlName="password"
-          [class.input-error]="password?.invalid && password?.touched"
+          [class.input-error]="password.invalid && password.touched"
         />
         <button
           type="button"
@@ -84,7 +84,7 @@
           "auth.login.forgotPassword" | translate
         }}</a>
       </div>
-      @if (password?.invalid && password?.touched) {
+      @if (password.invalid && password.touched) {
         <div class="text-error text-sm mt-1">
           <span>{{ "errors.passwordRequired" | translate }}</span>
         </div>

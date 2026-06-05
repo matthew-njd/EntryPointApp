@@ -238,16 +238,16 @@
                   [placeholder]="'reviewTimesheet.reasonPlaceholder' | translate"
                   maxlength="500"
                   [class.textarea-error]="
-                    reasonControl?.invalid && reasonControl?.touched
+                    reasonControl.invalid && reasonControl.touched
                   "
                 ></textarea>
-                @if (reasonControl?.invalid && reasonControl?.touched) {
+                @if (reasonControl.invalid && reasonControl.touched) {
                   <label class="label">
                     <span class="label-text-alt text-error">
-                      @if (reasonControl?.hasError("required")) {
+                      @if (reasonControl.hasError("required")) {
                         {{ 'errors.denyReasonRequired' | translate }}
                       }
-                      @if (reasonControl?.hasError("maxlength")) {
+                      @if (reasonControl.hasError("maxlength")) {
                         {{ 'errors.maxLength500' | translate }}
                       }
                     </span>
@@ -255,7 +255,7 @@
                 }
                 <label class="label">
                   <span class="label-text-alt text-base-content/60">
-                    {{ reasonControl?.value?.length || 0 }}/500 characters
+                    {{ reasonControl.value?.length || 0 }}/500 characters
                   </span>
                 </label>
               </div>
