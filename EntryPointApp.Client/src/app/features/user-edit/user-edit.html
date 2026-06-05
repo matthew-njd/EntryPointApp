@@ -20,7 +20,7 @@
               d="m7.825 13l4.9 4.9q.3.3.288.7t-.313.7q-.3.275-.7.288t-.7-.288l-6.6-6.6q-.15-.15-.213-.325T4.426 12t.063-.375t.212-.325l6.6-6.6q.275-.275.688-.275t.712.275q.3.3.3.713t-.3.712L7.825 11H19q.425 0 .713.288T20 12t-.288.713T19 13z"
             />
           </svg>
-          {{ 'userEdit.backToUsers' | translate }}
+          {{ "userEdit.backToUsers" | translate }}
         </button>
         <button class="btn btn-sm btn-outline" (click)="viewTimesheets()">
           <svg
@@ -34,24 +34,28 @@
               d="M8 17h8v-2H8zm0-4h8v-2H8zm-2 8q-.825 0-1.412-.587T4 19V5q0-.825.588-1.412T6 3h8l6 6v10q0 .825-.587 1.413T18 21zm7-11V5H6v14h12V10z"
             />
           </svg>
-          {{ 'userEdit.viewTimesheets' | translate }}
+          {{ "userEdit.viewTimesheets" | translate }}
         </button>
       </div>
 
       @if (user()) {
-        <h1 class="text-3xl mb-6">{{ 'userEdit.title' | translate }}</h1>
+        <h1 class="text-3xl mb-6">{{ "userEdit.title" | translate }}</h1>
 
         <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
           <fieldset
             class="fieldset bg-base-200 border-base-300 rounded-box border p-6 mb-6"
           >
-            <legend class="fieldset-legend">{{ 'userEdit.userInfo' | translate }}</legend>
+            <legend class="fieldset-legend">
+              {{ "userEdit.userInfo" | translate }}
+            </legend>
 
             <div class="space-y-4">
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label class="label">
-                    <span class="label-text font-semibold">{{ 'userEdit.name' | translate }}</span>
+                    <span class="label-text font-semibold">{{
+                      "userEdit.name" | translate
+                    }}</span>
                   </label>
                   <div class="text-base-content">
                     {{ getUserFullName(user()!) }}
@@ -60,7 +64,9 @@
 
                 <div>
                   <label class="label">
-                    <span class="label-text font-semibold">{{ 'userEdit.email' | translate }}</span>
+                    <span class="label-text font-semibold">{{
+                      "userEdit.email" | translate
+                    }}</span>
                   </label>
                   <div class="text-base-content">{{ user()!.email }}</div>
                 </div>
@@ -69,7 +75,9 @@
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label class="label">
-                    <span class="label-text font-semibold">{{ 'userEdit.status' | translate }}</span>
+                    <span class="label-text font-semibold">{{
+                      "userEdit.status" | translate
+                    }}</span>
                   </label>
                   <div>
                     <span
@@ -78,14 +86,19 @@
                         user()!.isActive ? 'badge-success' : 'badge-ghost'
                       "
                     >
-                      {{ (user()!.isActive ? 'admin.active' : 'admin.inactive') | translate }}
+                      {{
+                        (user()!.isActive ? "admin.active" : "admin.inactive")
+                          | translate
+                      }}
                     </span>
                   </div>
                 </div>
 
                 <div>
                   <label class="label">
-                    <span class="label-text font-semibold">{{ 'userEdit.currentRole' | translate }}</span>
+                    <span class="label-text font-semibold">{{
+                      "userEdit.currentRole" | translate
+                    }}</span>
                   </label>
                   <div>
                     <span
@@ -105,7 +118,9 @@
               @if (user()!.managerName) {
                 <div>
                   <label class="label">
-                    <span class="label-text font-semibold">{{ 'userEdit.currentManager' | translate }}</span>
+                    <span class="label-text font-semibold">{{
+                      "userEdit.currentManager" | translate
+                    }}</span>
                   </label>
                   <div class="text-base-content">
                     {{ user()!.managerName }}
@@ -116,7 +131,9 @@
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label class="label">
-                    <span class="label-text font-semibold">{{ 'userEdit.created' | translate }}</span>
+                    <span class="label-text font-semibold">{{
+                      "userEdit.created" | translate
+                    }}</span>
                   </label>
                   <div class="text-base-content text-sm">
                     {{ user()!.createdAt | date: "MMM d, y 'at' h:mm a" }}
@@ -125,7 +142,9 @@
 
                 <div>
                   <label class="label">
-                    <span class="label-text font-semibold">{{ 'userEdit.lastUpdated' | translate }}</span>
+                    <span class="label-text font-semibold">{{
+                      "userEdit.lastUpdated" | translate
+                    }}</span>
                   </label>
                   <div class="text-base-content text-sm">
                     {{ user()!.updatedAt | date: "MMM d, y 'at' h:mm a" }}
@@ -138,11 +157,15 @@
           <fieldset
             class="fieldset bg-base-200 border-base-300 rounded-box border p-6 mb-6"
           >
-            <legend class="fieldset-legend">{{ 'userEdit.roleManagement' | translate }}</legend>
+            <legend class="fieldset-legend">
+              {{ "userEdit.roleManagement" | translate }}
+            </legend>
 
             <div class="form-control mb-4">
               <label class="label mr-1">
-                <span class="label-text">{{ 'userEdit.selectRole' | translate }}</span>
+                <span class="label-text">{{
+                  "userEdit.selectRole" | translate
+                }}</span>
               </label>
               <select
                 class="select select-bordered"
@@ -157,7 +180,7 @@
               </select>
               @if (roleControl.invalid && roleControl.touched) {
                 <div class="text-error text-sm mt-1">
-                  <span>{{ 'errors.roleRequired' | translate }}</span>
+                  <span>{{ "errors.roleRequired" | translate }}</span>
                 </div>
               }
             </div>
@@ -184,18 +207,24 @@
             <fieldset
               class="fieldset bg-base-200 border-base-300 rounded-box border p-6 mb-6"
             >
-              <legend class="fieldset-legend">{{ 'userEdit.managerAssignment' | translate }}</legend>
+              <legend class="fieldset-legend">
+                {{ "userEdit.managerAssignment" | translate }}
+              </legend>
 
               @if (availableManagers().length > 0) {
                 <div class="form-control">
                   <label class="label mr-1">
-                    <span class="label-text">{{ 'userEdit.assignManager' | translate }}</span>
+                    <span class="label-text">{{
+                      "userEdit.assignManager" | translate
+                    }}</span>
                   </label>
                   <select
                     class="select select-bordered"
                     formControlName="managerId"
                   >
-                    <option [value]="null">{{ 'userEdit.noManagerAssigned' | translate }}</option>
+                    <option [value]="null">
+                      {{ "userEdit.noManagerAssigned" | translate }}
+                    </option>
                     @for (manager of availableManagers(); track manager.id) {
                       <option [value]="manager.id">
                         {{ getUserFullName(manager) }} ({{ manager.email }})
@@ -204,7 +233,7 @@
                   </select>
                   <label class="label">
                     <span class="label-text-alt text-base-content/60">
-                      {{ 'userEdit.mustAssignManager' | translate }}
+                      {{ "userEdit.mustAssignManager" | translate }}
                     </span>
                   </label>
                 </div>
@@ -223,7 +252,7 @@
                       d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
                     />
                   </svg>
-                  <span>{{ 'userEdit.noManagersAvailable' | translate }}</span>
+                  <span>{{ "userEdit.noManagersAvailable" | translate }}</span>
                 </div>
               }
             </fieldset>
@@ -233,13 +262,17 @@
             <fieldset
               class="fieldset bg-base-200 border-base-300 rounded-box border p-6 mb-6 mt-6"
             >
-              <legend class="fieldset-legend">{{ 'userEdit.rateManagement' | translate }}</legend>
+              <legend class="fieldset-legend">
+                {{ "userEdit.rateManagement" | translate }}
+              </legend>
 
               <form [formGroup]="rateForm" (ngSubmit)="onSubmitRate()">
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
                   <div class="form-control">
                     <label class="label">
-                      <span class="label-text">{{ 'userEdit.hourlyRate' | translate }}</span>
+                      <span class="label-text">{{
+                        "userEdit.hourlyRate" | translate
+                      }}</span>
                     </label>
                     <input
                       type="number"
@@ -256,14 +289,16 @@
                       hourlyRateControl.invalid && hourlyRateControl.touched
                     ) {
                       <div class="text-error text-sm mt-1">
-                        {{ 'errors.hourlyRateRequired' | translate }}
+                        {{ "errors.hourlyRateRequired" | translate }}
                       </div>
                     }
                   </div>
 
                   <div class="form-control">
                     <label class="label">
-                      <span class="label-text">{{ 'userEdit.mileageRate' | translate }}</span>
+                      <span class="label-text">{{
+                        "userEdit.mileageRate" | translate
+                      }}</span>
                     </label>
                     <input
                       type="number"
@@ -273,22 +308,23 @@
                       class="input input-bordered"
                       formControlName="mileageRate"
                       [class.input-error]="
-                        mileageRateControl.invalid &&
-                        mileageRateControl.touched
+                        mileageRateControl.invalid && mileageRateControl.touched
                       "
                     />
                     @if (
                       mileageRateControl.invalid && mileageRateControl.touched
                     ) {
                       <div class="text-error text-sm mt-1">
-                        {{ 'errors.mileageRateRequired' | translate }}
+                        {{ "errors.mileageRateRequired" | translate }}
                       </div>
                     }
                   </div>
 
                   <div class="form-control">
                     <label class="label">
-                      <span class="label-text">{{ 'userEdit.effectiveDate' | translate }}</span>
+                      <span class="label-text">{{
+                        "userEdit.effectiveDate" | translate
+                      }}</span>
                     </label>
                     <input
                       type="date"
@@ -304,7 +340,7 @@
                       effectiveDateControl.touched
                     ) {
                       <div class="text-error text-sm mt-1">
-                        {{ 'errors.effectiveDateRequired' | translate }}
+                        {{ "errors.effectiveDateRequired" | translate }}
                       </div>
                     }
                   </div>
@@ -317,9 +353,9 @@
                 >
                   @if (isSavingRate()) {
                     <span class="loading loading-spinner loading-sm"></span>
-                    {{ 'userEdit.savingRate' | translate }}
+                    {{ "userEdit.savingRate" | translate }}
                   } @else {
-                    {{ 'userEdit.addRate' | translate }}
+                    {{ "userEdit.addRate" | translate }}
                   }
                 </button>
               </form>
@@ -330,15 +366,19 @@
                     <span class="loading loading-spinner loading-md"></span>
                   </div>
                 } @else if (rates().length > 0) {
-                  <h3 class="font-semibold mb-2 text-sm">{{ 'userEdit.rateHistory' | translate }}</h3>
+                  <h3 class="font-semibold mb-2 text-sm">
+                    {{ "userEdit.rateHistory" | translate }}
+                  </h3>
                   <div class="overflow-x-auto rounded-box bg-base-300">
                     <table class="table table-sm">
                       <thead>
                         <tr>
-                          <th>{{ 'userEdit.tableEffectiveDate' | translate }}</th>
-                          <th>{{ 'userEdit.tableHourlyRate' | translate }}</th>
-                          <th>{{ 'userEdit.tableMileageRate' | translate }}</th>
-                          <th>{{ 'userEdit.tableAdded' | translate }}</th>
+                          <th>
+                            {{ "userEdit.tableEffectiveDate" | translate }}
+                          </th>
+                          <th>{{ "userEdit.tableHourlyRate" | translate }}</th>
+                          <th>{{ "userEdit.tableMileageRate" | translate }}</th>
+                          <th>{{ "userEdit.tableAdded" | translate }}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -361,7 +401,9 @@
                     </table>
                   </div>
                 } @else {
-                  <p class="text-base-content/50 text-sm">{{ 'userEdit.noRates' | translate }}</p>
+                  <p class="text-base-content/50 text-sm">
+                    {{ "userEdit.noRates" | translate }}
+                  </p>
                 }
               </div>
             </fieldset>
@@ -370,23 +412,23 @@
           <div class="flex gap-2">
             <button
               type="submit"
-              class="btn btn-neutral flex-1"
+              class="btn btn-success flex-1"
               [disabled]="isLoading() || userForm.invalid"
             >
               @if (isLoading()) {
                 <span class="loading loading-spinner loading-md"></span>
-                {{ 'userEdit.saving' | translate }}
+                {{ "userEdit.saving" | translate }}
               } @else {
-                {{ 'userEdit.saveChanges' | translate }}
+                {{ "userEdit.saveChanges" | translate }}
               }
             </button>
             <button
               type="button"
-              class="btn btn-ghost"
+              class="btn btn-outline text-error"
               (click)="goBack()"
               [disabled]="isLoading()"
             >
-              {{ 'userEdit.cancel' | translate }}
+              {{ "userEdit.cancel" | translate }}
             </button>
           </div>
         </form>
