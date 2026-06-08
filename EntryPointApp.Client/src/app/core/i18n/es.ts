@@ -153,7 +153,7 @@ export const ES = {
     confirmSubmitBody:
       'Esta hoja de registro de horas no se puede editar una vez enviada para aprobación.',
     confirmSubmitBtn: 'Confirmar',
-    confirmDraftTitle: 'Confirmar Guardar como borrador',
+    confirmDraftTitle: 'Guardar como borrador',
     confirmDraftBody:
       'Su progreso se guardará y podrá continuar editando esta hoja de registro de horas más tarde.',
     confirmDraftBtn: 'Guardar',
@@ -302,6 +302,14 @@ export const ES = {
     confirmDenial: 'Confirmar denegación',
     denying: 'Denegando hoja de tiempo...',
     cancel: 'Cancelar',
+    confirmApproveTitle: 'Aprobar hoja de tiempo',
+    confirmApproveBody:
+      '¿Está seguro de que desea aprobar la hoja de tiempo de {{name}}?',
+    confirmApproveBtn: 'Aprobar',
+    confirmDenyTitle: 'Denegar hoja de tiempo',
+    confirmDenyBody:
+      '¿Está seguro de que desea denegar esta hoja de tiempo? El empleado será notificado.',
+    confirmDenyBtn: 'Denegar',
   },
   adminTimesheetDetail: {
     backToTimesheets: 'Volver a hojas de tiempo',

@@ -149,7 +149,7 @@ export const EN = {
     confirmSubmitBody:
       "This timesheet can't be edited once it's been submitted for approval.",
     confirmSubmitBtn: 'Confirm',
-    confirmDraftTitle: 'Confirm Save as Draft',
+    confirmDraftTitle: 'Save as Draft',
     confirmDraftBody:
       'Your progress will be saved and you can continue editing this timesheet later.',
     confirmDraftBtn: 'Save',
@@ -297,6 +297,14 @@ export const EN = {
     confirmDenial: 'Confirm Denial',
     denying: 'Denying Timesheet...',
     cancel: 'Cancel',
+    confirmApproveTitle: 'Approve Timesheet',
+    confirmApproveBody:
+      'Are you sure you want to approve the timesheet for {{name}}?',
+    confirmApproveBtn: 'Approve',
+    confirmDenyTitle: 'Deny Timesheet',
+    confirmDenyBody:
+      'Are you sure you want to deny this timesheet? The employee will be notified.',
+    confirmDenyBtn: 'Deny',
   },
   adminTimesheetDetail: {
     backToTimesheets: 'Back to Timesheets',

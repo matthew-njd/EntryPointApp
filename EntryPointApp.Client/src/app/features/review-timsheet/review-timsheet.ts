@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ManagerService } from '../../core/services/manager.service';
 import { DailyLogService } from '../../core/services/dailylog.service';
@@ -17,12 +17,13 @@ import {
 } from '../../core/models/manager.model';
 import { Footer } from '../../shared/footer/footer';
 import { Nav } from '../../shared/nav/nav';
+import { Modal } from '../../shared/modal/modal';
 import { CommonModule } from '@angular/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-review-timsheet',
-  imports: [CommonModule, ReactiveFormsModule, Footer, Nav, TranslatePipe],
+  imports: [CommonModule, ReactiveFormsModule, Footer, Nav, Modal, TranslatePipe],
   templateUrl: './review-timsheet.html',
   styleUrl: './review-timsheet.css',
 })
@@ -39,6 +40,8 @@ export class ReviewTimsheet {
   isSubmitting = signal(false);
   timesheet = signal<TeamTimesheetDetailResponse | null>(null);
   showDenyForm = signal(false);
+  approveModal = viewChild<Modal>('approveModal');
+  denyModal = viewChild<Modal>('denyModal');
 
   denyForm: FormGroup;
 
@@ -91,14 +94,12 @@ export class ReviewTimsheet {
       this.toastService.error(this.translateService.instant('toast.onlyPendingApprovable'));
       return;
     }
+    this.approveModal()?.open();
+  }
 
-    if (
-      !confirm(
-        `Approve timesheet for ${ts.userFullName} (${ts.totalHours} hours)?`,
-      )
-    ) {
-      return;
-    }
+  onApproveConfirmed(): void {
+    const ts = this.timesheet();
+    if (!ts) return;
 
     this.isSubmitting.set(true);
 
@@ -139,7 +140,10 @@ export class ReviewTimsheet {
       this.denyForm.markAllAsTouched();
       return;
     }
+    this.denyModal()?.open();
+  }
 
+  onDenyConfirmed(): void {
     const ts = this.timesheet();
     if (!ts) return;
 
