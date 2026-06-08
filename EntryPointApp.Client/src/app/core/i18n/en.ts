@@ -145,6 +145,14 @@ export const EN = {
     submittingForApproval: 'Submitting for Approval...',
     createTimesheet: 'Create Timesheet',
     saveDraft: 'Save Draft',
+    confirmSubmitTitle: 'Submit Timesheet',
+    confirmSubmitBody:
+      "This timesheet can't be edited once it's been submitted for approval.",
+    confirmSubmitBtn: 'Confirm',
+    confirmDraftTitle: 'Save as Draft',
+    confirmDraftBody:
+      'Your progress will be saved and you can continue editing this timesheet later.',
+    confirmDraftBtn: 'Save',
     creating: 'Creating...',
     saveChanges: 'Save Changes',
     saving: 'Saving...',

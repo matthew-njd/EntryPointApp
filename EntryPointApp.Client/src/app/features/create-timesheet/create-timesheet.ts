@@ -4,6 +4,7 @@ import {
   computed,
   inject,
   signal,
+  viewChild,
 } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import {
@@ -23,6 +24,7 @@ import { DailyLogRequest } from '../../core/models/dailylog.model';
 import { ToastService } from '../../core/services/toast.service';
 import { Footer } from '../../shared/footer/footer';
 import { Nav } from '../../shared/nav/nav';
+import { Modal } from '../../shared/modal/modal';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { PayrollScheduleService } from '../../core/services/payroll-schedule.service';
 
@@ -41,7 +43,15 @@ interface DayErrors {
 
 @Component({
   selector: 'app-create-timesheet',
-  imports: [CommonModule, DatePipe, ReactiveFormsModule, Footer, Nav, TranslatePipe],
+  imports: [
+    CommonModule,
+    DatePipe,
+    ReactiveFormsModule,
+    Footer,
+    Nav,
+    Modal,
+    TranslatePipe,
+  ],
   templateUrl: './create-timesheet.html',
   styleUrl: './create-timesheet.css',
 })
@@ -54,6 +64,7 @@ export class CreateTimesheet {
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
   private payrollScheduleService = inject(PayrollScheduleService);
+  private submissionConfirmed = false;
   timesheetForm: FormGroup;
   isLoading = signal(false);
   submissionAttempted = signal(false);
@@ -63,6 +74,7 @@ export class CreateTimesheet {
   formChangeTrigger = signal(0);
   existingWeeks = signal<{ dateFrom: string; dateTo: string }[]>([]);
   overlappingWeek = signal<{ dateFrom: string; dateTo: string } | null>(null);
+  confirmModal = viewChild<Modal>('confirmModal');
 
   readonly maxDateStr: string = (() => {
     const today = new Date();
@@ -84,7 +96,10 @@ export class CreateTimesheet {
     this.formChangeTrigger();
     return this.dayForms().filter((day) => {
       const values = day.formGroup.getRawValue();
-      return (values.timeIn && values.timeOut) || values.comment?.toLowerCase() === 'day off';
+      return (
+        (values.timeIn && values.timeOut) ||
+        values.comment?.toLowerCase() === 'day off'
+      );
     }).length;
   });
 
@@ -94,9 +109,13 @@ export class CreateTimesheet {
 
   hasAnyDayErrors = computed(() => {
     this.formChangeTrigger();
-    return this.dayForms().some(day => {
+    return this.dayForms().some((day) => {
       const e = this.getDayErrors(day);
-      return e.timeInError !== null || e.timeOutError !== null || day.formGroup.invalid;
+      return (
+        e.timeInError !== null ||
+        e.timeOutError !== null ||
+        day.formGroup.invalid
+      );
     });
   });
 
@@ -109,7 +128,10 @@ export class CreateTimesheet {
       next: (response) => {
         if (response.success && response.data) {
           this.existingWeeks.set(
-            response.data.data.map(w => ({ dateFrom: w.dateFrom, dateTo: w.dateTo }))
+            response.data.data.map((w) => ({
+              dateFrom: w.dateFrom,
+              dateTo: w.dateTo,
+            })),
           );
         }
       },
@@ -130,15 +152,18 @@ export class CreateTimesheet {
           this.dayForms.set([]);
           this.payrollDate.set(null);
         } else {
-          const overlap = this.existingWeeks().find(w =>
-            dateFrom <= w.dateTo && dateTo >= w.dateFrom
-          ) ?? null;
+          const overlap =
+            this.existingWeeks().find(
+              (w) => dateFrom <= w.dateTo && dateTo >= w.dateFrom,
+            ) ?? null;
           this.overlappingWeek.set(overlap);
 
           if (!overlap) {
             this.generateDayForms(dateFrom);
             this.payrollScheduleService.lookup(dateFrom).subscribe({
-              next: (res) => { this.payrollDate.set(res.data?.payrollDate ?? null); },
+              next: (res) => {
+                this.payrollDate.set(res.data?.payrollDate ?? null);
+              },
               error: () => {},
             });
           } else {
@@ -172,10 +197,22 @@ export class CreateTimesheet {
         isDayOff: [false],
         timeIn: [''],
         timeOut: [''],
-        mileage: [{ value: 0, disabled: true }, [Validators.min(0), Validators.max(500)]],
-        tollCharge: [{ value: 0, disabled: true }, [Validators.min(0), Validators.max(999.99)]],
-        parkingFee: [{ value: 0, disabled: true }, [Validators.min(0), Validators.max(999.99)]],
-        otherCharges: [{ value: 0, disabled: true }, [Validators.min(0), Validators.max(999.99)]],
+        mileage: [
+          { value: 0, disabled: true },
+          [Validators.min(0), Validators.max(500)],
+        ],
+        tollCharge: [
+          { value: 0, disabled: true },
+          [Validators.min(0), Validators.max(999.99)],
+        ],
+        parkingFee: [
+          { value: 0, disabled: true },
+          [Validators.min(0), Validators.max(999.99)],
+        ],
+        otherCharges: [
+          { value: 0, disabled: true },
+          [Validators.min(0), Validators.max(999.99)],
+        ],
         comment: [{ value: '', disabled: true }, [Validators.maxLength(500)]],
       });
 
@@ -254,10 +291,12 @@ export class CreateTimesheet {
         formGroup.get('comment')?.enable();
         day.canAddReceipt = true;
       } else {
-        ['mileage', 'tollCharge', 'parkingFee', 'otherCharges'].forEach((field) => {
-          formGroup.get(field)?.setValue(0);
-          formGroup.get(field)?.disable();
-        });
+        ['mileage', 'tollCharge', 'parkingFee', 'otherCharges'].forEach(
+          (field) => {
+            formGroup.get(field)?.setValue(0);
+            formGroup.get(field)?.disable();
+          },
+        );
         formGroup.get('comment')?.setValue('');
         formGroup.get('comment')?.disable();
         day.canAddReceipt = false;
@@ -269,8 +308,29 @@ export class CreateTimesheet {
     formGroup.get('timeOut')?.valueChanges.subscribe(onTimeChange);
   }
 
-  private readonly DAY_KEYS = ['days.sunday', 'days.monday', 'days.tuesday', 'days.wednesday', 'days.thursday', 'days.friday', 'days.saturday'];
-  private readonly MONTH_KEYS = ['months.january', 'months.february', 'months.march', 'months.april', 'months.may', 'months.june', 'months.july', 'months.august', 'months.september', 'months.october', 'months.november', 'months.december'];
+  private readonly DAY_KEYS = [
+    'days.sunday',
+    'days.monday',
+    'days.tuesday',
+    'days.wednesday',
+    'days.thursday',
+    'days.friday',
+    'days.saturday',
+  ];
+  private readonly MONTH_KEYS = [
+    'months.january',
+    'months.february',
+    'months.march',
+    'months.april',
+    'months.may',
+    'months.june',
+    'months.july',
+    'months.august',
+    'months.september',
+    'months.october',
+    'months.november',
+    'months.december',
+  ];
 
   getDayKey(dateStr: string): string {
     const [y, m, d] = dateStr.split('-').map(Number);
@@ -305,15 +365,17 @@ export class CreateTimesheet {
   }
 
   shouldShowDayErrors(day: DayForm): boolean {
-    return this.submissionAttempted() ||
-      !!(day.formGroup.get('timeIn')?.touched) ||
-      !!(day.formGroup.get('timeOut')?.touched) ||
-      day.formGroup.dirty;
+    return (
+      this.submissionAttempted() ||
+      !!day.formGroup.get('timeIn')?.touched ||
+      !!day.formGroup.get('timeOut')?.touched ||
+      day.formGroup.dirty
+    );
   }
 
   onSubmit(): void {
     this.submissionAttempted.set(true);
-    this.dayForms().forEach(day => day.formGroup.markAllAsTouched());
+    this.dayForms().forEach((day) => day.formGroup.markAllAsTouched());
 
     if (this.timesheetForm.invalid) {
       this.timesheetForm.markAllAsTouched();
@@ -325,13 +387,19 @@ export class CreateTimesheet {
     }
 
     if (this.hasAnyDayErrors()) {
-      const errorCount = this.dayForms().filter(day => {
+      const errorCount = this.dayForms().filter((day) => {
         if (day.isFuture) return false;
         const e = this.getDayErrors(day);
-        return e.timeInError !== null || e.timeOutError !== null || day.formGroup.invalid;
+        return (
+          e.timeInError !== null ||
+          e.timeOutError !== null ||
+          day.formGroup.invalid
+        );
       }).length;
       this.toastService.error(
-        this.translateService.instant('toast.dayErrorsOnSubmit', { count: errorCount })
+        this.translateService.instant('toast.dayErrorsOnSubmit', {
+          count: errorCount,
+        }),
       );
       return;
     }
@@ -347,21 +415,41 @@ export class CreateTimesheet {
         const isDayOff = day.formGroup.get('isDayOff')?.value;
         return {
           date: day.date,
-          timeIn: isDayOff ? '00:00' : day.formGroup.get('timeIn')?.value || '00:00',
-          timeOut: isDayOff ? '00:00' : day.formGroup.get('timeOut')?.value || '00:00',
+          timeIn: isDayOff
+            ? '00:00'
+            : day.formGroup.get('timeIn')?.value || '00:00',
+          timeOut: isDayOff
+            ? '00:00'
+            : day.formGroup.get('timeOut')?.value || '00:00',
           mileage: isDayOff ? 0 : day.formGroup.get('mileage')?.value || 0,
-          tollCharge: isDayOff ? 0 : day.formGroup.get('tollCharge')?.value || 0,
-          parkingFee: isDayOff ? 0 : day.formGroup.get('parkingFee')?.value || 0,
-          otherCharges: isDayOff ? 0 : day.formGroup.get('otherCharges')?.value || 0,
-          comment: isDayOff ? 'Day off' : day.formGroup.get('comment')?.value || '',
+          tollCharge: isDayOff
+            ? 0
+            : day.formGroup.get('tollCharge')?.value || 0,
+          parkingFee: isDayOff
+            ? 0
+            : day.formGroup.get('parkingFee')?.value || 0,
+          otherCharges: isDayOff
+            ? 0
+            : day.formGroup.get('otherCharges')?.value || 0,
+          comment: isDayOff
+            ? 'Day off'
+            : day.formGroup.get('comment')?.value || '',
         };
       });
 
     if (dailyLogRequests.length === 0) {
-      this.toastService.error(this.translateService.instant('toast.atLeastOneDayRequired'));
+      this.toastService.error(
+        this.translateService.instant('toast.atLeastOneDayRequired'),
+      );
       return;
     }
 
+    if (!this.submissionConfirmed) {
+      this.confirmModal()?.open();
+      return;
+    }
+
+    this.submissionConfirmed = false;
     this.isLoading.set(true);
     this.cdr.detectChanges();
 
@@ -382,9 +470,15 @@ export class CreateTimesheet {
                 if (dailyLogResponse.success && dailyLogResponse.data) {
                   const createdLogs = dailyLogResponse.data;
                   const uploadTasks = createdLogs.flatMap((createdLog) => {
-                    const dayForm = this.dayForms().find((d) => d.date === createdLog.date);
+                    const dayForm = this.dayForms().find(
+                      (d) => d.date === createdLog.date,
+                    );
                     return (dayForm?.pendingFiles ?? []).map((file) =>
-                      this.dailyLogService.uploadReceipt(weeklyLogId, createdLog.id, file)
+                      this.dailyLogService.uploadReceipt(
+                        weeklyLogId,
+                        createdLog.id,
+                        file,
+                      ),
                     );
                   });
 
@@ -402,7 +496,11 @@ export class CreateTimesheet {
                       error: () => {
                         this.isLoading.set(false);
                         this.toastService.success(dailyLogResponse.message);
-                        this.toastService.error(this.translateService.instant('toast.receiptUploadFailed'));
+                        this.toastService.error(
+                          this.translateService.instant(
+                            'toast.receiptUploadFailed',
+                          ),
+                        );
                         this.router.navigate(['/dashboard/week', weeklyLogId]);
                       },
                     });
@@ -410,7 +508,12 @@ export class CreateTimesheet {
                 } else {
                   this.isLoading.set(false);
                   this.toastService.error(
-                    this.errorMessage(dailyLogResponse, this.translateService.instant('toast.failedSaveDailyLogs'))
+                    this.errorMessage(
+                      dailyLogResponse,
+                      this.translateService.instant(
+                        'toast.failedSaveDailyLogs',
+                      ),
+                    ),
                   );
                 }
               },
@@ -418,14 +521,20 @@ export class CreateTimesheet {
                 this.isLoading.set(false);
                 this.cdr.detectChanges();
                 this.toastService.error(
-                  this.errorMessage(error.error, this.translateService.instant('toast.failedSaveDailyLogs'))
+                  this.errorMessage(
+                    error.error,
+                    this.translateService.instant('toast.failedSaveDailyLogs'),
+                  ),
                 );
               },
             });
         } else {
           this.isLoading.set(false);
           this.toastService.error(
-            this.errorMessage(weeklyLogResponse, this.translateService.instant('toast.failedCreateTimesheet'))
+            this.errorMessage(
+              weeklyLogResponse,
+              this.translateService.instant('toast.failedCreateTimesheet'),
+            ),
           );
         }
       },
@@ -433,10 +542,18 @@ export class CreateTimesheet {
         this.isLoading.set(false);
         this.cdr.detectChanges();
         this.toastService.error(
-          this.errorMessage(error.error, this.translateService.instant('toast.failedCreateTimesheet'))
+          this.errorMessage(
+            error.error,
+            this.translateService.instant('toast.failedCreateTimesheet'),
+          ),
         );
       },
     });
+  }
+
+  onSubmitConfirmed(): void {
+    this.submissionConfirmed = true;
+    this.onSubmit();
   }
 
   onFileSelected(day: DayForm, event: Event): void {
@@ -444,14 +561,23 @@ export class CreateTimesheet {
     const file = input.files?.[0];
     if (!file) return;
 
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+    const allowedTypes = [
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'application/pdf',
+    ];
     if (!allowedTypes.includes(file.type)) {
-      this.toastService.error(this.translateService.instant('toast.invalidFileType'));
+      this.toastService.error(
+        this.translateService.instant('toast.invalidFileType'),
+      );
       input.value = '';
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
-      this.toastService.error(this.translateService.instant('toast.fileTooLarge'));
+      this.toastService.error(
+        this.translateService.instant('toast.fileTooLarge'),
+      );
       input.value = '';
       return;
     }
@@ -478,7 +604,9 @@ export class CreateTimesheet {
     let value = raw.replace(/[^\d.]/g, '');
     const dotIndex = value.indexOf('.');
     if (dotIndex !== -1) {
-      value = value.substring(0, dotIndex + 1) + value.substring(dotIndex + 1).replace(/\./g, '');
+      value =
+        value.substring(0, dotIndex + 1) +
+        value.substring(dotIndex + 1).replace(/\./g, '');
     }
     const finalDot = value.indexOf('.');
     if (finalDot !== -1 && value.length - finalDot - 1 > 2) {

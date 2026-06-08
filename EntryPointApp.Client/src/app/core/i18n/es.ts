@@ -149,6 +149,14 @@ export const ES = {
     submittingForApproval: 'Enviando para aprobación...',
     createTimesheet: 'Crear hoja de tiempo',
     saveDraft: 'Guardar borrador',
+    confirmSubmitTitle: 'Enviar hoja de tiempo',
+    confirmSubmitBody:
+      'Esta hoja de tiempo no se puede editar una vez enviada para aprobación.',
+    confirmSubmitBtn: 'Confirmar',
+    confirmDraftTitle: 'Guardar como borrador',
+    confirmDraftBody:
+      'Su progreso se guardará y podrá continuar editando esta hoja de tiempo más tarde.',
+    confirmDraftBtn: 'Guardar',
     creating: 'Creando...',
     saveChanges: 'Guardar cambios',
     saving: 'Guardando...',

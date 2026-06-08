@@ -1,1 +1,17 @@
-<p>modal works!</p>
+<dialog #dialog class="modal" (close)="onDialogClose()">
+  <div class="modal-box">
+    <h3 [class]="titleClass">{{ title }}</h3>
+    <p [class]="bodyClass">{{ body }}</p>
+    <div class="modal-action">
+      <button [class]="cancelClass" (click)="onCancel()">
+        {{ cancelLabel }}
+      </button>
+      <button [class]="confirmClass" (click)="onConfirm()">
+        {{ confirmLabel }}
+      </button>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button>close</button>
+  </form>
+</dialog>
