@@ -60,7 +60,10 @@ namespace EntryPointApp.Api.Controllers
 
                 if (!request.StartDate.HasValue && !request.EndDate.HasValue)
                 {
-                    request.EndDate = DateOnly.FromDateTime(DateTime.Now);
+                    var today = DateOnly.FromDateTime(DateTime.Now);
+                    // Use end of current week so in-progress drafts are always visible
+                    int daysUntilSunday = ((int)DayOfWeek.Sunday - (int)today.DayOfWeek + 7) % 7;
+                    request.EndDate = today.AddDays(daysUntilSunday == 0 ? 0 : daysUntilSunday);
                     request.StartDate = request.EndDate.Value.AddMonths(-12);
 
                     _logger.LogInformation("Applied default date range for user {UserId}: {StartDate} to {EndDate}",
