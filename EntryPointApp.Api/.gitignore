@@ -8,6 +8,9 @@
 *.sqlite
 *.sqlite3
 
+# uploaded receipt files
+Files/
+
 # dotenv files
 .env
 
