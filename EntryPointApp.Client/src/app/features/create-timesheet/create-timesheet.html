@@ -42,6 +42,7 @@
               formControlName="dateFrom"
               [min]="minDateStr"
               [max]="maxDateStr"
+              step="7"
               [class.input-error]="
                 (dateFrom.invalid && (dateFrom.touched || !!dateFrom.value)) ||
                 overlappingWeek() !== null

@@ -113,6 +113,9 @@ export class CreateTimesheet {
   readonly minDateStr: string = (() => {
     const cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - 56);
+    cutoff.setHours(0, 0, 0, 0);
+    const day = cutoff.getDay();
+    cutoff.setDate(cutoff.getDate() + (8 - day) % 7);
     return `${cutoff.getFullYear()}-${String(cutoff.getMonth() + 1).padStart(2, '0')}-${String(cutoff.getDate()).padStart(2, '0')}`;
   })();
 
