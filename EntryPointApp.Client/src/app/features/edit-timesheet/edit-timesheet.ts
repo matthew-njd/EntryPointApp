@@ -5,6 +5,7 @@ import {
   signal,
   effect,
   computed,
+  viewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -28,6 +29,7 @@ import {
 import { ToastService } from '../../core/services/toast.service';
 import { Footer } from '../../shared/footer/footer';
 import { Nav } from '../../shared/nav/nav';
+import { Modal } from '../../shared/modal/modal';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { PayrollScheduleService } from '../../core/services/payroll-schedule.service';
 
@@ -49,7 +51,14 @@ interface DayErrors {
 
 @Component({
   selector: 'app-edit-timesheet',
-  imports: [CommonModule, ReactiveFormsModule, Footer, Nav, TranslatePipe],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    Footer,
+    Nav,
+    Modal,
+    TranslatePipe,
+  ],
   templateUrl: './edit-timesheet.html',
   styleUrl: './edit-timesheet.css',
 })
@@ -63,6 +72,7 @@ export class EditTimesheet {
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
   private payrollScheduleService = inject(PayrollScheduleService);
+  private submissionConfirmed = false;
   timesheetForm: FormGroup;
   weeklyLogId = toSignal(this.route.paramMap);
   isLoading = signal(false);
@@ -72,12 +82,16 @@ export class EditTimesheet {
   payrollDate = signal<string | null>(null);
   dayForms = signal<DayForm[]>([]);
   formChangeTrigger = signal(0);
+  confirmModal = viewChild<Modal>('confirmModal');
 
   filledDaysCount = computed(() => {
     this.formChangeTrigger();
     return this.dayForms().filter((day) => {
       const values = day.formGroup.getRawValue();
-      return (values.timeIn && values.timeOut) || values.comment?.toLowerCase() === 'day off';
+      return (
+        (values.timeIn && values.timeOut) ||
+        values.comment?.toLowerCase() === 'day off'
+      );
     }).length;
   });
 
@@ -87,9 +101,13 @@ export class EditTimesheet {
 
   hasAnyDayErrors = computed(() => {
     this.formChangeTrigger();
-    return this.dayForms().some(day => {
+    return this.dayForms().some((day) => {
       const e = this.getDayErrors(day);
-      return e.timeInError !== null || e.timeOutError !== null || day.formGroup.invalid;
+      return (
+        e.timeInError !== null ||
+        e.timeOutError !== null ||
+        day.formGroup.invalid
+      );
     });
   });
 
@@ -114,12 +132,16 @@ export class EditTimesheet {
           this.weeklyLog.set(weeklyLog);
 
           this.payrollScheduleService.lookup(weeklyLog.dateFrom).subscribe({
-            next: (res) => { this.payrollDate.set(res.data?.payrollDate ?? null); },
+            next: (res) => {
+              this.payrollDate.set(res.data?.payrollDate ?? null);
+            },
             error: () => {},
           });
 
           if (weeklyLog.status !== 'Draft') {
-            this.toastService.error(this.translateService.instant('toast.onlyDraftEditable'));
+            this.toastService.error(
+              this.translateService.instant('toast.onlyDraftEditable'),
+            );
             this.router.navigate(['/dashboard/week', weeklyLogId]);
             return;
           }
@@ -131,13 +153,16 @@ export class EditTimesheet {
             this.isLoadingData.set(false);
           }, 500);
         } else {
-          this.toastService.error(this.translateService.instant('toast.failedLoadTimesheet'));
+          this.toastService.error(
+            this.translateService.instant('toast.failedLoadTimesheet'),
+          );
           this.router.navigate(['/dashboard']);
         }
       },
       error: (error) => {
         this.toastService.error(
-          error.error?.message || this.translateService.instant('toast.failedLoadTimesheet'),
+          error.error?.message ||
+            this.translateService.instant('toast.failedLoadTimesheet'),
         );
         this.router.navigate(['/dashboard']);
       },
@@ -175,12 +200,27 @@ export class EditTimesheet {
         existingLog.timeOut === '00:00:00' &&
         !isDayOff;
 
-      const hasRealTimes = !!existingLog && !isEmptyTime && !isDayOff && !isFuture;
+      const hasRealTimes =
+        !!existingLog && !isEmptyTime && !isDayOff && !isFuture;
 
       const formGroup = this.fb.group({
         isDayOff: [isDayOff],
-        timeIn: [{ value: isEmptyTime ? '' : (existingLog?.timeIn?.substring(0, 5) ?? ''), disabled: isDayOff || isFuture }],
-        timeOut: [{ value: isEmptyTime ? '' : (existingLog?.timeOut?.substring(0, 5) ?? ''), disabled: isDayOff || isFuture }],
+        timeIn: [
+          {
+            value: isEmptyTime
+              ? ''
+              : (existingLog?.timeIn?.substring(0, 5) ?? ''),
+            disabled: isDayOff || isFuture,
+          },
+        ],
+        timeOut: [
+          {
+            value: isEmptyTime
+              ? ''
+              : (existingLog?.timeOut?.substring(0, 5) ?? ''),
+            disabled: isDayOff || isFuture,
+          },
+        ],
         mileage: [
           { value: existingLog?.mileage || 0, disabled: !hasRealTimes },
           [Validators.min(0), Validators.max(500)],
@@ -221,9 +261,11 @@ export class EditTimesheet {
       const lastForm = forms[forms.length - 1];
 
       if (!isFuture) {
-        lastForm.formGroup.get('isDayOff')?.valueChanges.subscribe((isDayOff) => {
-          this.handleDayOffChange(lastForm, isDayOff ?? false);
-        });
+        lastForm.formGroup
+          .get('isDayOff')
+          ?.valueChanges.subscribe((isDayOff) => {
+            this.handleDayOffChange(lastForm, isDayOff ?? false);
+          });
 
         this.subscribeToTimeChanges(lastForm);
       }
@@ -280,10 +322,12 @@ export class EditTimesheet {
         formGroup.get('comment')?.enable();
         day.canAddReceipt = true;
       } else {
-        ['mileage', 'tollCharge', 'parkingFee', 'otherCharges'].forEach((field) => {
-          formGroup.get(field)?.setValue(0);
-          formGroup.get(field)?.disable();
-        });
+        ['mileage', 'tollCharge', 'parkingFee', 'otherCharges'].forEach(
+          (field) => {
+            formGroup.get(field)?.setValue(0);
+            formGroup.get(field)?.disable();
+          },
+        );
         formGroup.get('comment')?.setValue('');
         formGroup.get('comment')?.disable();
         day.canAddReceipt = false;
@@ -300,14 +344,23 @@ export class EditTimesheet {
     const file = input.files?.[0];
     if (!file) return;
 
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+    const allowedTypes = [
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'application/pdf',
+    ];
     if (!allowedTypes.includes(file.type)) {
-      this.toastService.error(this.translateService.instant('toast.invalidFileType'));
+      this.toastService.error(
+        this.translateService.instant('toast.invalidFileType'),
+      );
       input.value = '';
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
-      this.toastService.error(this.translateService.instant('toast.fileTooLarge'));
+      this.toastService.error(
+        this.translateService.instant('toast.fileTooLarge'),
+      );
       input.value = '';
       return;
     }
@@ -325,25 +378,35 @@ export class EditTimesheet {
     day.isUploadingReceipt = true;
     this.dayForms.update((days) => [...days]);
 
-    this.dailyLogService.uploadReceipt(weeklyLogId, day.existingId, file).subscribe({
-      next: (response) => {
-        if (response.success && response.data) {
-          day.receipts = [...day.receipts, response.data];
-          this.toastService.success(this.translateService.instant('toast.receiptUploaded'));
-        } else {
-          this.toastService.error(response.message || this.translateService.instant('toast.failedUploadReceipt'));
-        }
-        day.isUploadingReceipt = false;
-        input.value = '';
-        this.dayForms.update((days) => [...days]);
-      },
-      error: (err) => {
-        this.toastService.error(err.error?.message || this.translateService.instant('toast.failedUploadReceipt'));
-        day.isUploadingReceipt = false;
-        input.value = '';
-        this.dayForms.update((days) => [...days]);
-      },
-    });
+    this.dailyLogService
+      .uploadReceipt(weeklyLogId, day.existingId, file)
+      .subscribe({
+        next: (response) => {
+          if (response.success && response.data) {
+            day.receipts = [...day.receipts, response.data];
+            this.toastService.success(
+              this.translateService.instant('toast.receiptUploaded'),
+            );
+          } else {
+            this.toastService.error(
+              response.message ||
+                this.translateService.instant('toast.failedUploadReceipt'),
+            );
+          }
+          day.isUploadingReceipt = false;
+          input.value = '';
+          this.dayForms.update((days) => [...days]);
+        },
+        error: (err) => {
+          this.toastService.error(
+            err.error?.message ||
+              this.translateService.instant('toast.failedUploadReceipt'),
+          );
+          day.isUploadingReceipt = false;
+          input.value = '';
+          this.dayForms.update((days) => [...days]);
+        },
+      });
   }
 
   removeQueuedFile(day: DayForm, index: number): void {
@@ -355,43 +418,82 @@ export class EditTimesheet {
     const weeklyLogId = this.weeklyLog()?.id;
     if (!weeklyLogId || !day.existingId) return;
 
-    this.dailyLogService.deleteReceipt(weeklyLogId, day.existingId, attachmentId).subscribe({
-      next: (response) => {
-        if (response.success) {
-          day.receipts = day.receipts.filter((r) => r.id !== attachmentId);
-          this.toastService.success(this.translateService.instant('toast.receiptDeleted'));
-          this.dayForms.update((days) => [...days]);
-        } else {
-          this.toastService.error(response.message || this.translateService.instant('toast.failedDeleteReceipt'));
-        }
-      },
-      error: (err) => {
-        this.toastService.error(err.error?.message || this.translateService.instant('toast.failedDeleteReceipt'));
-      },
-    });
+    this.dailyLogService
+      .deleteReceipt(weeklyLogId, day.existingId, attachmentId)
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            day.receipts = day.receipts.filter((r) => r.id !== attachmentId);
+            this.toastService.success(
+              this.translateService.instant('toast.receiptDeleted'),
+            );
+            this.dayForms.update((days) => [...days]);
+          } else {
+            this.toastService.error(
+              response.message ||
+                this.translateService.instant('toast.failedDeleteReceipt'),
+            );
+          }
+        },
+        error: (err) => {
+          this.toastService.error(
+            err.error?.message ||
+              this.translateService.instant('toast.failedDeleteReceipt'),
+          );
+        },
+      });
   }
 
-  downloadReceipt(dailyLogId: number, attachmentId: number, fileName: string): void {
+  downloadReceipt(
+    dailyLogId: number,
+    attachmentId: number,
+    fileName: string,
+  ): void {
     const weeklyLogId = this.weeklyLog()?.id;
     if (!weeklyLogId) return;
 
-    this.dailyLogService.downloadReceipt(weeklyLogId, dailyLogId, attachmentId).subscribe({
-      next: (blob) => {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        a.click();
-        URL.revokeObjectURL(url);
-      },
-      error: () => {
-        this.toastService.error(this.translateService.instant('toast.failedDownloadReceipt'));
-      },
-    });
+    this.dailyLogService
+      .downloadReceipt(weeklyLogId, dailyLogId, attachmentId)
+      .subscribe({
+        next: (blob) => {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = fileName;
+          a.click();
+          URL.revokeObjectURL(url);
+        },
+        error: () => {
+          this.toastService.error(
+            this.translateService.instant('toast.failedDownloadReceipt'),
+          );
+        },
+      });
   }
 
-  private readonly DAY_KEYS = ['days.sunday', 'days.monday', 'days.tuesday', 'days.wednesday', 'days.thursday', 'days.friday', 'days.saturday'];
-  private readonly MONTH_KEYS = ['months.january', 'months.february', 'months.march', 'months.april', 'months.may', 'months.june', 'months.july', 'months.august', 'months.september', 'months.october', 'months.november', 'months.december'];
+  private readonly DAY_KEYS = [
+    'days.sunday',
+    'days.monday',
+    'days.tuesday',
+    'days.wednesday',
+    'days.thursday',
+    'days.friday',
+    'days.saturday',
+  ];
+  private readonly MONTH_KEYS = [
+    'months.january',
+    'months.february',
+    'months.march',
+    'months.april',
+    'months.may',
+    'months.june',
+    'months.july',
+    'months.august',
+    'months.september',
+    'months.october',
+    'months.november',
+    'months.december',
+  ];
 
   getDayKey(dateStr: string): string {
     const [y, m, d] = dateStr.split('-').map(Number);
@@ -426,10 +528,12 @@ export class EditTimesheet {
   }
 
   shouldShowDayErrors(day: DayForm): boolean {
-    return this.submissionAttempted() ||
-      !!(day.formGroup.get('timeIn')?.touched) ||
-      !!(day.formGroup.get('timeOut')?.touched) ||
-      day.formGroup.dirty;
+    return (
+      this.submissionAttempted() ||
+      !!day.formGroup.get('timeIn')?.touched ||
+      !!day.formGroup.get('timeOut')?.touched ||
+      day.formGroup.dirty
+    );
   }
 
   onSubmit(): void {
@@ -437,20 +541,32 @@ export class EditTimesheet {
     if (!weeklyLog) return;
 
     this.submissionAttempted.set(true);
-    this.dayForms().forEach(day => day.formGroup.markAllAsTouched());
+    this.dayForms().forEach((day) => day.formGroup.markAllAsTouched());
 
     if (this.hasAnyDayErrors()) {
-      const errorCount = this.dayForms().filter(day => {
+      const errorCount = this.dayForms().filter((day) => {
         if (day.isFuture) return false;
         const e = this.getDayErrors(day);
-        return e.timeInError !== null || e.timeOutError !== null || day.formGroup.invalid;
+        return (
+          e.timeInError !== null ||
+          e.timeOutError !== null ||
+          day.formGroup.invalid
+        );
       }).length;
       this.toastService.error(
-        this.translateService.instant('toast.dayErrorsOnSubmit', { count: errorCount })
+        this.translateService.instant('toast.dayErrorsOnSubmit', {
+          count: errorCount,
+        }),
       );
       return;
     }
 
+    if (!this.submissionConfirmed) {
+      this.confirmModal()?.open();
+      return;
+    }
+
+    this.submissionConfirmed = false;
     this.isLoading.set(true);
     this.cdr.detectChanges();
 
@@ -468,12 +584,18 @@ export class EditTimesheet {
         return {
           id: day.existingId || null,
           date: day.date,
-          timeIn: isDayOff ? '00:00' : formGroup.get('timeIn')?.value || '00:00',
-          timeOut: isDayOff ? '00:00' : formGroup.get('timeOut')?.value || '00:00',
+          timeIn: isDayOff
+            ? '00:00'
+            : formGroup.get('timeIn')?.value || '00:00',
+          timeOut: isDayOff
+            ? '00:00'
+            : formGroup.get('timeOut')?.value || '00:00',
           mileage: isDayOff ? 0 : formGroup.get('mileage')?.value || 0,
           tollCharge: isDayOff ? 0 : formGroup.get('tollCharge')?.value || 0,
           parkingFee: isDayOff ? 0 : formGroup.get('parkingFee')?.value || 0,
-          otherCharges: isDayOff ? 0 : formGroup.get('otherCharges')?.value || 0,
+          otherCharges: isDayOff
+            ? 0
+            : formGroup.get('otherCharges')?.value || 0,
           comment: isDayOff ? 'Day off' : formGroup.get('comment')?.value || '',
         };
       });
@@ -486,16 +608,24 @@ export class EditTimesheet {
           const updatedLogs = response.data ?? [];
           const uploadTasks = this.dayForms().flatMap((dayForm) => {
             if (!dayForm.pendingFiles.length) return [];
-            const savedLog = updatedLogs.find((log) => log.date === dayForm.date);
+            const savedLog = updatedLogs.find(
+              (log) => log.date === dayForm.date,
+            );
             if (!savedLog) return [];
             return dayForm.pendingFiles.map((file) =>
-              this.dailyLogService.uploadReceipt(weeklyLog.id, savedLog.id, file)
+              this.dailyLogService.uploadReceipt(
+                weeklyLog.id,
+                savedLog.id,
+                file,
+              ),
             );
           });
 
           const navigate = () => {
             this.isLoading.set(false);
-            this.toastService.success(this.translateService.instant('toast.timesheetUpdated'));
+            this.toastService.success(
+              this.translateService.instant('toast.timesheetUpdated'),
+            );
             this.router.navigate(['/dashboard/week', weeklyLog.id]);
           };
 
@@ -506,8 +636,12 @@ export class EditTimesheet {
               next: () => navigate(),
               error: () => {
                 this.isLoading.set(false);
-                this.toastService.success(this.translateService.instant('toast.timesheetUpdated'));
-                this.toastService.error(this.translateService.instant('toast.receiptUploadFailed'));
+                this.toastService.success(
+                  this.translateService.instant('toast.timesheetUpdated'),
+                );
+                this.toastService.error(
+                  this.translateService.instant('toast.receiptUploadFailed'),
+                );
                 this.router.navigate(['/dashboard/week', weeklyLog.id]);
               },
             });
@@ -515,7 +649,10 @@ export class EditTimesheet {
         } else {
           this.isLoading.set(false);
           this.toastService.error(
-            this.errorMessage(response, this.translateService.instant('toast.failedUpdateTimesheet'))
+            this.errorMessage(
+              response,
+              this.translateService.instant('toast.failedUpdateTimesheet'),
+            ),
           );
         }
       },
@@ -523,7 +660,10 @@ export class EditTimesheet {
         this.isLoading.set(false);
         this.cdr.detectChanges();
         this.toastService.error(
-          this.errorMessage(error.error, this.translateService.instant('toast.failedUpdateTimesheet'))
+          this.errorMessage(
+            error.error,
+            this.translateService.instant('toast.failedUpdateTimesheet'),
+          ),
         );
       },
     });
@@ -541,7 +681,9 @@ export class EditTimesheet {
     let value = raw.replace(/[^\d.]/g, '');
     const dotIndex = value.indexOf('.');
     if (dotIndex !== -1) {
-      value = value.substring(0, dotIndex + 1) + value.substring(dotIndex + 1).replace(/\./g, '');
+      value =
+        value.substring(0, dotIndex + 1) +
+        value.substring(dotIndex + 1).replace(/\./g, '');
     }
     const finalDot = value.indexOf('.');
     if (finalDot !== -1 && value.length - finalDot - 1 > 2) {
@@ -553,6 +695,11 @@ export class EditTimesheet {
         control?.setValue(parseFloat(value), { emitEvent: false });
       }
     }
+  }
+
+  onSubmitConfirmed(): void {
+    this.submissionConfirmed = true;
+    this.onSubmit();
   }
 
   private errorMessage(source: any, fallback: string): string {

@@ -624,3 +624,25 @@
 
   <app-footer class="mt-8"></app-footer>
 </div>
+
+<app-modal
+  #confirmModal
+  [title]="
+    allDaysFilled()
+      ? ('timesheet.confirmSubmitTitle' | translate)
+      : ('timesheet.confirmDraftTitle' | translate)
+  "
+  [body]="
+    allDaysFilled()
+      ? ('timesheet.confirmSubmitBody' | translate)
+      : ('timesheet.confirmDraftBody' | translate)
+  "
+  [confirmLabel]="
+    allDaysFilled()
+      ? ('timesheet.confirmSubmitBtn' | translate)
+      : ('timesheet.confirmDraftBtn' | translate)
+  "
+  [cancelLabel]="'common.cancel' | translate"
+  [confirmClass]="allDaysFilled() ? 'btn btn-success' : 'btn btn-info'"
+  (confirmed)="onSubmitConfirmed()"
+/>
