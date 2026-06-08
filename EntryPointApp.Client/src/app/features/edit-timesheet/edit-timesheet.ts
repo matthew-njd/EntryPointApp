@@ -84,6 +84,30 @@ export class EditTimesheet {
   formChangeTrigger = signal(0);
   confirmModal = viewChild<Modal>('confirmModal');
 
+  private readonly DAY_KEYS = [
+    'days.sunday',
+    'days.monday',
+    'days.tuesday',
+    'days.wednesday',
+    'days.thursday',
+    'days.friday',
+    'days.saturday',
+  ];
+  private readonly MONTH_KEYS = [
+    'months.january',
+    'months.february',
+    'months.march',
+    'months.april',
+    'months.may',
+    'months.june',
+    'months.july',
+    'months.august',
+    'months.september',
+    'months.october',
+    'months.november',
+    'months.december',
+  ];
+
   filledDaysCount = computed(() => {
     this.formChangeTrigger();
     return this.dayForms().filter((day) => {
@@ -470,30 +494,6 @@ export class EditTimesheet {
         },
       });
   }
-
-  private readonly DAY_KEYS = [
-    'days.sunday',
-    'days.monday',
-    'days.tuesday',
-    'days.wednesday',
-    'days.thursday',
-    'days.friday',
-    'days.saturday',
-  ];
-  private readonly MONTH_KEYS = [
-    'months.january',
-    'months.february',
-    'months.march',
-    'months.april',
-    'months.may',
-    'months.june',
-    'months.july',
-    'months.august',
-    'months.september',
-    'months.october',
-    'months.november',
-    'months.december',
-  ];
 
   getDayKey(dateStr: string): string {
     const [y, m, d] = dateStr.split('-').map(Number);
