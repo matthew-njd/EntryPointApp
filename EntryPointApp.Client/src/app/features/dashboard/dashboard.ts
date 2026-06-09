@@ -68,18 +68,13 @@ export class Dashboard {
     this.service.loadWeeklyLogs(page, this.service.pageSize());
   }
 
-  getStatusClass(status: string | undefined): string {
+  getStatusBadgeClass(status: string | undefined): string {
     switch (status) {
-      case 'Draft':
-        return 'text-warning';
-      case 'Pending':
-        return 'text-info';
-      case 'Approved':
-        return 'text-success';
-      case 'Denied':
-        return 'text-error';
-      default:
-        return '';
+      case 'Draft':    return 'badge-warning';
+      case 'Pending':  return 'badge-info';
+      case 'Approved': return 'badge-success';
+      case 'Denied':   return 'badge-error';
+      default:         return '';
     }
   }
 
