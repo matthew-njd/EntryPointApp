@@ -4,7 +4,7 @@ export const EN = {
     language: 'Español',
   },
   footer: {
-    support: 'For any inquiries or support, please email',
+    support: 'Support:',
     copyright: 'Copyright © 2026 - All right reserved by The Postcard Factory',
   },
   common: {
