@@ -18,6 +18,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 export class Dashboard {
   public service = inject(WeeklyLogService);
   private router = inject(Router);
+  today = new Date();
 
   userFullName = '';
 
@@ -70,11 +71,16 @@ export class Dashboard {
 
   getStatusBadgeClass(status: string | undefined): string {
     switch (status) {
-      case 'Draft':    return 'badge-warning';
-      case 'Pending':  return 'badge-info';
-      case 'Approved': return 'badge-success';
-      case 'Denied':   return 'badge-error';
-      default:         return '';
+      case 'Draft':
+        return 'badge-warning';
+      case 'Pending':
+        return 'badge-info';
+      case 'Approved':
+        return 'badge-success';
+      case 'Denied':
+        return 'badge-error';
+      default:
+        return '';
     }
   }
 

@@ -11,22 +11,25 @@
         <span>{{ service.error() }}</span>
       </div>
     } @else {
-      <div
-        class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3"
-      >
-        <h1 class="text-3xl">
-          {{ "dashboard.hello" | translate }} {{ userFullName }}
-        </h1>
-        <button
-          class="btn btn-primary btn-sm sm:btn-md"
-          (click)="createNewTimesheet()"
-        >
-          {{ "dashboard.newTimesheet" | translate }}
-        </button>
+      <div>
+        <p class="text-md text-secondary mb-0.5">
+          {{ "dashboard.hello" | translate }}
+        </p>
+        <h1 class="text-4xl font-medium">{{ userFullName }}</h1>
+        <p class="text-md text-secondary mt-1">
+          {{ today | date: "EEEE, MMMM d, y" }}
+        </p>
+      </div>
+
+      <div class="flex items-center gap-2.5 mt-12">
+        <div class="w-0.5 h-[18px] bg-primary rounded-sm shrink-0"></div>
+        <h2 class="text-base font-medium m-0">
+          {{ "dashboard.summarySubTitle" | translate }}
+        </h2>
       </div>
 
       <div
-        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-6 mt-6"
+        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-6 mt-2"
       >
         <app-card
           cardClasses="text-success"
@@ -50,10 +53,25 @@
         ></app-card>
       </div>
 
-      <div class="flex flex-col gap-6 mt-4 mb-4">
+      <div
+        class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3"
+      >
+        <div class="flex items-center gap-2.5">
+          <div class="w-0.5 h-[18px] bg-primary rounded-sm shrink-0"></div>
+          <h2 class="text-base font-medium m-0">
+            {{ "dashboard.timesheetSubTitle" | translate }}
+          </h2>
+        </div>
+
+        <button class="btn btn-primary btn-sm" (click)="createNewTimesheet()">
+          {{ "dashboard.newTimesheet" | translate }}
+        </button>
+      </div>
+
+      <div class="flex flex-col gap-6 mt-2 mb-4">
         @for (weeklyLog of service.weeklyLogs(); track weeklyLog.id) {
           <div
-            class="card bg-base-100 border border-base-300 shadow-none rounded-box overflow-hidden"
+            class="card bg-base-200 border border-base-300 shadow-none rounded-box overflow-hidden"
           >
             <div
               class="flex items-center gap-2 px-5 py-3 border-b border-base-300"
@@ -84,7 +102,7 @@
             </div>
 
             <div class="px-5 py-4 grid grid-cols-2 gap-2">
-              <div class="bg-base-200 rounded-box px-3 py-2">
+              <div class="bg-base-100 rounded-box px-3 py-2">
                 <div
                   class="text-[11px] uppercase tracking-wide text-base-content/50 mb-1"
                 >
@@ -94,7 +112,7 @@
                   {{ weeklyLog.totalHours }} {{ "common.hrs" | translate }}
                 </div>
               </div>
-              <div class="bg-base-200 rounded-box px-3 py-2">
+              <div class="bg-base-100 rounded-box px-3 py-2">
                 <div
                   class="text-[11px] uppercase tracking-wide text-base-content/50 mb-1"
                 >

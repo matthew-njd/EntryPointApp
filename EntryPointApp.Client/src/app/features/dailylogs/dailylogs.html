@@ -11,20 +11,40 @@
         <span>{{ service.error() }}</span>
       </div>
     } @else {
-      <button class="btn btn-primary btn-sm" (click)="goBack()">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-        >
-          <path
-            fill="currentColor"
-            d="m7.825 13l4.9 4.9q.3.3.288.7t-.313.7q-.3.275-.7.288t-.7-.288l-6.6-6.6q-.15-.15-.213-.325T4.426 12t.063-.375t.212-.325l6.6-6.6q.275-.275.688-.275t.712.275q.3.3.3.713t-.3.712L7.825 11H19q.425 0 .713.288T20 12t-.288.713T19 13z"
-          />
-        </svg>
-        {{ "timesheet.backToDashboardBtn" | translate }}
-      </button>
+      <div
+        class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3"
+      >
+        <button class="btn btn-primary btn-sm" (click)="goBack()">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="m7.825 13l4.9 4.9q.3.3.288.7t-.313.7q-.3.275-.7.288t-.7-.288l-6.6-6.6q-.15-.15-.213-.325T4.426 12t.063-.375t.212-.325l6.6-6.6q.275-.275.688-.275t.712.275q.3.3.3.713t-.3.712L7.825 11H19q.425 0 .713.288T20 12t-.288.713T19 13z"
+            />
+          </svg>
+          {{ "timesheet.backToDashboardBtn" | translate }}
+        </button>
+        @if (weeklyLog() && weeklyLog()!.status === "Draft") {
+          <button class="btn btn-primary btn-sm" (click)="editTimesheet()">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+            >
+              <path
+                fill="currentColor"
+                d="M5 19h1.425L16.2 9.225L14.775 7.8L5 17.575zm-2 2v-4.25L16.2 3.575q.3-.275.663-.425t.762-.15t.775.15t.65.45L20.425 5q.3.275.438.65T21 6.4q0 .4-.137.763t-.438.662L7.25 21zM19 6.4L17.6 5zm-3.525 2.125l-.7-.725L16.2 9.225z"
+              />
+            </svg>
+            {{ "timesheet.editDailylogs" | translate }}
+          </button>
+        }
+      </div>
 
       <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6 mt-6">
         <app-card
@@ -40,23 +60,6 @@
           value="${{ totalCharges() }}"
         ></app-card>
       </div>
-
-      @if (weeklyLog() && weeklyLog()!.status === "Draft") {
-        <button class="btn btn-primary btn-sm" (click)="editTimesheet()">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-          >
-            <path
-              fill="currentColor"
-              d="M5 19h1.425L16.2 9.225L14.775 7.8L5 17.575zm-2 2v-4.25L16.2 3.575q.3-.275.663-.425t.762-.15t.775.15t.65.45L20.425 5q.3.275.438.65T21 6.4q0 .4-.137.763t-.438.662L7.25 21zM19 6.4L17.6 5zm-3.525 2.125l-.7-.725L16.2 9.225z"
-            />
-          </svg>
-          {{ "timesheet.editDailylogs" | translate }}
-        </button>
-      }
 
       @if (payrollDate()) {
         <div class="alert alert-info mt-4">
@@ -100,7 +103,7 @@
       <div class="flex flex-col gap-6 mt-4 mb-4">
         @for (dailyLog of service.dailyLogs(); track dailyLog.id) {
           <div
-            class="card bg-base-100 border border-base-300 shadow-none rounded-box overflow-hidden"
+            class="card bg-base-200 border border-base-300 shadow-none rounded-box overflow-hidden"
           >
             <div
               class="flex items-center gap-2 px-5 py-3 border-b border-base-300"
@@ -162,7 +165,7 @@
             </div>
 
             <div class="px-5 py-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
-              <div class="bg-base-200 rounded-box px-3 py-2">
+              <div class="bg-base-100 rounded-box px-3 py-2">
                 <div
                   class="text-[11px] uppercase tracking-wide text-base-content/50 mb-1"
                 >
@@ -172,7 +175,7 @@
                   {{ dailyLog.mileage }} {{ "common.mi" | translate }}
                 </div>
               </div>
-              <div class="bg-base-200 rounded-box px-3 py-2">
+              <div class="bg-base-100 rounded-box px-3 py-2">
                 <div
                   class="text-[11px] uppercase tracking-wide text-base-content/50 mb-1"
                 >
@@ -185,7 +188,7 @@
                   ${{ dailyLog.parkingFee }}
                 </div>
               </div>
-              <div class="bg-base-200 rounded-box px-3 py-2">
+              <div class="bg-base-100 rounded-box px-3 py-2">
                 <div
                   class="text-[11px] uppercase tracking-wide text-base-content/50 mb-1"
                 >
@@ -198,7 +201,7 @@
                   ${{ dailyLog.tollCharge }}
                 </div>
               </div>
-              <div class="bg-base-200 rounded-box px-3 py-2">
+              <div class="bg-base-100 rounded-box px-3 py-2">
                 <div
                   class="text-[11px] uppercase tracking-wide text-base-content/50 mb-1"
                 >

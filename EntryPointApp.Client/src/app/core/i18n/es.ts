@@ -114,6 +114,8 @@ export const ES = {
     tableTotalCharges: 'Total de cargos',
     tableStatus: 'Estado',
     noTimesheets: 'No se encontraron hojas de tiempo',
+    summarySubTitle: 'Resumen',
+    timesheetSubTitle: 'Registro de horas',
   },
   timesheet: {
     createTitle: 'Crear nuevo registro de horas',

@@ -110,6 +110,8 @@ export const EN = {
     tableTotalCharges: 'Total Charges',
     tableStatus: 'Status',
     noTimesheets: 'No timesheets found',
+    summarySubTitle: 'Summary',
+    timesheetSubTitle: 'Timesheet(s)',
   },
   timesheet: {
     createTitle: 'Create New Timesheet',
