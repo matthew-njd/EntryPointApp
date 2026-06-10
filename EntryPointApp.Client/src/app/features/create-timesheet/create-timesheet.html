@@ -37,12 +37,11 @@
               }}</span>
             </label>
             <input
-              type="date"
+              type="text"
+              #dateInput
               class="input w-full"
-              formControlName="dateFrom"
-              [min]="minDateStr"
-              [max]="maxDateStr"
-              step="7"
+              readonly
+              placeholder="Please select a date."
               [class.input-error]="
                 (dateFrom.invalid && (dateFrom.touched || !!dateFrom.value)) ||
                 overlappingWeek() !== null

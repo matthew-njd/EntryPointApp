@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "flatpickr/dist/flatpickr.min.css";
 @plugin "daisyui";
 
 @plugin "daisyui/theme" {
@@ -40,4 +41,59 @@ html,
 body {
   height: 100%;
   margin: 0;
+}
+
+/* Flatpickr — match DaisyUI dark theme */
+.flatpickr-calendar {
+  background: var(--color-base-200);
+  border-color: var(--color-base-300);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.4);
+  color: var(--color-base-content);
+}
+.flatpickr-calendar.arrowTop::before { border-bottom-color: var(--color-base-300); }
+.flatpickr-calendar.arrowTop::after  { border-bottom-color: var(--color-base-200); }
+.flatpickr-months .flatpickr-month,
+.flatpickr-weekdays,
+span.flatpickr-weekday {
+  background: var(--color-base-300);
+  color: var(--color-base-content);
+  fill: var(--color-base-content);
+}
+.flatpickr-current-month .flatpickr-monthDropdown-months,
+.flatpickr-current-month input.cur-year {
+  color: var(--color-base-content);
+}
+.flatpickr-day {
+  color: var(--color-base-content);
+  border-color: transparent;
+}
+.flatpickr-day:hover,
+.flatpickr-day.prevMonthDay:not(.flatpickr-disabled):hover,
+.flatpickr-day.nextMonthDay:not(.flatpickr-disabled):hover {
+  background: var(--color-base-100);
+  border-color: var(--color-base-100);
+}
+.flatpickr-day.selected,
+.flatpickr-day.selected:hover {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-primary-content);
+}
+.flatpickr-day.flatpickr-disabled,
+.flatpickr-day.flatpickr-disabled:hover,
+.flatpickr-day.prevMonthDay,
+.flatpickr-day.nextMonthDay {
+  color: var(--color-base-content);
+  opacity: 0.4;
+  background: transparent;
+  border-color: transparent;
+  cursor: not-allowed;
+}
+.flatpickr-months .flatpickr-prev-month svg,
+.flatpickr-months .flatpickr-next-month svg {
+  fill: var(--color-base-content);
+}
+.flatpickr-months .flatpickr-prev-month:hover svg,
+.flatpickr-months .flatpickr-next-month:hover svg {
+  fill: var(--color-primary);
 }

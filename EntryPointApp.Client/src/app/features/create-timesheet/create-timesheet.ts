@@ -1,11 +1,16 @@
 import {
+  AfterViewInit,
   ChangeDetectorRef,
   Component,
+  ElementRef,
+  OnDestroy,
   computed,
   inject,
   signal,
   viewChild,
 } from '@angular/core';
+import flatpickr from 'flatpickr';
+import { Instance } from 'flatpickr/dist/types/instance';
 import { CommonModule, DatePipe } from '@angular/common';
 import {
   AbstractControl,
@@ -55,7 +60,7 @@ interface DayErrors {
   templateUrl: './create-timesheet.html',
   styleUrl: './create-timesheet.css',
 })
-export class CreateTimesheet {
+export class CreateTimesheet implements AfterViewInit, OnDestroy {
   private fb = inject(FormBuilder);
   private weeklyLogService = inject(WeeklyLogService);
   private dailyLogService = inject(DailyLogService);
@@ -75,6 +80,8 @@ export class CreateTimesheet {
   existingWeeks = signal<{ dateFrom: string; dateTo: string }[]>([]);
   overlappingWeek = signal<{ dateFrom: string; dateTo: string } | null>(null);
   confirmModal = viewChild<Modal>('confirmModal');
+  dateInputRef = viewChild<ElementRef>('dateInput');
+  private fp: Instance | null = null;
 
   private readonly DAY_KEYS = [
     'days.sunday',
@@ -115,7 +122,7 @@ export class CreateTimesheet {
     cutoff.setDate(cutoff.getDate() - 56);
     cutoff.setHours(0, 0, 0, 0);
     const day = cutoff.getDay();
-    cutoff.setDate(cutoff.getDate() + (8 - day) % 7);
+    cutoff.setDate(cutoff.getDate() + ((8 - day) % 7));
     return `${cutoff.getFullYear()}-${String(cutoff.getMonth() + 1).padStart(2, '0')}-${String(cutoff.getDate()).padStart(2, '0')}`;
   })();
 
@@ -205,6 +212,31 @@ export class CreateTimesheet {
         this.overlappingWeek.set(null);
       }
     });
+  }
+
+  ngAfterViewInit(): void {
+    const el = this.dateInputRef();
+    if (!el) return;
+    this.fp = flatpickr(el.nativeElement, {
+      enable: [(date: Date) => date.getDay() === 1],
+      minDate: this.minDateStr,
+      maxDate: this.maxDateStr,
+      dateFormat: 'm/d/Y',
+      onChange: (dates: Date[]) => {
+        if (dates[0]) {
+          const d = dates[0];
+          const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+          this.dateFrom.setValue(iso);
+          this.dateFrom.markAsTouched();
+        } else {
+          this.dateFrom.setValue('');
+        }
+      },
+    }) as Instance;
+  }
+
+  ngOnDestroy(): void {
+    this.fp?.destroy();
   }
 
   generateDayForms(startDateStr: string): void {
