@@ -117,6 +117,7 @@ export const EN = {
     createTitle: 'Create New Timesheet',
     editTitle: 'Edit Timesheet',
     backToDashboard: 'Back to Dashboard',
+    selectCalendarDate: 'Please select a date',
     weekSelection: 'Week Selection',
     weekStartDate: 'Week Start Date*',
     weekEndDate: 'Week End Date (covers a 7-day period)',

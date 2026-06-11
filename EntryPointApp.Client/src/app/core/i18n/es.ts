@@ -121,6 +121,7 @@ export const ES = {
     createTitle: 'Crear nuevo registro de horas',
     editTitle: 'Editar hoja de tiempo',
     backToDashboard: 'Volver al panel',
+    selectCalendarDate: 'Por favor seleccione una fecha',
     weekSelection: 'Selección de semana',
     weekStartDate: 'Fecha de inicio de semana*',
     weekEndDate: 'Fecha de fin de semana (cubre un período de 7 días)',
