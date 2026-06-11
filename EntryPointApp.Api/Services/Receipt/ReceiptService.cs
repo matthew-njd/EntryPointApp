@@ -20,7 +20,7 @@ namespace EntryPointApp.Api.Services.Receipt
         {
             try
             {
-                var (access, _) = await CheckAccessAsync(dailyLogId, weeklyLogId, requestingUserId);
+                var (access, dailyLog) = await CheckAccessAsync(dailyLogId, weeklyLogId, requestingUserId);
 
                 if (access == AccessResult.NotFound)
                     return new ReceiptResult
@@ -41,7 +41,7 @@ namespace EntryPointApp.Api.Services.Receipt
                 string savedFileName;
                 try
                 {
-                    savedFileName = await _fileStorageService.SaveFileAsync(file);
+                    savedFileName = await _fileStorageService.SaveFileAsync(file, dailyLog!.UserId, weeklyLogId);
                 }
                 catch (ArgumentException ex)
                 {

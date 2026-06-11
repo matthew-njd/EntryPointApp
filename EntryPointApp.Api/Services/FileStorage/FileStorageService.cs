@@ -25,7 +25,7 @@ namespace EntryPointApp.Api.Services.FileStorage
             }
         }
 
-        public async Task<string> SaveFileAsync(IFormFile file, CancellationToken cancellationToken = default)
+        public async Task<string> SaveFileAsync(IFormFile file, int userId, int weeklyLogId, CancellationToken cancellationToken = default)
         {
             if (file.Length > _settings.MaxFileSizeBytes)
                 throw new ArgumentException(
@@ -36,15 +36,19 @@ namespace EntryPointApp.Api.Services.FileStorage
                 throw new ArgumentException(
                     $"File type '{extension}' is not allowed. Allowed types: {string.Join(", ", _settings.AllowedExtensions)}");
 
+            var subfolderPath = Path.Combine(_rootPath, userId.ToString(), weeklyLogId.ToString());
+            Directory.CreateDirectory(subfolderPath);
+
             var guidFileName = $"{Guid.NewGuid()}{extension}";
-            var fullPath = Path.Combine(_rootPath, guidFileName);
+            var fullPath = Path.Combine(subfolderPath, guidFileName);
+            var relativePath = Path.Combine(userId.ToString(), weeklyLogId.ToString(), guidFileName);
 
             await using var stream = new FileStream(fullPath, FileMode.CreateNew, FileAccess.Write, FileShare.None);
             await file.CopyToAsync(stream, cancellationToken);
 
-            _logger.LogInformation("Saved receipt file {FileName} ({Bytes} bytes)", guidFileName, file.Length);
+            _logger.LogInformation("Saved receipt file {RelativePath} ({Bytes} bytes)", relativePath, file.Length);
 
-            return guidFileName;
+            return relativePath;
         }
 
         public string GetFilePath(string fileName) => Path.Combine(_rootPath, fileName);
