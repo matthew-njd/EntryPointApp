@@ -161,7 +161,7 @@ export const EN = {
     saving: 'Saving...',
     weekLabel: 'Week',
     weekDatesCannotChange: 'Week dates cannot be changed',
-    editDailylogs: 'Edit Dailylogs',
+    editDailylogs: 'Edit Daily Logs',
     backToDashboardBtn: 'Back to Dashboard',
   },
   dailylogs: {
@@ -176,7 +176,9 @@ export const EN = {
     totalHours: 'Total Hours',
     totalMileage: 'Total Mileage',
     totalCharges: 'Total Charges',
-    noDailylogs: 'No dailylogs found for this week',
+    noDailylogs: 'No daily logs found for this week',
+    denialReasonTitle: 'This timesheet was denied.',
+    denialReasonLabel: 'Reason:',
   },
   admin: {
     title: 'User Management',

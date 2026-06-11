@@ -28,7 +28,7 @@
           </svg>
           {{ "timesheet.backToDashboardBtn" | translate }}
         </button>
-        @if (weeklyLog() && weeklyLog()!.status === "Draft") {
+        @if (weeklyLog() && (weeklyLog()!.status === "Draft" || weeklyLog()!.status === "Denied")) {
           <button class="btn btn-primary btn-sm" (click)="editTimesheet()">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -60,6 +60,27 @@
           value="${{ totalCharges() }}"
         ></app-card>
       </div>
+
+      @if (weeklyLog()?.status === "Denied" && weeklyLog()?.managerComment) {
+        <div class="alert alert-error mt-4">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            class="shrink-0"
+          >
+            <path
+              fill="currentColor"
+              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2m1 15h-2v-6h2zm0-8h-2V7h2z"
+            />
+          </svg>
+          <div>
+            <p class="font-semibold">{{ "dailylogs.denialReasonTitle" | translate }}</p>
+            <p><span class="font-semibold">{{ "dailylogs.denialReasonLabel" | translate }}</span> {{ weeklyLog()!.managerComment }}</p>
+          </div>
+        </div>
+      }
 
       @if (payrollDate()) {
         <div class="alert alert-info mt-4">

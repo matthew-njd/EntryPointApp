@@ -22,5 +22,15 @@ namespace EntryPointApp.Api.Services.Email
             decimal totalHours,
             decimal totalCharges,
             string timesheetUrl);
+
+        Task<bool> SendTimesheetDenialEmailAsync(
+            string employeeEmail,
+            string employeeName,
+            string managerName,
+            string weekPeriod,
+            decimal totalHours,
+            decimal totalCharges,
+            string denialReason,
+            string timesheetUrl);
     }
 }

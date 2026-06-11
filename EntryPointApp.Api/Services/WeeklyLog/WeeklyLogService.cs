@@ -120,7 +120,8 @@ namespace EntryPointApp.Api.Services.WeeklyLog
                         DateTo = w.DateTo,
                         TotalHours = w.TotalHours,
                         TotalCharges = w.TotalCharges,
-                        Status = w.Status
+                        Status = w.Status,
+                        ManagerComment = w.ManagerComment
                     })
                     .FirstOrDefaultAsync();
 
@@ -492,6 +493,7 @@ namespace EntryPointApp.Api.Services.WeeklyLog
                 (TimesheetStatus.Pending, TimesheetStatus.Denied) => true,
                 
                 (TimesheetStatus.Denied, TimesheetStatus.Draft) => true,
+                (TimesheetStatus.Denied, TimesheetStatus.Pending) => true,
                 
                 var (a, b) when a == b => true,
 

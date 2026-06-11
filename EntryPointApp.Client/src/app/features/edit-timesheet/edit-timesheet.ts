@@ -162,7 +162,7 @@ export class EditTimesheet {
             error: () => {},
           });
 
-          if (weeklyLog.status !== 'Draft') {
+          if (weeklyLog.status !== 'Draft' && weeklyLog.status !== 'Denied') {
             this.toastService.error(
               this.translateService.instant('toast.onlyDraftEditable'),
             );

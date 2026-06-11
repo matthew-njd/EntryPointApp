@@ -363,7 +363,7 @@ namespace EntryPointApp.Api.Services.Email
                             <!-- Footer -->
                             <p style='font-size:11px; color:#b0b7c3; margin:0; text-align:center;'>
                                 © {DateTime.Now.Year} The Postcard Factory. All rights reserved.<br>
-                                This is an automated notification from the EntryPoint Timesheet System.
+                                This is an automated notification.
                             </p>
 
                         </div>
@@ -424,6 +424,161 @@ namespace EntryPointApp.Api.Services.Email
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error sending timesheet submission email for {EmployeeName}", employeeName);
+                return false;
+            }
+        }
+
+        public async Task<bool> SendTimesheetDenialEmailAsync(
+            string employeeEmail,
+            string employeeName,
+            string managerName,
+            string weekPeriod,
+            decimal totalHours,
+            decimal totalCharges,
+            string denialReason,
+            string timesheetUrl)
+        {
+            try
+            {
+                var fromEmail = _configuration["MailJet:FromEmail"]
+                    ?? throw new InvalidOperationException("MailJet:FromEmail not configured");
+                var fromName = _configuration["MailJet:FromName"] ?? "PCF Timesheet App";
+
+                _logger.LogInformation("Sending timesheet denial email to Employee: {EmployeeEmail}", employeeEmail);
+
+                var htmlBody = $@"
+                    <html>
+                    <body style='margin:0; padding:0; background-color:#f4f6f8; font-family: Arial, Helvetica, sans-serif;'>
+                        <div style='max-width:600px; margin:40px auto; background-color:#ffffff; padding:32px; border-radius:6px;'>
+
+                            <!-- Title -->
+                            <h1 style='margin:0 0 16px 0; font-size:26px; color:#c0392b; font-weight:bold; text-align:center;'>
+                                Timesheet Denied
+                            </h1>
+
+                            <!-- Body text -->
+                            <p style='margin:0 0 20px 0; font-size:15px; color:#5f6b7a; line-height:1.6;'>
+                                Hi <strong>{employeeName}</strong>,<br><br>
+                                Your timesheet for <strong>{weekPeriod}</strong> has been reviewed and denied by <strong>{managerName}</strong>.
+                                Please see the reason below and update your timesheet accordingly.
+                            </p>
+
+                            <!-- Denial Reason Box -->
+                            <div style='background-color:#fdf2f2; border-left:4px solid #c0392b; padding:16px; margin:20px 0;'>
+                                <h3 style='margin:0 0 8px 0; font-size:14px; color:#c0392b; text-transform:uppercase; letter-spacing:0.5px;'>Reason for Denial</h3>
+                                <p style='margin:0; font-size:15px; color:#1f2a44; line-height:1.6;'>{denialReason}</p>
+                            </div>
+
+                            <!-- Summary Box -->
+                            <div style='background-color:#f8f9fa; border-left:4px solid #6c757d; padding:16px; margin:20px 0;'>
+                                <h3 style='margin:0 0 12px 0; font-size:16px; color:#1f2a44;'>Timesheet Summary</h3>
+                                <table style='width:100%; font-size:14px; color:#5f6b7a;'>
+                                    <tr>
+                                        <td style='padding:4px 0;'><strong>Week Period:</strong></td>
+                                        <td style='padding:4px 0; text-align:right;'>{weekPeriod}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style='padding:4px 0;'><strong>Total Hours:</strong></td>
+                                        <td style='padding:4px 0; text-align:right;'>{totalHours:F2} hrs</td>
+                                    </tr>
+                                    <tr>
+                                        <td style='padding:4px 0;'><strong>Total Charges:</strong></td>
+                                        <td style='padding:4px 0; text-align:right;'>${totalCharges:F2}</td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <!-- Update Button -->
+                            <div style='text-align:center; margin:30px 0;'>
+                                <a href='{timesheetUrl}'
+                                style='display:inline-block;
+                                        background-color:#c0392b;
+                                        color:#ffffff;
+                                        text-decoration:none;
+                                        padding:14px 36px;
+                                        font-size:15px;
+                                        font-weight:bold;
+                                        border-radius:4px;'>
+                                    Update Timesheet
+                                </a>
+                            </div>
+
+                            <!-- Fallback link -->
+                            <p style='font-size:12px; color:#9aa3ad; line-height:1.5; text-align:center;'>
+                                If the button doesn't work, copy and paste this link into your browser:
+                                <br />
+                                <a href='{timesheetUrl}' style='color:#c0392b; word-break:break-all;'>
+                                    {timesheetUrl}
+                                </a>
+                            </p>
+
+                            <hr style='border:none; border-top:1px solid #e6e9ec; margin:30px 0;' />
+
+                            <!-- Footer -->
+                            <p style='font-size:11px; color:#b0b7c3; margin:0; text-align:center;'>
+                                © {DateTime.Now.Year} The Postcard Factory. All rights reserved.<br>
+                                This is an automated notification.
+                            </p>
+
+                        </div>
+                    </body>
+                    </html>
+                ";
+
+                var textBody = $@"
+                    TIMESHEET DENIED
+
+                    Hi {employeeName},
+
+                    Your timesheet for {weekPeriod} has been denied by {managerName}.
+
+                    Reason for Denial:
+                    {denialReason}
+
+                    Timesheet Summary:
+                    Week Period: {weekPeriod}
+                    Total Hours: {totalHours:F2} hrs
+                    Total Charges: ${totalCharges:F2}
+
+                    Update your timesheet here:
+                    {timesheetUrl}
+
+                    ---
+                    This is an automated notification from the EntryPoint Timesheet System.
+                ";
+
+                var email = new TransactionalEmailBuilder()
+                    .WithFrom(new SendContact(fromEmail, fromName))
+                    .WithTo(new SendContact(employeeEmail, employeeName))
+                    .WithSubject($"Timesheet Denied - {weekPeriod}")
+                    .WithHtmlPart(htmlBody)
+                    .WithTextPart(textBody)
+                    .Build();
+
+                var response = await _mailjetClient.SendTransactionalEmailAsync(email);
+
+                if (response.Messages != null && response.Messages.Length > 0)
+                {
+                    var message = response.Messages[0];
+                    if (message.Status == "success")
+                    {
+                        _logger.LogInformation("Timesheet denial email sent successfully to {EmployeeEmail}", employeeEmail);
+                        return true;
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Failed to send timesheet denial email to {EmployeeEmail}. Status: {Status}",
+                            employeeEmail, message.Status);
+                        return false;
+                    }
+                }
+
+                _logger.LogWarning("No response messages from MailJet for timesheet denial email");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error sending timesheet denial email to {EmployeeEmail}", employeeEmail);
                 return false;
             }
         }

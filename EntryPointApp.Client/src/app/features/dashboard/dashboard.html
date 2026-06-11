@@ -154,7 +154,7 @@
                   </g>
                 </svg>
               </button>
-              @if (weeklyLog.status === "Draft") {
+              @if (weeklyLog.status === "Draft" || weeklyLog.status === "Denied") {
                 <button
                   title="Edit Timesheet"
                   class="btn btn-sm btn-outline btn-primary"

@@ -181,6 +181,8 @@ export const ES = {
     totalMileage: 'Total de millaje',
     totalCharges: 'Total de cargos',
     noDailylogs: 'No se encontraron registros para esta semana',
+    denialReasonTitle: 'Esta hoja de tiempo fue rechazada.',
+    denialReasonLabel: 'Motivo:',
   },
   admin: {
     title: 'Gestión de usuarios',

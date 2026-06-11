@@ -13,12 +13,14 @@ namespace EntryPointApp.Api.Services.Manager
         ApplicationDbContext context,
         ILogger<ManagerService> logger,
         IExcelService excelService,
-        IEmailService emailService) : IManagerService
+        IEmailService emailService,
+        IConfiguration configuration) : IManagerService
     {
         private readonly ApplicationDbContext _context = context;
         private readonly ILogger<ManagerService> _logger = logger;
         private readonly IExcelService _excelService = excelService;
         private readonly IEmailService _emailService = emailService;
+        private readonly IConfiguration _configuration = configuration;
 
         public async Task<TeamTimesheetPagedResult> GetTeamTimesheetsAsync(int managerId, int page, int pageSize, string? statusFilter)
         {
@@ -373,6 +375,7 @@ namespace EntryPointApp.Api.Services.Manager
 
                 var weeklyLog = await _context.Timesheet_WeeklyLogs
                     .Include(w => w.User)
+                        .ThenInclude(u => u.Manager)
                     .FirstOrDefaultAsync(w => w.Id == weeklyLogId
                         && w.User.ManagerId == managerId
                         && !w.IsDeleted);
@@ -404,6 +407,20 @@ namespace EntryPointApp.Api.Services.Manager
                 weeklyLog.UpdatedAt = DateTime.UtcNow;
 
                 await _context.SaveChangesAsync();
+
+                _ = Task.Run(async () =>
+                {
+                    await _emailService.SendTimesheetDenialEmailAsync(
+                        weeklyLog.User.Email!,
+                        $"{weeklyLog.User.FirstName} {weeklyLog.User.LastName}".Trim(),
+                        $"{weeklyLog.User.Manager!.FirstName} {weeklyLog.User.Manager.LastName}".Trim(),
+                        $"{weeklyLog.DateFrom:MMMM d, yyyy} - {weeklyLog.DateTo:MMMM d, yyyy}",
+                        weeklyLog.TotalHours,
+                        weeklyLog.TotalCharges,
+                        request.Reason,
+                        $"{_configuration["AppSettings:BaseUrl"]}/dashboard/week/{weeklyLog.Id}/edit"
+                    );
+                });
 
                 _logger.LogInformation("Manager {ManagerId} successfully denied timesheet {WeeklyLogId}",
                     managerId, weeklyLogId);

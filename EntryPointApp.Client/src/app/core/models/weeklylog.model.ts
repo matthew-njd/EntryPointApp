@@ -6,6 +6,7 @@ export interface WeeklyLog {
   totalHours: number;
   totalCharges: number;
   status: string;
+  managerComment: string | null;
   isDeleted: boolean;
   createdAt: string;
   updatedAt: string;
