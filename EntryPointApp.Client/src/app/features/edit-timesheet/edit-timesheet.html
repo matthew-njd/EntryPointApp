@@ -20,11 +20,16 @@
               d="m7.825 13l4.9 4.9q.3.3.288.7t-.313.7q-.3.275-.7.288t-.7-.288l-6.6-6.6q-.15-.15-.213-.325T4.426 12t.063-.375t.212-.325l6.6-6.6q.275-.275.688-.275t.712.275q.3.3.3.713t-.3.712L7.825 11H19q.425 0 .713.288T20 12t-.288.713T19 13z"
             />
           </svg>
-          {{ "common.back" | translate }}
+          {{ "timesheet.backToDailylogs" | translate }}
         </button>
       </div>
 
-      <h1 class="text-3xl mb-6">{{ "timesheet.editTitle" | translate }}</h1>
+      <div class="flex items-center gap-2.5 mb-4">
+        <div class="w-0.5 h-[26px] bg-primary rounded-sm shrink-0"></div>
+        <h1 class="text-2xl font-medium m-0">
+          {{ "timesheet.editTitle" | translate }}
+        </h1>
+      </div>
 
       @if (payrollDate()) {
         <div class="alert alert-info mb-4">

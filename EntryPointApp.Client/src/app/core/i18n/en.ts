@@ -114,7 +114,7 @@ export const EN = {
     timesheetSubTitle: 'Timesheet(s)',
   },
   timesheet: {
-    createTitle: 'Create New Timesheet',
+    createTitle: 'Create Timesheet',
     editTitle: 'Edit Timesheet',
     backToDashboard: 'Back to Dashboard',
     selectCalendarDate: 'Please select a date',
@@ -161,8 +161,10 @@ export const EN = {
     saving: 'Saving...',
     weekLabel: 'Week',
     weekDatesCannotChange: 'Week dates cannot be changed',
-    editDailylogs: 'Edit Daily Logs',
+    editDailylogs: 'Edit Timesheet',
     backToDashboardBtn: 'Back to Dashboard',
+    backToDailylogs: 'Back to Timesheet',
+    viewTimesheetTitle: 'Timesheet Summary',
   },
   dailylogs: {
     tableDate: 'Date',

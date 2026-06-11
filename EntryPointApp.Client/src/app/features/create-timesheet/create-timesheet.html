@@ -19,7 +19,12 @@
       </button>
     </div>
 
-    <h1 class="text-3xl mb-6">{{ "timesheet.createTitle" | translate }}</h1>
+    <div class="flex items-center gap-2.5 mb-4">
+      <div class="w-0.5 h-[26px] bg-primary rounded-sm shrink-0"></div>
+      <h1 class="text-2xl font-medium m-0">
+        {{ "timesheet.createTitle" | translate }}
+      </h1>
+    </div>
 
     <form [formGroup]="timesheetForm" (ngSubmit)="onSubmit()">
       <fieldset

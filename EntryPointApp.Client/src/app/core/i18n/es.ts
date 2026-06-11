@@ -118,7 +118,7 @@ export const ES = {
     timesheetSubTitle: 'Registro de horas',
   },
   timesheet: {
-    createTitle: 'Crear nuevo registro de horas',
+    createTitle: 'Crear registro de horas',
     editTitle: 'Editar hoja de tiempo',
     backToDashboard: 'Volver al panel',
     selectCalendarDate: 'Por favor seleccione una fecha',
@@ -165,8 +165,10 @@ export const ES = {
     saving: 'Guardando...',
     weekLabel: 'Semana',
     weekDatesCannotChange: 'Las fechas de la semana no se pueden cambiar',
-    editDailylogs: 'Editar registros diarios',
+    editDailylogs: 'Editar hoja de tiempo',
     backToDashboardBtn: 'Volver al panel',
+    backToDailylogs: 'Volver a la hoja de horas',
+    viewTimesheetTitle: 'Resumen de la hoja de horas',
   },
   dailylogs: {
     tableDate: 'Fecha',

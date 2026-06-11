@@ -12,7 +12,7 @@
       </div>
     } @else {
       <div
-        class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3"
+        class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-8"
       >
         <button class="btn btn-primary btn-sm" (click)="goBack()">
           <svg
@@ -28,7 +28,11 @@
           </svg>
           {{ "timesheet.backToDashboardBtn" | translate }}
         </button>
-        @if (weeklyLog() && (weeklyLog()!.status === "Draft" || weeklyLog()!.status === "Denied")) {
+
+        @if (
+          weeklyLog() &&
+          (weeklyLog()!.status === "Draft" || weeklyLog()!.status === "Denied")
+        ) {
           <button class="btn btn-primary btn-sm" (click)="editTimesheet()">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -46,7 +50,14 @@
         }
       </div>
 
-      <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6 mt-6">
+      <div class="flex items-center gap-2.5 mb-4">
+        <div class="w-0.5 h-[26px] bg-primary rounded-sm shrink-0"></div>
+        <h1 class="text-2xl font-medium m-0">
+          {{ "timesheet.viewTimesheetTitle" | translate }}
+        </h1>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
         <app-card
           [title]="'dailylogs.totalHours' | translate"
           value="{{ totalHours() }} {{ 'common.hrs' | translate }}"
@@ -76,8 +87,15 @@
             />
           </svg>
           <div>
-            <p class="font-semibold">{{ "dailylogs.denialReasonTitle" | translate }}</p>
-            <p><span class="font-semibold">{{ "dailylogs.denialReasonLabel" | translate }}</span> {{ weeklyLog()!.managerComment }}</p>
+            <p class="font-semibold">
+              {{ "dailylogs.denialReasonTitle" | translate }}
+            </p>
+            <p>
+              <span class="font-semibold">{{
+                "dailylogs.denialReasonLabel" | translate
+              }}</span>
+              {{ weeklyLog()!.managerComment }}
+            </p>
           </div>
         </div>
       }
