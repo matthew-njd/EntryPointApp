@@ -2,56 +2,72 @@
   <app-nav></app-nav>
 
   <div class="grow mt-6 sm:mt-10 max-w-7xl mx-auto px-4 w-full">
+
+    @if (service.error()) {
+      <div class="alert alert-error mb-4">
+        <span>{{ service.error() }}</span>
+      </div>
+    }
+
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold">{{ 'manager.title' | translate }}</h1>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
+      <app-card
+        [title]="'manager.pendingApproval' | translate"
+        [value]="service.isLoading() ? '—' : service.totalPending().toString()"
+        cardClasses="text-warning"
+      ></app-card>
+      <app-card
+        [title]="'manager.approved' | translate"
+        [value]="service.isLoading() ? '—' : service.totalApproved().toString()"
+        cardClasses="text-success"
+      ></app-card>
+      <app-card
+        [title]="'manager.denied' | translate"
+        [value]="service.isLoading() ? '—' : service.totalDenied().toString()"
+        cardClasses="text-error"
+      ></app-card>
+    </div>
+
+    <div class="flex flex-col sm:flex-row gap-4 mb-6">
+      <div class="form-control w-full sm:w-auto">
+        <label class="label">
+          <span class="label-text">{{ 'manager.filterByStatus' | translate }}</span>
+        </label>
+        <select
+          class="select select-bordered"
+          [(ngModel)]="statusFilter"
+          (ngModelChange)="statusFilter.set($event); onStatusFilterChange()"
+        >
+          <option value="All">{{ 'manager.allStatuses' | translate }}</option>
+          <option value="Pending">{{ 'manager.pending' | translate }}</option>
+          <option value="Approved">{{ 'manager.approved' | translate }}</option>
+          <option value="Denied">{{ 'manager.denied' | translate }}</option>
+          <option value="Draft">{{ 'manager.draft' | translate }}</option>
+        </select>
+      </div>
+
+      <div class="form-control w-full">
+        <label class="label">
+          <span class="label-text">{{ 'manager.search' | translate }}</span>
+        </label>
+        <input
+          type="text"
+          [placeholder]="'manager.searchPlaceholder' | translate"
+          class="input input-bordered w-full"
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="searchQuery.set($event); onSearchChange()"
+        />
+      </div>
+    </div>
+
     @if (service.isLoading()) {
       <div class="flex justify-center items-center py-20">
         <span class="loading loading-spinner loading-xl"></span>
       </div>
-    } @else if (service.error()) {
-      <div class="alert alert-error mb-4">
-        <span>{{ service.error() }}</span>
-      </div>
     } @else {
-      <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold">{{ 'manager.title' | translate }}</h1>
-      </div>
-
-      <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
-        <app-card
-          [title]="'manager.pendingApproval' | translate"
-          [value]="service.totalPending().toString()"
-          cardClasses="text-warning"
-        ></app-card>
-        <app-card
-          [title]="'manager.approved' | translate"
-          [value]="service.totalApproved().toString()"
-          cardClasses="text-success"
-        ></app-card>
-        <app-card
-          [title]="'manager.denied' | translate"
-          [value]="service.totalDenied().toString()"
-          cardClasses="text-error"
-        ></app-card>
-      </div>
-
-      <div class="flex flex-col sm:flex-row gap-4 mb-6">
-        <div class="form-control w-full sm:w-auto">
-          <label class="label">
-            <span class="label-text">{{ 'manager.filterByStatus' | translate }}</span>
-          </label>
-          <select
-            class="select select-bordered"
-            [(ngModel)]="statusFilter"
-            (ngModelChange)="statusFilter.set($event); onStatusFilterChange()"
-          >
-            <option value="All">{{ 'manager.allStatuses' | translate }}</option>
-            <option value="Pending">{{ 'manager.pending' | translate }}</option>
-            <option value="Approved">{{ 'manager.approved' | translate }}</option>
-            <option value="Denied">{{ 'manager.denied' | translate }}</option>
-            <option value="Draft">{{ 'manager.draft' | translate }}</option>
-          </select>
-        </div>
-      </div>
-
       <div class="overflow-x-auto rounded-box bg-base-300 mb-4">
         <table class="table">
           <thead>

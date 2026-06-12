@@ -31,35 +31,53 @@ export class Admin {
   statusFilter = signal<string>('All');
   searchQuery = signal<string>('');
 
-  // Filtered users
-  filteredUsers = computed(() => {
-    let users = this.service.users();
+  pageNumbers = computed(() => {
+    const totalPages = this.service.totalPages();
+    const current = this.service.page();
+    const pages: number[] = [];
+    const maxButtons = 5;
 
-    if (this.roleFilter() !== 'All') {
-      users = users.filter((u) => u.role === this.roleFilter());
+    let startPage = Math.max(1, current - Math.floor(maxButtons / 2));
+    let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+
+    if (endPage - startPage < maxButtons - 1) {
+      startPage = Math.max(1, endPage - maxButtons + 1);
     }
 
-    if (this.statusFilter() === 'Active') {
-      users = users.filter((u) => u.isActive);
-    } else if (this.statusFilter() === 'Inactive') {
-      users = users.filter((u) => !u.isActive);
-    }
+    for (let i = startPage; i <= endPage; i++) pages.push(i);
 
-    const query = this.searchQuery().toLowerCase();
-    if (query) {
-      users = users.filter(
-        (u) =>
-          u.email.toLowerCase().includes(query) ||
-          `${u.firstName} ${u.lastName}`.toLowerCase().includes(query),
-      );
-    }
-
-    return users;
+    return pages;
   });
 
   loadEffect = effect(() => {
-    this.service.loadUsers();
+    this.service.loadUsers(
+      this.service.page(),
+      this.service.pageSize(),
+      this.roleFilter(),
+      this.statusFilter(),
+      this.searchQuery(),
+    );
   });
+
+  onFilterChange() {
+    this.service.loadUsers(
+      1,
+      this.service.pageSize(),
+      this.roleFilter(),
+      this.statusFilter(),
+      this.searchQuery(),
+    );
+  }
+
+  onPageChange(page: number) {
+    this.service.loadUsers(
+      page,
+      this.service.pageSize(),
+      this.roleFilter(),
+      this.statusFilter(),
+      this.searchQuery(),
+    );
+  }
 
   editUser(userId: number) {
     this.router.navigate(['/admin/users', userId, 'edit']);
@@ -72,7 +90,7 @@ export class Admin {
       next: (response) => {
         if (response.success) {
           this.toastService.success(response.message);
-          this.service.loadUsers();
+          this.onFilterChange();
         } else {
           this.toastService.error(response.message);
         }
@@ -95,7 +113,7 @@ export class Admin {
       next: (response) => {
         if (response.success) {
           this.toastService.success(response.message);
-          this.service.loadUsers();
+          this.onFilterChange();
         } else {
           this.toastService.error(response.message);
         }

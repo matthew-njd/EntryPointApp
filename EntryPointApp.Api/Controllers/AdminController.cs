@@ -17,19 +17,24 @@ namespace EntryPointApp.Api.Controllers
         private readonly ILogger<AdminController> _logger = logger;
 
         /// <summary>
-        /// Get all users in the system
+        /// Get all users in the system with pagination, filtering, and search.
         /// </summary>
         [HttpGet("users")]
-        [ProducesResponseType(typeof(ApiResponse<UserListResponse>), 200)]
+        [ProducesResponseType(typeof(ApiResponse<UserPagedResponse>), 200)]
         [ProducesResponseType(typeof(ApiResponse), 400)]
         [ProducesResponseType(typeof(ErrorResponse), 500)]
-        public async Task<IActionResult> GetAllUsers()
+        public async Task<IActionResult> GetAllUsers(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 20,
+            [FromQuery] string? role = null,
+            [FromQuery] string? status = null,
+            [FromQuery] string? search = null)
         {
             try
             {
                 var adminId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-                var result = await _adminService.GetAllUsersAsync();
+                var result = await _adminService.GetAllUsersAsync(page, pageSize, role, status, search);
 
                 if (!result.Success)
                 {
@@ -41,9 +46,9 @@ namespace EntryPointApp.Api.Controllers
                     });
                 }
 
-                _logger.LogInformation("Admin {AdminId} retrieved all users", adminId);
+                _logger.LogInformation("Admin {AdminId} retrieved users (page {Page})", adminId, page);
 
-                return Ok(new ApiResponse<UserListResponse>
+                return Ok(new ApiResponse<UserPagedResponse>
                 {
                     Success = true,
                     Message = result.Message,

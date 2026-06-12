@@ -1,3 +1,5 @@
+using EntryPointApp.Api.Models.Dtos.Common;
+
 namespace EntryPointApp.Api.Models.Dtos.Users
 {
     public class BaseAdminResult
@@ -29,6 +31,16 @@ namespace EntryPointApp.Api.Models.Dtos.Users
     public class UserListResult : BaseAdminResult
     {
         public UserListResponse? Data { get; set; }
+    }
+
+    public class UserPagedResponse : PagedResult<UserDto>
+    {
+        public UserSummaryDto Summary { get; set; } = new();
+    }
+
+    public class UserPagedResult : BaseAdminResult
+    {
+        public UserPagedResponse? Data { get; set; }
     }
 
     public class UserRateResult : BaseAdminResult

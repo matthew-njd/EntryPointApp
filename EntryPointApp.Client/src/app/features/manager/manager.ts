@@ -19,6 +19,7 @@ export class Manager {
   private router = inject(Router);
 
   statusFilter = signal<string>('All');
+  searchQuery = signal<string>('');
 
   pageNumbers = computed(() => {
     const totalPages = this.service.totalPages();
@@ -43,6 +44,7 @@ export class Manager {
       this.service.page(),
       this.service.pageSize(),
       this.statusFilter(),
+      this.searchQuery(),
     );
   });
 
@@ -51,6 +53,7 @@ export class Manager {
       page,
       this.service.pageSize(),
       this.statusFilter(),
+      this.searchQuery(),
     );
   }
 
@@ -59,6 +62,16 @@ export class Manager {
       1,
       this.service.pageSize(),
       this.statusFilter(),
+      this.searchQuery(),
+    );
+  }
+
+  onSearchChange() {
+    this.service.loadTimesheets(
+      1,
+      this.service.pageSize(),
+      this.statusFilter(),
+      this.searchQuery(),
     );
   }
 

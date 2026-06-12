@@ -1,6 +1,8 @@
 ﻿using EntryPointApp.Api.Data.Context;
+using EntryPointApp.Api.Models.Dtos.Common;
 using EntryPointApp.Api.Models.Dtos.DailyLog;
 using EntryPointApp.Api.Models.Dtos.Users;
+using EntryPointApp.Api.Models.Entities;
 using EntryPointApp.Api.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,23 +15,52 @@ namespace EntryPointApp.Api.Services.Admin
         private readonly ApplicationDbContext _context = context;
         private readonly ILogger<AdminService> _logger = logger;
 
-        public async Task<UserListResult> GetAllUsersAsync()
+        public async Task<UserPagedResult> GetAllUsersAsync(int page, int pageSize, string? roleFilter, string? statusFilter, string? search)
         {
             try
             {
-                _logger.LogInformation("Retrieving all users");
+                _logger.LogInformation("Retrieving users - Page: {Page}, PageSize: {PageSize}, Role: {Role}, Status: {Status}, Search: {Search}",
+                    page, pageSize, roleFilter ?? "All", statusFilter ?? "All", search ?? "");
 
-                var query = _context.Timesheet_Users.Include(u => u.Manager);
+                var baseQuery = _context.Timesheet_Users.Include(u => u.Manager);
 
-                var roleCounts = await query
+                // Global summary counts are always based on the unfiltered set
+                var roleCounts = await baseQuery
                     .GroupBy(u => u.Role)
                     .Select(g => new { Role = g.Key, Count = g.Count() })
                     .ToDictionaryAsync(x => x.Role, x => x.Count);
 
-                var activeCount = await query.CountAsync(u => u.IsActive);
+                var activeCount = await baseQuery.CountAsync(u => u.IsActive);
+
+                IQueryable<User> query = baseQuery;
+
+                if (!string.IsNullOrEmpty(roleFilter) && roleFilter != "All" &&
+                    Enum.TryParse<UserRole>(roleFilter, out var parsedRole))
+                {
+                    query = query.Where(u => u.Role == parsedRole);
+                }
+
+                if (!string.IsNullOrEmpty(statusFilter) && statusFilter != "All")
+                {
+                    var isActive = statusFilter == "Active";
+                    query = query.Where(u => u.IsActive == isActive);
+                }
+
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    var q = search.ToLower();
+                    query = query.Where(u =>
+                        u.Email.ToLower().Contains(q) ||
+                        (u.FirstName + " " + u.LastName).ToLower().Contains(q));
+                }
+
+                var totalCount = await query.CountAsync();
+                var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
 
                 var users = await query
                     .OrderBy(u => u.Email)
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
                     .Select(u => new UserDto
                     {
                         Id = u.Id,
@@ -47,15 +78,21 @@ namespace EntryPointApp.Api.Services.Admin
                     })
                     .ToListAsync();
 
-                _logger.LogInformation("Successfully retrieved {Count} users", users.Count);
+                _logger.LogInformation("Successfully retrieved {Count} users (page {Page} of {TotalPages})", users.Count, page, totalPages);
 
-                return new UserListResult
+                return new UserPagedResult
                 {
                     Success = true,
                     Message = "Users retrieved successfully!",
-                    Data = new UserListResponse
+                    Data = new UserPagedResponse
                     {
-                        Users = users,
+                        Data = users,
+                        TotalCount = totalCount,
+                        Page = page,
+                        PageSize = pageSize,
+                        TotalPages = totalPages,
+                        HasNextPage = page < totalPages,
+                        HasPreviousPage = page > 1,
                         Summary = new UserSummaryDto
                         {
                             TotalUsers    = roleCounts.GetValueOrDefault(UserRole.User),
@@ -69,7 +106,7 @@ namespace EntryPointApp.Api.Services.Admin
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving users");
-                return new UserListResult
+                return new UserPagedResult
                 {
                     Success = false,
                     Message = "Failed to retrieve users",

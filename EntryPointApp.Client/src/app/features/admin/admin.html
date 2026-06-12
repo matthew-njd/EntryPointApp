@@ -2,94 +2,97 @@
   <app-nav></app-nav>
 
   <div class="grow mt-6 sm:mt-10 max-w-7xl mx-auto px-4 w-full">
+
+    @if (service.error()) {
+      <div class="alert alert-error mb-4">
+        <span>{{ service.error() }}</span>
+      </div>
+    }
+
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold">{{ 'admin.title' | translate }}</h1>
+      <button class="btn btn-outline btn-sm" (click)="goToPayrollSchedule()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m0 16H5V8h14zm-7-6h5v5h-5z"/>
+        </svg>
+        Payroll Schedule
+      </button>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <app-card
+        [title]="'admin.totalUsers' | translate"
+        [value]="service.isLoading() ? '—' : service.totalUsers().toString()"
+        cardClasses="text-info"
+      ></app-card>
+      <app-card
+        [title]="'admin.totalManagers' | translate"
+        [value]="service.isLoading() ? '—' : service.totalManagers().toString()"
+        cardClasses="text-warning"
+      ></app-card>
+      <app-card
+        [title]="'admin.totalAdmins' | translate"
+        [value]="service.isLoading() ? '—' : service.totalAdmins().toString()"
+        cardClasses="text-error"
+      ></app-card>
+      <app-card
+        [title]="'admin.activeUsers' | translate"
+        [value]="service.isLoading() ? '—' : service.activeUsers().toString()"
+        cardClasses="text-success"
+      ></app-card>
+    </div>
+
+    <div class="flex flex-col sm:flex-row gap-4 mb-6">
+      <div class="form-control w-full sm:w-auto">
+        <label class="label">
+          <span class="label-text">{{ 'admin.filterByRole' | translate }}</span>
+        </label>
+        <select
+          class="select select-bordered"
+          [(ngModel)]="roleFilter"
+          (ngModelChange)="roleFilter.set($event); onFilterChange()"
+        >
+          <option value="All">{{ 'admin.allRoles' | translate }}</option>
+          <option value="User">{{ 'admin.users' | translate }}</option>
+          <option value="Manager">{{ 'admin.managers' | translate }}</option>
+          <option value="Admin">{{ 'admin.admins' | translate }}</option>
+        </select>
+      </div>
+
+      <div class="form-control w-full sm:w-auto">
+        <label class="label">
+          <span class="label-text">{{ 'admin.filterByStatus' | translate }}</span>
+        </label>
+        <select
+          class="select select-bordered"
+          [(ngModel)]="statusFilter"
+          (ngModelChange)="statusFilter.set($event); onFilterChange()"
+        >
+          <option value="All">{{ 'admin.allStatuses' | translate }}</option>
+          <option value="Active">{{ 'admin.active' | translate }}</option>
+          <option value="Inactive">{{ 'admin.inactive' | translate }}</option>
+        </select>
+      </div>
+
+      <div class="form-control w-full">
+        <label class="label">
+          <span class="label-text">{{ 'admin.search' | translate }}</span>
+        </label>
+        <input
+          type="text"
+          [placeholder]="'admin.searchPlaceholder' | translate"
+          class="input input-bordered w-full"
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="searchQuery.set($event); onFilterChange()"
+        />
+      </div>
+    </div>
+
     @if (service.isLoading()) {
       <div class="flex justify-center items-center py-20">
         <span class="loading loading-spinner loading-xl"></span>
       </div>
-    } @else if (service.error()) {
-      <div class="alert alert-error mb-4">
-        <span>{{ service.error() }}</span>
-      </div>
     } @else {
-      <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold">{{ 'admin.title' | translate }}</h1>
-        <button class="btn btn-outline btn-sm" (click)="goToPayrollSchedule()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-            <path fill="currentColor" d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m0 16H5V8h14zm-7-6h5v5h-5z"/>
-          </svg>
-          Payroll Schedule
-        </button>
-      </div>
-
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <app-card
-          [title]="'admin.totalUsers' | translate"
-          [value]="service.totalUsers().toString()"
-          cardClasses="text-info"
-        ></app-card>
-        <app-card
-          [title]="'admin.totalManagers' | translate"
-          [value]="service.totalManagers().toString()"
-          cardClasses="text-warning"
-        ></app-card>
-        <app-card
-          [title]="'admin.totalAdmins' | translate"
-          [value]="service.totalAdmins().toString()"
-          cardClasses="text-error"
-        ></app-card>
-        <app-card
-          [title]="'admin.activeUsers' | translate"
-          [value]="service.activeUsers().toString()"
-          cardClasses="text-success"
-        ></app-card>
-      </div>
-
-      <div class="flex flex-col sm:flex-row gap-4 mb-6">
-        <div class="form-control w-full sm:w-auto">
-          <label class="label">
-            <span class="label-text">{{ 'admin.filterByRole' | translate }}</span>
-          </label>
-          <select
-            class="select select-bordered"
-            [(ngModel)]="roleFilter"
-            (ngModelChange)="roleFilter.set($event)"
-          >
-            <option value="All">{{ 'admin.allRoles' | translate }}</option>
-            <option value="User">{{ 'admin.users' | translate }}</option>
-            <option value="Manager">{{ 'admin.managers' | translate }}</option>
-            <option value="Admin">{{ 'admin.admins' | translate }}</option>
-          </select>
-        </div>
-
-        <div class="form-control w-full sm:w-auto">
-          <label class="label">
-            <span class="label-text">{{ 'admin.filterByStatus' | translate }}</span>
-          </label>
-          <select
-            class="select select-bordered"
-            [(ngModel)]="statusFilter"
-            (ngModelChange)="statusFilter.set($event)"
-          >
-            <option value="All">{{ 'admin.allStatuses' | translate }}</option>
-            <option value="Active">{{ 'admin.active' | translate }}</option>
-            <option value="Inactive">{{ 'admin.inactive' | translate }}</option>
-          </select>
-        </div>
-
-        <div class="form-control w-full">
-          <label class="label">
-            <span class="label-text">{{ 'admin.search' | translate }}</span>
-          </label>
-          <input
-            type="text"
-            [placeholder]="'admin.searchPlaceholder' | translate"
-            class="input input-bordered w-full"
-            [(ngModel)]="searchQuery"
-            (ngModelChange)="searchQuery.set($event)"
-          />
-        </div>
-      </div>
-
       <div class="overflow-x-auto rounded-box bg-base-300">
         <table class="table">
           <thead>
@@ -103,7 +106,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (user of filteredUsers(); track user.id) {
+            @for (user of service.users(); track user.id) {
               <tr>
                 <td>{{ getUserFullName(user) }}</td>
                 <td>{{ user.email }}</td>
@@ -212,6 +215,38 @@
           </tbody>
         </table>
       </div>
+
+      @if (service.totalPages() > 1) {
+        <div class="flex justify-center mt-4 mb-8">
+          <div class="join">
+            <button
+              class="join-item btn btn-square"
+              [disabled]="service.page() === 1"
+              (click)="onPageChange(service.page() - 1)"
+            >
+              «
+            </button>
+
+            @for (pageNum of pageNumbers(); track pageNum) {
+              <button
+                class="join-item btn btn-square"
+                [class.btn-active]="pageNum === service.page()"
+                (click)="onPageChange(pageNum)"
+              >
+                {{ pageNum }}
+              </button>
+            }
+
+            <button
+              class="join-item btn btn-square"
+              [disabled]="service.page() === service.totalPages()"
+              (click)="onPageChange(service.page() + 1)"
+            >
+              »
+            </button>
+          </div>
+        </div>
+      }
     }
   </div>
 

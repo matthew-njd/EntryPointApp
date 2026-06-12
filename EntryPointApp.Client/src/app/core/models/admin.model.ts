@@ -45,6 +45,17 @@ export interface UserListResponse {
   summary: UserSummary;
 }
 
+export interface UserPagedResponse {
+  data: UserDto[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+  summary: UserSummary;
+}
+
 export interface UserDto {
   id: number;
   email: string;

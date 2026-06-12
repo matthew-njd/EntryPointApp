@@ -277,6 +277,8 @@ export const ES = {
     review: 'Revisar',
     noTimesheets:
       'No se encontraron hojas de tiempo que coincidan con los filtros',
+    search: 'Buscar',
+    searchPlaceholder: 'Buscar por nombre o correo...',
   },
   reviewTimesheet: {
     backToTeam: 'Volver a hojas del equipo',

@@ -26,7 +26,8 @@ namespace EntryPointApp.Api.Controllers
         public async Task<IActionResult> GetTeamTimesheets(
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10,
-            [FromQuery] string? status = "All")
+            [FromQuery] string? status = "All",
+            [FromQuery] string? search = null)
         {
             try
             {
@@ -61,7 +62,7 @@ namespace EntryPointApp.Api.Controllers
                     });
                 }
 
-                var result = await _managerService.GetTeamTimesheetsAsync(managerId, page, pageSize, status);
+                var result = await _managerService.GetTeamTimesheetsAsync(managerId, page, pageSize, status, search);
 
                 if (!result.Success)
                 {

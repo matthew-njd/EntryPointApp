@@ -69,6 +69,7 @@ export class ManagerService {
     page?: number,
     pageSize?: number,
     statusFilter: string = 'All',
+    search: string = '',
   ) {
     this._isLoading.set(true);
     this._error.set(null);
@@ -82,6 +83,10 @@ export class ManagerService {
 
     if (statusFilter && statusFilter !== 'All') {
       params = params.set('status', statusFilter);
+    }
+
+    if (search) {
+      params = params.set('search', search);
     }
 
     this.http

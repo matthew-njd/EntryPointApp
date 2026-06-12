@@ -272,6 +272,8 @@ export const EN = {
     tableActions: 'Actions',
     review: 'Review',
     noTimesheets: 'No timesheets found matching your filters',
+    search: 'Search',
+    searchPlaceholder: 'Search by name or email...',
   },
   reviewTimesheet: {
     backToTeam: 'Back to Team Timesheets',

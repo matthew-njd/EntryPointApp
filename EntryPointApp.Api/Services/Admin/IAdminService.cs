@@ -5,7 +5,7 @@ namespace EntryPointApp.Api.Services.Admin
 {
     public interface IAdminService
     {
-        Task<UserListResult> GetAllUsersAsync();
+        Task<UserPagedResult> GetAllUsersAsync(int page, int pageSize, string? roleFilter, string? statusFilter, string? search);
         Task<UserResult> GetUserByIdAsync(int userId);
         Task<UserResult> UpdateUserRoleAsync(int userId, UserRole newRole);
         Task<UserResult> AssignManagerAsync(int userId, int managerId);

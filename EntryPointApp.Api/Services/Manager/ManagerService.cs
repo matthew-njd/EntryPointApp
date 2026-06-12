@@ -22,7 +22,7 @@ namespace EntryPointApp.Api.Services.Manager
         private readonly IEmailService _emailService = emailService;
         private readonly IConfiguration _configuration = configuration;
 
-        public async Task<TeamTimesheetPagedResult> GetTeamTimesheetsAsync(int managerId, int page, int pageSize, string? statusFilter)
+        public async Task<TeamTimesheetPagedResult> GetTeamTimesheetsAsync(int managerId, int page, int pageSize, string? statusFilter, string? search)
         {
             try
             {
@@ -46,6 +46,14 @@ namespace EntryPointApp.Api.Services.Manager
                     {
                         query = query.Where(w => w.Status == status);
                     }
+                }
+
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    var q = search.ToLower();
+                    query = query.Where(w =>
+                        w.User.Email.ToLower().Contains(q) ||
+                        (w.User.FirstName + " " + w.User.LastName).ToLower().Contains(q));
                 }
 
                 var totalCount = await query.CountAsync();
