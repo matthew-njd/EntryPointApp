@@ -22,22 +22,22 @@
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
       <app-card
         [title]="'admin.totalUsers' | translate"
-        [value]="service.isLoading() ? '—' : service.totalUsers().toString()"
+        [value]="service.totalUsers().toString()"
         cardClasses="text-info"
       ></app-card>
       <app-card
         [title]="'admin.totalManagers' | translate"
-        [value]="service.isLoading() ? '—' : service.totalManagers().toString()"
+        [value]="service.totalManagers().toString()"
         cardClasses="text-warning"
       ></app-card>
       <app-card
         [title]="'admin.totalAdmins' | translate"
-        [value]="service.isLoading() ? '—' : service.totalAdmins().toString()"
+        [value]="service.totalAdmins().toString()"
         cardClasses="text-error"
       ></app-card>
       <app-card
         [title]="'admin.activeUsers' | translate"
-        [value]="service.isLoading() ? '—' : service.activeUsers().toString()"
+        [value]="service.activeUsers().toString()"
         cardClasses="text-success"
       ></app-card>
     </div>

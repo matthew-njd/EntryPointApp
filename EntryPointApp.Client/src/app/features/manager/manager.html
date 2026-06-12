@@ -16,17 +16,17 @@
     <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
       <app-card
         [title]="'manager.pendingApproval' | translate"
-        [value]="service.isLoading() ? '—' : service.totalPending().toString()"
+        [value]="service.totalPending().toString()"
         cardClasses="text-warning"
       ></app-card>
       <app-card
         [title]="'manager.approved' | translate"
-        [value]="service.isLoading() ? '—' : service.totalApproved().toString()"
+        [value]="service.totalApproved().toString()"
         cardClasses="text-success"
       ></app-card>
       <app-card
         [title]="'manager.denied' | translate"
-        [value]="service.isLoading() ? '—' : service.totalDenied().toString()"
+        [value]="service.totalDenied().toString()"
         cardClasses="text-error"
       ></app-card>
     </div>

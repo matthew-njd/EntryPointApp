@@ -29,22 +29,22 @@
       <app-card
         cardClasses="text-success"
         [title]="'dashboard.totalApproved' | translate"
-        [value]="service.isLoading() ? '—' : totalApproved().toString()"
+        [value]="totalApproved().toString()"
       ></app-card>
       <app-card
         cardClasses="text-info"
         [title]="'dashboard.totalPending' | translate"
-        [value]="service.isLoading() ? '—' : totalPending().toString()"
+        [value]="totalPending().toString()"
       ></app-card>
       <app-card
         cardClasses="text-error"
         [title]="'dashboard.totalDenied' | translate"
-        [value]="service.isLoading() ? '—' : totalDenied().toString()"
+        [value]="totalDenied().toString()"
       ></app-card>
       <app-card
         cardClasses="text-warning"
         [title]="'dashboard.totalDrafts' | translate"
-        [value]="service.isLoading() ? '—' : totalDrafts().toString()"
+        [value]="totalDrafts().toString()"
       ></app-card>
     </div>
 
