@@ -25,8 +25,15 @@ namespace EntryPointApp.Api.Services.WeeklyLog
                 _logger.LogInformation("Retrieving weeklylogs for user {UserId} - Page: {Page}, PageSize: {PageSize}",
                     userId, request.Page, request.PageSize);
 
-                var query = _context.Timesheet_WeeklyLogs
+                var baseQuery = _context.Timesheet_WeeklyLogs
                     .Where(w => w.UserId == userId && !w.IsDeleted);
+
+                var statusCounts = await baseQuery
+                    .GroupBy(w => w.Status)
+                    .Select(g => new { Status = g.Key, Count = g.Count() })
+                    .ToDictionaryAsync(x => x.Status, x => x.Count);
+
+                var query = baseQuery;
 
                 if (request.StartDate.HasValue)
                 {
@@ -38,12 +45,13 @@ namespace EntryPointApp.Api.Services.WeeklyLog
                     query = query.Where(w => w.DateTo <= request.EndDate.Value);
                 }
 
-                var totalCount = await query.CountAsync();
+                if (!string.IsNullOrEmpty(request.Status) && request.Status != "All" &&
+                    Enum.TryParse<TimesheetStatus>(request.Status, out var parsedStatus))
+                {
+                    query = query.Where(w => w.Status == parsedStatus);
+                }
 
-                var statusCounts = await query
-                    .GroupBy(w => w.Status)
-                    .Select(g => new { Status = g.Key, Count = g.Count() })
-                    .ToDictionaryAsync(x => x.Status, x => x.Count);
+                var totalCount = await query.CountAsync();
 
                 var weeklyLogs = await query
                     .OrderByDescending(w => w.DateFrom)

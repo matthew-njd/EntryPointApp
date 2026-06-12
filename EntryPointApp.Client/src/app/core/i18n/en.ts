@@ -112,6 +112,10 @@ export const EN = {
     noTimesheets: 'No timesheets found',
     summarySubTitle: 'Summary',
     timesheetSubTitle: 'Timesheet(s)',
+    filterByStatus: 'Filter by Status',
+    allStatuses: 'All Statuses',
+    dateFrom: 'From',
+    dateTo: 'To',
   },
   timesheet: {
     createTitle: 'Create Timesheet',

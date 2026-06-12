@@ -6,5 +6,6 @@ namespace EntryPointApp.Api.Models.Dtos.Common
         public int PageSize { get; set; } = 10;
         public DateOnly? StartDate { get; set; }
         public DateOnly? EndDate { get; set; }
+        public string? Status { get; set; }
     }
 }

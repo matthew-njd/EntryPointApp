@@ -61,7 +61,13 @@ export class WeeklyLogService {
   readonly totalDenied = computed(() => this._summary().totalDenied);
   readonly totalDraft = computed(() => this._summary().totalDraft);
 
-  loadWeeklyLogs(page?: number, pageSize?: number) {
+  loadWeeklyLogs(
+    page?: number,
+    pageSize?: number,
+    statusFilter: string = 'All',
+    startDate: string = '',
+    endDate: string = '',
+  ) {
     this._isLoading.set(true);
     this._error.set(null);
 
@@ -71,6 +77,18 @@ export class WeeklyLogService {
     let params = new HttpParams()
       .set('page', p.toString())
       .set('pageSize', ps.toString());
+
+    if (statusFilter && statusFilter !== 'All') {
+      params = params.set('status', statusFilter);
+    }
+
+    if (startDate) {
+      params = params.set('startDate', startDate);
+    }
+
+    if (endDate) {
+      params = params.set('endDate', endDate);
+    }
 
     this.http
       .get<ApiResponse<WeeklyLogPagedResult>>(this.apiUrl, { params })

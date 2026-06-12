@@ -116,6 +116,10 @@ export const ES = {
     noTimesheets: 'No se encontraron hojas de tiempo',
     summarySubTitle: 'Resumen',
     timesheetSubTitle: 'Registro de horas',
+    filterByStatus: 'Filtrar por estado',
+    allStatuses: 'Todos los estados',
+    dateFrom: 'Desde',
+    dateTo: 'Hasta',
   },
   timesheet: {
     createTitle: 'Crear registro de horas',

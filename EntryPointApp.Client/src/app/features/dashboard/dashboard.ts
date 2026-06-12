@@ -1,5 +1,6 @@
-import { Component, computed, effect, inject } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Nav } from '../../shared/nav/nav';
 import { Card } from '../../shared/card/card';
 import { WeeklyLogService } from '../../core/services/weeklog.service';
@@ -11,7 +12,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, Nav, Card, Footer, TranslatePipe],
+  imports: [CommonModule, FormsModule, Nav, Card, Footer, TranslatePipe],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })
@@ -21,6 +22,10 @@ export class Dashboard {
   today = new Date();
 
   userFullName = '';
+
+  statusFilter = signal<string>('All');
+  startDate = signal<string>('');
+  endDate = signal<string>('');
 
   constructor() {
     this.loadUserFullName();
@@ -50,8 +55,24 @@ export class Dashboard {
   });
 
   loadEffect = effect(() => {
-    this.service.loadWeeklyLogs(this.service.page(), this.service.pageSize());
+    this.service.loadWeeklyLogs(
+      this.service.page(),
+      this.service.pageSize(),
+      this.statusFilter(),
+      this.startDate(),
+      this.endDate(),
+    );
   });
+
+  onFilterChange() {
+    this.service.loadWeeklyLogs(
+      1,
+      this.service.pageSize(),
+      this.statusFilter(),
+      this.startDate(),
+      this.endDate(),
+    );
+  }
 
   viewDailyLogs(logId: number) {
     this.router.navigate(['/dashboard/week', logId]);
@@ -66,7 +87,13 @@ export class Dashboard {
   }
 
   onPageChange(page: number) {
-    this.service.loadWeeklyLogs(page, this.service.pageSize());
+    this.service.loadWeeklyLogs(
+      page,
+      this.service.pageSize(),
+      this.statusFilter(),
+      this.startDate(),
+      this.endDate(),
+    );
   }
 
   getStatusBadgeClass(status: string | undefined): string {
