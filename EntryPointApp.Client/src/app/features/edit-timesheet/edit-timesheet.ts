@@ -30,6 +30,7 @@ import { ToastService } from '../../core/services/toast.service';
 import { Footer } from '../../shared/footer/footer';
 import { Nav } from '../../shared/nav/nav';
 import { Modal } from '../../shared/modal/modal';
+import { FlatpickrTimeDirective } from '../../shared/directives/flatpickr-time.directive';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { PayrollScheduleService } from '../../core/services/payroll-schedule.service';
 
@@ -58,6 +59,7 @@ interface DayErrors {
     Nav,
     Modal,
     TranslatePipe,
+    FlatpickrTimeDirective,
   ],
   templateUrl: './edit-timesheet.html',
   styleUrl: './edit-timesheet.css',

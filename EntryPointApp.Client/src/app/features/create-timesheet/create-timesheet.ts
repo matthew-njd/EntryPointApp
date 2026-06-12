@@ -1,16 +1,11 @@
 import {
-  AfterViewInit,
   ChangeDetectorRef,
   Component,
-  ElementRef,
-  OnDestroy,
   computed,
   inject,
   signal,
   viewChild,
 } from '@angular/core';
-import flatpickr from 'flatpickr';
-import { Instance } from 'flatpickr/dist/types/instance';
 import { CommonModule, DatePipe } from '@angular/common';
 import {
   AbstractControl,
@@ -30,6 +25,8 @@ import { ToastService } from '../../core/services/toast.service';
 import { Footer } from '../../shared/footer/footer';
 import { Nav } from '../../shared/nav/nav';
 import { Modal } from '../../shared/modal/modal';
+import { FlatpickrTimeDirective } from '../../shared/directives/flatpickr-time.directive';
+import { FlatpickrDateDirective } from '../../shared/directives/flatpickr-date.directive';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { PayrollScheduleService } from '../../core/services/payroll-schedule.service';
 
@@ -56,11 +53,13 @@ interface DayErrors {
     Nav,
     Modal,
     TranslatePipe,
+    FlatpickrTimeDirective,
+    FlatpickrDateDirective,
   ],
   templateUrl: './create-timesheet.html',
   styleUrl: './create-timesheet.css',
 })
-export class CreateTimesheet implements AfterViewInit, OnDestroy {
+export class CreateTimesheet {
   private fb = inject(FormBuilder);
   private weeklyLogService = inject(WeeklyLogService);
   private dailyLogService = inject(DailyLogService);
@@ -80,8 +79,6 @@ export class CreateTimesheet implements AfterViewInit, OnDestroy {
   existingWeeks = signal<{ dateFrom: string; dateTo: string }[]>([]);
   overlappingWeek = signal<{ dateFrom: string; dateTo: string } | null>(null);
   confirmModal = viewChild<Modal>('confirmModal');
-  dateInputRef = viewChild<ElementRef>('dateInput');
-  private fp: Instance | null = null;
 
   private readonly DAY_KEYS = [
     'days.sunday',
@@ -212,31 +209,6 @@ export class CreateTimesheet implements AfterViewInit, OnDestroy {
         this.overlappingWeek.set(null);
       }
     });
-  }
-
-  ngAfterViewInit(): void {
-    const el = this.dateInputRef();
-    if (!el) return;
-    this.fp = flatpickr(el.nativeElement, {
-      enable: [(date: Date) => date.getDay() === 1],
-      minDate: this.minDateStr,
-      maxDate: this.maxDateStr,
-      dateFormat: 'm/d/Y',
-      onChange: (dates: Date[]) => {
-        if (dates[0]) {
-          const d = dates[0];
-          const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-          this.dateFrom.setValue(iso);
-          this.dateFrom.markAsTouched();
-        } else {
-          this.dateFrom.setValue('');
-        }
-      },
-    }) as Instance;
-  }
-
-  ngOnDestroy(): void {
-    this.fp?.destroy();
   }
 
   generateDayForms(startDateStr: string): void {

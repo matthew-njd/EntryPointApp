@@ -97,3 +97,29 @@ span.flatpickr-weekday {
 .flatpickr-months .flatpickr-next-month:hover svg {
   fill: var(--color-primary);
 }
+
+/* Flatpickr time picker — match DaisyUI dark theme */
+.flatpickr-time {
+  border-color: var(--color-base-300);
+}
+.flatpickr-time input,
+.flatpickr-time .flatpickr-am-pm,
+.flatpickr-time .flatpickr-time-separator {
+  color: var(--color-base-content);
+}
+.flatpickr-time input:hover,
+.flatpickr-time input:focus,
+.flatpickr-time .flatpickr-am-pm:hover,
+.flatpickr-time .flatpickr-am-pm:focus {
+  background: var(--color-base-100);
+  color: var(--color-base-content);
+}
+.flatpickr-time .numInputWrapper span {
+  border-color: var(--color-base-300);
+}
+.flatpickr-time .numInputWrapper span.arrowUp::after {
+  border-bottom-color: var(--color-base-content);
+}
+.flatpickr-time .numInputWrapper span.arrowDown::after {
+  border-top-color: var(--color-base-content);
+}
