@@ -11,8 +11,10 @@ import {
   UserRateDto,
   SetUserRateRequest,
   UpdateUserRoleRequest,
+  UpdateEmployeeTypeRequest,
   AssignManagerRequest,
   UserRole,
+  EmployeeType,
 } from '../models/admin.model';
 
 export interface ApiResponse<T> {
@@ -123,6 +125,17 @@ export class AdminService {
     const request: UpdateUserRoleRequest = { role };
     return this.http.put<ApiResponse<UserDto>>(
       `${this.apiUrl}/users/${userId}/role`,
+      request,
+    );
+  }
+
+  updateEmployeeType(
+    userId: number,
+    employeeType: EmployeeType | null,
+  ): Observable<ApiResponse<UserDto>> {
+    const request: UpdateEmployeeTypeRequest = { employeeType };
+    return this.http.put<ApiResponse<UserDto>>(
+      `${this.apiUrl}/users/${userId}/employee-type`,
       request,
     );
   }

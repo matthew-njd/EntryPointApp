@@ -68,6 +68,7 @@ namespace EntryPointApp.Api.Services.Admin
                         FirstName = u.FirstName,
                         LastName = u.LastName,
                         Role = u.Role.ToString(),
+                        EmployeeType = u.EmployeeType.HasValue ? u.EmployeeType.ToString() : null,
                         ManagerId = u.ManagerId,
                         ManagerName = u.Manager != null
                             ? $"{u.Manager.FirstName} {u.Manager.LastName}".Trim()
@@ -131,6 +132,7 @@ namespace EntryPointApp.Api.Services.Admin
                         FirstName = u.FirstName,
                         LastName = u.LastName,
                         Role = u.Role.ToString(),
+                        EmployeeType = u.EmployeeType.HasValue ? u.EmployeeType.ToString() : null,
                         ManagerId = u.ManagerId,
                         ManagerName = u.Manager != null
                             ? $"{u.Manager.FirstName} {u.Manager.LastName}".Trim()
@@ -242,6 +244,7 @@ namespace EntryPointApp.Api.Services.Admin
                     FirstName = user.FirstName,
                     LastName = user.LastName,
                     Role = user.Role.ToString(),
+                    EmployeeType = user.EmployeeType.HasValue ? user.EmployeeType.ToString() : null,
                     ManagerId = user.ManagerId,
                     ManagerName = user.Manager != null
                         ? $"{user.Manager.FirstName} {user.Manager.LastName}".Trim()
@@ -364,6 +367,7 @@ namespace EntryPointApp.Api.Services.Admin
                     FirstName = user.FirstName,
                     LastName = user.LastName,
                     Role = user.Role.ToString(),
+                    EmployeeType = user.EmployeeType.HasValue ? user.EmployeeType.ToString() : null,
                     ManagerId = user.ManagerId,
                     ManagerName = user.Manager != null
                         ? $"{user.Manager.FirstName} {user.Manager.LastName}".Trim()
@@ -437,6 +441,7 @@ namespace EntryPointApp.Api.Services.Admin
                     FirstName = user.FirstName,
                     LastName = user.LastName,
                     Role = user.Role.ToString(),
+                    EmployeeType = user.EmployeeType.HasValue ? user.EmployeeType.ToString() : null,
                     ManagerId = null,
                     ManagerName = null,
                     IsActive = user.IsActive,
@@ -763,6 +768,70 @@ namespace EntryPointApp.Api.Services.Admin
                 {
                     Success = false,
                     Message = "Failed to retrieve timesheet detail",
+                    Errors = [ex.Message]
+                };
+            }
+        }
+
+        public async Task<UserResult> UpdateEmployeeTypeAsync(int userId, EmployeeType? employeeType)
+        {
+            try
+            {
+                _logger.LogInformation("Updating employee type for user {UserId} to {EmployeeType}", userId, employeeType?.ToString() ?? "null");
+
+                var user = await _context.Timesheet_Users
+                    .Include(u => u.Manager)
+                    .FirstOrDefaultAsync(u => u.Id == userId);
+
+                if (user == null)
+                {
+                    _logger.LogWarning("User {UserId} not found", userId);
+                    return new UserResult
+                    {
+                        Success = false,
+                        Message = "User not found",
+                        Errors = ["The requested user does not exist"]
+                    };
+                }
+
+                user.EmployeeType = employeeType;
+                user.UpdatedAt = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
+
+                var updatedUser = new UserDto
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Role = user.Role.ToString(),
+                    EmployeeType = user.EmployeeType.HasValue ? user.EmployeeType.ToString() : null,
+                    ManagerId = user.ManagerId,
+                    ManagerName = user.Manager != null
+                        ? $"{user.Manager.FirstName} {user.Manager.LastName}".Trim()
+                        : null,
+                    IsActive = user.IsActive,
+                    CreatedAt = user.CreatedAt,
+                    UpdatedAt = user.UpdatedAt
+                };
+
+                _logger.LogInformation("Successfully updated employee type for user {UserId}", userId);
+
+                return new UserResult
+                {
+                    Success = true,
+                    Message = "Employee type updated successfully!",
+                    Data = updatedUser
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating employee type for user {UserId}", userId);
+                return new UserResult
+                {
+                    Success = false,
+                    Message = "Failed to update employee type",
                     Errors = [ex.Message]
                 };
             }

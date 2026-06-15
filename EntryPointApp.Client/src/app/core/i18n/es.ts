@@ -265,6 +265,11 @@ export const ES = {
       'Puede aprobar/denegar hojas de tiempo del equipo. No puede enviar sus propias hojas de tiempo.',
     roleDescAdmin:
       'Acceso completo al sistema. Puede gestionar usuarios, roles y ver todos los datos.',
+    employeeType: 'Tipo de empleado',
+    selectEmployeeType: 'Seleccionar tipo de empleado:',
+    employeeTypeNotSpecified: 'No especificado',
+    employeeTypeEmployee: 'Empleado',
+    employeeTypeContractor: 'Contratista 1099',
   },
   manager: {
     title: 'Hojas de tiempo del equipo',
@@ -424,6 +429,8 @@ export const ES = {
     failedRemoveManager: 'Error al eliminar al gerente',
     managerAssigned: '¡Gerente asignado exitosamente!',
     failedAssignManager: 'Error al asignar el gerente',
+    employeeTypeUpdated: '¡Tipo de empleado actualizado exitosamente!',
+    failedUpdateEmployeeType: 'Error al actualizar el tipo de empleado',
     rateSaved: '¡Tarifa guardada exitosamente!',
     failedSaveRate: 'Error al guardar la tarifa',
     failedLoadTimesheets: 'Error al cargar las hojas de tiempo',

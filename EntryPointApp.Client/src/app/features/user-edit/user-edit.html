@@ -208,6 +208,38 @@
               class="fieldset bg-base-200 border-base-300 rounded-box border p-6 mb-6"
             >
               <legend class="fieldset-legend">
+                {{ "userEdit.employeeType" | translate }}
+              </legend>
+
+              <div class="form-control">
+                <label class="label mr-1">
+                  <span class="label-text">{{
+                    "userEdit.selectEmployeeType" | translate
+                  }}</span>
+                </label>
+                <select
+                  class="select select-bordered"
+                  formControlName="employeeType"
+                >
+                  <option [value]="null">
+                    {{ "userEdit.employeeTypeNotSpecified" | translate }}
+                  </option>
+                  <option [value]="EmployeeType.Employee">
+                    {{ "userEdit.employeeTypeEmployee" | translate }}
+                  </option>
+                  <option [value]="EmployeeType.Contractor">
+                    {{ "userEdit.employeeTypeContractor" | translate }}
+                  </option>
+                </select>
+              </div>
+            </fieldset>
+          }
+
+          @if (selectedRole() === UserRole.User) {
+            <fieldset
+              class="fieldset bg-base-200 border-base-300 rounded-box border p-6 mb-6"
+            >
+              <legend class="fieldset-legend">
                 {{ "userEdit.managerAssignment" | translate }}
               </legend>
 

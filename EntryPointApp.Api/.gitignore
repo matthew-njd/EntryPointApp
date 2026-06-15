@@ -5,6 +5,7 @@
 
 #db files
 *.db
+*.sql
 *.sqlite
 *.sqlite3
 

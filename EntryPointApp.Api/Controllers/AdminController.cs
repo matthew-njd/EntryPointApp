@@ -206,6 +206,81 @@ namespace EntryPointApp.Api.Controllers
         }
 
         /// <summary>
+        /// Update a user's employee type (Employee/Contractor/null)
+        /// </summary>
+        [HttpPut("users/{userId}/employee-type")]
+        [ProducesResponseType(typeof(ApiResponse<UserDto>), 200)]
+        [ProducesResponseType(typeof(ApiResponse), 400)]
+        [ProducesResponseType(typeof(ApiResponse), 404)]
+        [ProducesResponseType(typeof(ErrorResponse), 500)]
+        public async Task<IActionResult> UpdateEmployeeType([FromRoute] int userId, [FromBody] UpdateEmployeeTypeRequest request)
+        {
+            try
+            {
+                var adminId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (userId <= 0)
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Validation failed",
+                        Errors = ["User ID must be greater than 0"]
+                    });
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList();
+
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Validation failed",
+                        Errors = errors
+                    });
+                }
+
+                var result = await _adminService.UpdateEmployeeTypeAsync(userId, request.EmployeeType);
+
+                if (!result.Success)
+                {
+                    return NotFound(new ApiResponse
+                    {
+                        Success = false,
+                        Message = result.Message,
+                        Errors = result.Errors
+                    });
+                }
+
+                _logger.LogInformation("Admin {AdminId} updated employee type for user {UserId} to {EmployeeType}", adminId, userId, request.EmployeeType);
+
+                return Ok(new ApiResponse<UserDto>
+                {
+                    Success = true,
+                    Message = result.Message,
+                    Data = result.Data
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error updating employee type for user {UserId}", userId);
+                return StatusCode(500, new ErrorResponse
+                {
+                    Type = "InternalServerError",
+                    Title = "Employee Type Update Error",
+                    Status = 500,
+                    Detail = "An unexpected error occurred while updating the employee type",
+                    Instance = HttpContext.Request.Path,
+                    TraceId = HttpContext.TraceIdentifier
+                });
+            }
+        }
+
+        /// <summary>
         /// Assign a manager to a user
         /// </summary>
         [HttpPut("users/{userId}/manager")]

@@ -35,6 +35,7 @@ namespace EntryPointApp.Api.Data.Context
                 entity.Property(e => e.Email).IsRequired();
                 entity.Property(e => e.PasswordHash).IsRequired();
                 entity.Property(e => e.Role).HasConversion<string>();
+                entity.Property(e => e.EmployeeType).HasConversion<string>().IsRequired(false);
                 entity.Property(e => e.PasswordResetToken).HasMaxLength(256);
                 entity.HasIndex(e => e.PasswordResetToken);
                 entity.HasOne(e => e.Manager)

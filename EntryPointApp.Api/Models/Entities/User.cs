@@ -20,6 +20,8 @@ namespace EntryPointApp.Api.Models.Entities
 
         public required UserRole Role { get; set; }
 
+        public EmployeeType? EmployeeType { get; set; }
+
         public DateTime CreatedAt { get; set; }
 
         public DateTime UpdatedAt { get; set; }

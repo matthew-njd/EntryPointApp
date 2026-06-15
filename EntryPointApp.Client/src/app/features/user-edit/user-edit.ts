@@ -7,6 +7,7 @@ import {
   Validators,
 } from '@angular/forms';
 import {
+  EmployeeType,
   getRoleDisplayName,
   UserDto,
   UserRateDto,
@@ -46,6 +47,7 @@ export class UserEdit {
   selectedRole = signal<UserRole>(UserRole.User);
 
   UserRole = UserRole;
+  EmployeeType = EmployeeType;
   getRoleDisplayName = getRoleDisplayName;
 
   availableManagers = computed(() =>
@@ -59,6 +61,7 @@ export class UserEdit {
   constructor() {
     this.userForm = this.fb.group({
       role: [UserRole.User, [Validators.required]],
+      employeeType: [null as EmployeeType | null],
       managerId: [null as number | null],
     });
 
@@ -91,6 +94,7 @@ export class UserEdit {
           const roleValue = this.getRoleEnumValue(user.role);
           this.userForm.patchValue({
             role: roleValue,
+            employeeType: this.getEmployeeTypeEnumValue(user.employeeType),
             managerId: user.managerId,
           });
 
@@ -116,12 +120,16 @@ export class UserEdit {
   handleRoleChange(role: UserRole): void {
     this.selectedRole.set(role);
     const managerIdControl = this.userForm.get('managerId');
+    const employeeTypeControl = this.userForm.get('employeeType');
 
     if (role === UserRole.User) {
       managerIdControl?.enable();
+      employeeTypeControl?.enable();
     } else {
       managerIdControl?.setValue(null);
       managerIdControl?.disable();
+      employeeTypeControl?.setValue(null);
+      employeeTypeControl?.disable();
     }
   }
 
@@ -138,26 +146,44 @@ export class UserEdit {
     const currentRoleEnum = this.getRoleEnumValue(currentUser.role);
     const newRole = formValue.role;
     const newManagerId = formValue.managerId;
+    const newEmployeeType = formValue.employeeType as EmployeeType | null;
 
     const roleChanged = currentRoleEnum !== newRole;
     const managerChanged = currentUser.managerId !== newManagerId;
+    const currentEmployeeTypeEnum = this.getEmployeeTypeEnumValue(currentUser.employeeType);
+    const employeeTypeChanged = currentEmployeeTypeEnum !== newEmployeeType;
 
-    if (!roleChanged && !managerChanged) {
+    if (!roleChanged && !managerChanged && !employeeTypeChanged) {
       this.toastService.info(this.translateService.instant('toast.noChanges'));
       this.isLoading.set(false);
       return;
     }
+
+    const doEmployeeType = () => {
+      if (employeeTypeChanged) {
+        this.updateEmployeeType(currentUser.id, newEmployeeType);
+      } else {
+        this.completeUpdate();
+      }
+    };
+
+    const doManager = () => {
+      if (managerChanged) {
+        this.updateManager(currentUser.id, newManagerId, doEmployeeType);
+      } else {
+        doEmployeeType();
+      }
+    };
 
     if (roleChanged) {
       this.adminService.updateUserRole(currentUser.id, newRole).subscribe({
         next: (response) => {
           if (response.success) {
             this.toastService.success(this.translateService.instant('toast.roleUpdated'));
-
-            if (managerChanged && newRole === UserRole.User) {
-              this.updateManager(currentUser.id, newManagerId);
+            if (newRole === UserRole.User) {
+              doManager();
             } else {
-              this.completeUpdate();
+              doEmployeeType();
             }
           } else {
             this.toastService.error(response.message);
@@ -170,17 +196,19 @@ export class UserEdit {
         },
       });
     } else if (managerChanged) {
-      this.updateManager(currentUser.id, newManagerId);
+      this.updateManager(currentUser.id, newManagerId, doEmployeeType);
+    } else {
+      doEmployeeType();
     }
   }
 
-  updateManager(userId: number, managerId: number | null): void {
+  updateManager(userId: number, managerId: number | null, onComplete: () => void): void {
     if (managerId === null) {
       this.adminService.removeManager(userId).subscribe({
         next: (response) => {
           if (response.success) {
             this.toastService.success(this.translateService.instant('toast.managerRemoved'));
-            this.completeUpdate();
+            onComplete();
           } else {
             this.toastService.error(response.message);
             this.isLoading.set(false);
@@ -196,7 +224,7 @@ export class UserEdit {
         next: (response) => {
           if (response.success) {
             this.toastService.success(this.translateService.instant('toast.managerAssigned'));
-            this.completeUpdate();
+            onComplete();
           } else {
             this.toastService.error(response.message);
             this.isLoading.set(false);
@@ -208,6 +236,24 @@ export class UserEdit {
         },
       });
     }
+  }
+
+  updateEmployeeType(userId: number, employeeType: EmployeeType | null): void {
+    this.adminService.updateEmployeeType(userId, employeeType).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.toastService.success(this.translateService.instant('toast.employeeTypeUpdated'));
+          this.completeUpdate();
+        } else {
+          this.toastService.error(response.message);
+          this.isLoading.set(false);
+        }
+      },
+      error: (err) => {
+        this.toastService.error(err.message || this.translateService.instant('toast.failedUpdateEmployeeType'));
+        this.isLoading.set(false);
+      },
+    });
   }
 
   completeUpdate(): void {
@@ -290,8 +336,23 @@ export class UserEdit {
     }
   }
 
+  private getEmployeeTypeEnumValue(employeeType: string | null | undefined): EmployeeType | null {
+    switch (employeeType) {
+      case 'Employee':
+        return EmployeeType.Employee;
+      case 'Contractor':
+        return EmployeeType.Contractor;
+      default:
+        return null;
+    }
+  }
+
   get roleControl() {
     return this.userForm.get('role')!;
+  }
+
+  get employeeTypeControl() {
+    return this.userForm.get('employeeType')!;
   }
 
   get managerIdControl() {

@@ -62,6 +62,7 @@ export interface UserDto {
   firstName: string | null;
   lastName: string | null;
   role: string;
+  employeeType: string | null;
   managerId: number | null;
   managerName: string | null;
   isActive: boolean;
@@ -97,6 +98,15 @@ export enum UserRole {
   User = 0,
   Manager = 1,
   Admin = 2,
+}
+
+export enum EmployeeType {
+  Employee = 0,
+  Contractor = 1,
+}
+
+export interface UpdateEmployeeTypeRequest {
+  employeeType: EmployeeType | null;
 }
 
 export function getRoleDisplayName(role: string | UserRole): string {

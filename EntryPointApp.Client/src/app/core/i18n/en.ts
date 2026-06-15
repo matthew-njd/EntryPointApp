@@ -261,6 +261,11 @@ export const EN = {
       'Can approve/deny team timesheets. Cannot submit their own timesheets.',
     roleDescAdmin:
       'Full system access. Can manage users, roles, and view all data.',
+    employeeType: 'Employee Type',
+    selectEmployeeType: 'Select Employee Type:',
+    employeeTypeNotSpecified: 'Not specified',
+    employeeTypeEmployee: 'Employee',
+    employeeTypeContractor: '1099 Contractor',
   },
   manager: {
     title: 'Team Timesheets',
@@ -417,6 +422,8 @@ export const EN = {
     failedRemoveManager: 'Failed to remove manager',
     managerAssigned: 'Manager assigned successfully!',
     failedAssignManager: 'Failed to assign manager',
+    employeeTypeUpdated: 'Employee type updated successfully!',
+    failedUpdateEmployeeType: 'Failed to update employee type',
     rateSaved: 'Rate saved successfully!',
     failedSaveRate: 'Failed to save rate',
     failedLoadTimesheets: 'Failed to load timesheets',
