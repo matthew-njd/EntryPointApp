@@ -11,7 +11,7 @@ namespace EntryPointApp.Api.Services.Excel
         private readonly ApplicationDbContext _context = context;
         private readonly ILogger<ExcelService> _logger = logger;
  
-        public async Task<byte[]> GenerateTimesheetExcelAsync(int weeklyLogId)
+        public async Task<byte[]> GenerateTimesheetExcelAsync(int weeklyLogId, decimal hourlyRate, decimal mileageRate)
         {
             try
             {
@@ -67,9 +67,31 @@ namespace EntryPointApp.Api.Services.Excel
                 worksheet.Cell(9, 1).Style.Font.Bold = true;
                 worksheet.Cell(9, 2).Value = weeklyLog.TotalCharges;
                 worksheet.Cell(9, 2).Style.NumberFormat.Format = "$#,##0.00";
- 
-                // Daily Breakdown Table Header (starting at row 11)
-                int currentRow = 11;
+
+                var totalMileage = weeklyLog.DailyLogs.Sum(d => d.Mileage);
+
+                worksheet.Cell(10, 1).Value = "Hourly Rate:";
+                worksheet.Cell(10, 1).Style.Font.Bold = true;
+                worksheet.Cell(10, 2).Value = hourlyRate;
+                worksheet.Cell(10, 2).Style.NumberFormat.Format = "$#,##0.00";
+
+                worksheet.Cell(11, 1).Value = "Gross Pay:";
+                worksheet.Cell(11, 1).Style.Font.Bold = true;
+                worksheet.Cell(11, 2).Value = hourlyRate * weeklyLog.TotalHours;
+                worksheet.Cell(11, 2).Style.NumberFormat.Format = "$#,##0.00";
+
+                worksheet.Cell(12, 1).Value = "Mileage Rate:";
+                worksheet.Cell(12, 1).Style.Font.Bold = true;
+                worksheet.Cell(12, 2).Value = mileageRate;
+                worksheet.Cell(12, 2).Style.NumberFormat.Format = "$#,##0.0000";
+
+                worksheet.Cell(13, 1).Value = "Mileage Reimbursement:";
+                worksheet.Cell(13, 1).Style.Font.Bold = true;
+                worksheet.Cell(13, 2).Value = mileageRate * totalMileage;
+                worksheet.Cell(13, 2).Style.NumberFormat.Format = "$#,##0.00";
+
+                // Daily Breakdown Table Header (starting at row 15)
+                int currentRow = 15;
                 worksheet.Cell(currentRow, 1).Value = "DAILY BREAKDOWN";
                 worksheet.Cell(currentRow, 1).Style.Font.Bold = true;
                 worksheet.Cell(currentRow, 1).Style.Font.FontSize = 14;

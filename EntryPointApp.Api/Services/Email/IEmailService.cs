@@ -11,6 +11,10 @@ namespace EntryPointApp.Api.Services.Email
             string weekPeriod,
             decimal totalHours,
             decimal totalCharges,
+            decimal hourlyRate,
+            decimal totalPay,
+            decimal mileageRate,
+            decimal mileagePay,
             byte[] excelAttachment,
             string filename);
 

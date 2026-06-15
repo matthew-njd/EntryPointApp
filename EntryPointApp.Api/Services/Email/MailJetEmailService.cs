@@ -140,6 +140,10 @@ namespace EntryPointApp.Api.Services.Email
             string weekPeriod,
             decimal totalHours,
             decimal totalCharges,
+            decimal hourlyRate,
+            decimal totalPay,
+            decimal mileageRate,
+            decimal mileagePay,
             byte[] excelAttachment,
             string filename)
         {
@@ -190,6 +194,22 @@ namespace EntryPointApp.Api.Services.Email
                                         <td style='padding:4px 0; text-align:right;'>${totalCharges:F2}</td>
                                     </tr>
                                     <tr>
+                                        <td style='padding:4px 0;'><strong>Hourly Rate:</strong></td>
+                                        <td style='padding:4px 0; text-align:right;'>${hourlyRate:F2}/hr</td>
+                                    </tr>
+                                    <tr>
+                                        <td style='padding:4px 0;'><strong>Gross Pay:</strong></td>
+                                        <td style='padding:4px 0; text-align:right;'>${totalPay:F2}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style='padding:4px 0;'><strong>Mileage Rate:</strong></td>
+                                        <td style='padding:4px 0; text-align:right;'>${mileageRate:F4}/mi</td>
+                                    </tr>
+                                    <tr>
+                                        <td style='padding:4px 0;'><strong>Mileage Reimbursement:</strong></td>
+                                        <td style='padding:4px 0; text-align:right;'>${mileagePay:F2}</td>
+                                    </tr>
+                                    <tr>
                                         <td style='padding:4px 0;'><strong>Approved By:</strong></td>
                                         <td style='padding:4px 0; text-align:right;'>{managerName}</td>
                                     </tr>
@@ -223,6 +243,10 @@ namespace EntryPointApp.Api.Services.Email
                     Week Period: {weekPeriod}
                     Total Hours: {totalHours:F2} hrs
                     Total Charges: ${totalCharges:F2}
+                    Hourly Rate: ${hourlyRate:F2}/hr
+                    Gross Pay: ${totalPay:F2}
+                    Mileage Rate: ${mileageRate:F4}/mi
+                    Mileage Reimbursement: ${mileagePay:F2}
                     Approved By: {managerName}
 
                     Please see the attached Excel file for complete timesheet details.

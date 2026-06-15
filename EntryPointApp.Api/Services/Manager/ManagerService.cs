@@ -318,7 +318,23 @@ namespace EntryPointApp.Api.Services.Manager
                 var managerEmail = weeklyLog.User.Manager.Email;
                 var totalHours = weeklyLog.TotalHours;
                 var totalCharges = weeklyLog.TotalCharges;
-                var excelBytes = await _excelService.GenerateTimesheetExcelAsync(weeklyLogId);
+
+                var weeklyLogDateFrom = weeklyLog.DateFrom.ToDateTime(TimeOnly.MinValue);
+                var userRate = await _context.Timesheet_UserRates
+                    .Where(r => r.UserId == weeklyLog.UserId && r.EffectiveDate <= weeklyLogDateFrom)
+                    .OrderByDescending(r => r.EffectiveDate)
+                    .FirstOrDefaultAsync();
+                var hourlyRate = userRate?.HourlyRate ?? 0m;
+                var mileageRate = userRate?.MileageRate ?? 0m;
+
+                var totalMileage = await _context.Timesheet_DailyLogs
+                    .Where(d => d.WeeklyLogId == weeklyLogId && !d.IsDeleted)
+                    .SumAsync(d => d.Mileage);
+
+                var totalPay = hourlyRate * totalHours;
+                var mileagePay = mileageRate * totalMileage;
+
+                var excelBytes = await _excelService.GenerateTimesheetExcelAsync(weeklyLogId, hourlyRate, mileageRate);
 
                 _ = Task.Run(async () =>
                 {
@@ -332,6 +348,10 @@ namespace EntryPointApp.Api.Services.Manager
                             weekPeriod,
                             totalHours,
                             totalCharges,
+                            hourlyRate,
+                            totalPay,
+                            mileageRate,
+                            mileagePay,
                             excelBytes,
                             filename);
                     }
