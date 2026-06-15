@@ -43,6 +43,7 @@ export class Register {
         firstName: ['', [Validators.required]],
         lastName: ['', [Validators.required]],
         email: ['', [Validators.required, Validators.email]],
+        confirmEmail: ['', [Validators.required, Validators.email]],
         password: [
           '',
           [
@@ -55,7 +56,7 @@ export class Register {
         role: [UserRole.User],
       },
       {
-        validators: this.passwordMatchValidator,
+        validators: [this.passwordMatchValidator, this.emailMatchValidator],
       }
     );
   }
@@ -67,6 +68,15 @@ export class Register {
     const confirmPassword = group.get('confirmPassword')?.value;
 
     return password === confirmPassword ? null : { passwordMismatch: true };
+  }
+
+  private emailMatchValidator(
+    group: AbstractControl
+  ): ValidationErrors | null {
+    const email = group.get('email')?.value;
+    const confirmEmail = group.get('confirmEmail')?.value;
+
+    return email === confirmEmail ? null : { emailMismatch: true };
   }
 
   private passwordValidator(control: AbstractControl): ValidationErrors | null {
@@ -125,6 +135,10 @@ export class Register {
 
   get email() {
     return this.registerForm.get('email')!;
+  }
+
+  get confirmEmail() {
+    return this.registerForm.get('confirmEmail')!;
   }
 
   get password() {

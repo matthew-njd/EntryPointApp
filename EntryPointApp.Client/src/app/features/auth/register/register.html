@@ -76,6 +76,33 @@
       }
 
       <label class="label mt-4">{{
+        "auth.register.confirmEmail" | translate
+      }}</label>
+      <input
+        type="email"
+        class="input w-full"
+        [placeholder]="'auth.register.confirmEmailPlaceholder' | translate"
+        formControlName="confirmEmail"
+        [class.input-error]="
+          (confirmEmail.invalid && confirmEmail.touched) ||
+          (registerForm.errors?.['emailMismatch'] && confirmEmail.touched)
+        "
+      />
+      @if (confirmEmail.touched) {
+        <div class="text-error text-sm mt-1">
+          @if (confirmEmail.errors?.["required"]) {
+            <span>{{ "errors.confirmEmailRequired" | translate }}</span>
+          }
+          @if (
+            registerForm.errors?.["emailMismatch"] &&
+            !confirmEmail.errors?.["required"]
+          ) {
+            <span>{{ "errors.emailMismatch" | translate }}</span>
+          }
+        </div>
+      }
+
+      <label class="label mt-4">{{
         "auth.register.password" | translate
       }}</label>
       <div class="relative">
