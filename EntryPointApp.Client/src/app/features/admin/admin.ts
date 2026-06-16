@@ -128,6 +128,10 @@ export class Admin {
     this.router.navigate(['/admin/payroll-schedule']);
   }
 
+  goToApprovedEmails(): void {
+    this.router.navigate(['/admin/approved-emails']);
+  }
+
   getUserFullName(user: UserDto): string {
     if (user.firstName && user.lastName) {
       return `${user.firstName} ${user.lastName}`;

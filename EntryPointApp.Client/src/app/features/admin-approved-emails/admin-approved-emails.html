@@ -1,0 +1,90 @@
+<div class="flex flex-col min-h-screen">
+  <app-nav></app-nav>
+
+  <div class="grow mt-6 sm:mt-10 max-w-3xl mx-auto px-4 w-full">
+    <button class="btn btn-primary btn-sm mb-6" (click)="goBack()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+        <path fill="currentColor" d="m7.825 13l4.9 4.9q.3.3.288.7t-.313.7q-.3.275-.7.288t-.7-.288l-6.6-6.6q-.15-.15-.213-.325T4.426 12t.063-.375t.212-.325l6.6-6.6q.275-.275.688-.275t.712.275q.3.3.3.713t-.3.712L7.825 11H19q.425 0 .713.288T20 12t-.288.713T19 13z"/>
+      </svg>
+      Back to Admin
+    </button>
+
+    <h1 class="text-3xl font-bold mb-6">Approved Emails</h1>
+    <p class="text-base-content/60 mb-6 text-sm">Only emails on this list can register for an account.</p>
+
+    <!-- Add Email -->
+    <div class="bg-base-200 rounded-box p-4 mb-6">
+      <h2 class="text-lg font-semibold mb-3">Add Email</h2>
+      <div class="flex flex-col sm:flex-row gap-3 items-end">
+        <div class="form-control grow">
+          <label class="label"><span class="label-text text-xs">Email address</span></label>
+          <input
+            type="email"
+            class="input input-bordered input-sm"
+            placeholder="user@example.com"
+            [(ngModel)]="newEmail"
+            (keydown.enter)="addEmail()"
+          />
+        </div>
+        <button
+          class="btn btn-success btn-sm"
+          (click)="addEmail()"
+          [disabled]="isAdding()"
+        >
+          @if (isAdding()) {
+            <span class="loading loading-spinner loading-xs"></span>
+          }
+          Add
+        </button>
+      </div>
+    </div>
+
+    <!-- Approved Emails Table -->
+    @if (isLoading()) {
+      <div class="flex justify-center py-10">
+        <span class="loading loading-spinner loading-xl"></span>
+      </div>
+    } @else {
+      <div class="overflow-x-auto rounded-box bg-base-300">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Added By</th>
+              <th>Date Added</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (entry of emails(); track entry.id) {
+              <tr>
+                <td class="font-mono">{{ entry.email }}</td>
+                <td>{{ entry.addedByAdminName ?? '—' }}</td>
+                <td>{{ entry.createdAt | date: 'MMM d, y' }}</td>
+                <td>
+                  <button
+                    class="btn btn-xs btn-outline btn-error"
+                    (click)="removeEmail(entry)"
+                    title="Remove"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24">
+                      <path fill="currentColor" d="M7 21q-.825 0-1.412-.587T5 19V6H4V4h5V3h6v1h5v2h-1v13q0 .825-.587 1.413T17 21zm2-4h2V8H9zm4 0h2V8h-2z"/>
+                    </svg>
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="4" class="text-center py-8 text-base-content/50">
+                  No approved emails yet. Add one above.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+
+  <app-footer class="mt-8"></app-footer>
+</div>

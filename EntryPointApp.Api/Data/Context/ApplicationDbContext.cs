@@ -12,6 +12,7 @@ namespace EntryPointApp.Api.Data.Context
         public DbSet<UserRate> Timesheet_UserRates { get; set; }
         public DbSet<DailyLogAttachment> Timesheet_DailyLogAttachments { get; set; }
         public DbSet<PayrollSchedule> Timesheet_PayrollSchedules { get; set; }
+        public DbSet<ApprovedEmail> Timesheet_ApprovedEmails { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -24,6 +25,7 @@ namespace EntryPointApp.Api.Data.Context
             ConfigureUserRate(modelBuilder);
             ConfigureDailyLogAttachment(modelBuilder);
             ConfigurePayrollSchedule(modelBuilder);
+            ConfigureApprovedEmail(modelBuilder);
         }
 
         private void ConfigureUser(ModelBuilder modelBuilder)
@@ -163,6 +165,20 @@ namespace EntryPointApp.Api.Data.Context
                 entity.Property(e => e.CreatedAt).IsRequired();
                 entity.Property(e => e.UpdatedAt).IsRequired();
                 entity.HasIndex(e => e.DateFrom);
+            });
+        }
+
+        private void ConfigureApprovedEmail(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<ApprovedEmail>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Email).IsRequired().HasMaxLength(100);
+                entity.HasIndex(e => e.Email).IsUnique();
+                entity.HasOne(e => e.AddedByAdmin)
+                    .WithMany()
+                    .HasForeignKey(e => e.AddedByAdminId)
+                    .OnDelete(DeleteBehavior.SetNull);
             });
         }
     }

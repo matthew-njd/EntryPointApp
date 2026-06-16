@@ -30,6 +30,19 @@ namespace EntryPointApp.Api.Services.Authentication
         {
             try
             {
+                var isApproved = await _context.Timesheet_ApprovedEmails
+                    .AnyAsync(a => a.Email == request.Email.ToLowerInvariant());
+
+                if (!isApproved)
+                {
+                    return new RegisterAuthResult
+                    {
+                        Success = false,
+                        Message = "This email isn't approved for registration.",
+                        Errors = ["This email isn't approved for registration."]
+                    };
+                }
+
                 var existingUser = await GetUserByEmailAsync(request.Email);
                 if (existingUser != null)
                 {

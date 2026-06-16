@@ -1,7 +1,9 @@
 using System.Security.Claims;
 using EntryPointApp.Api.Models.Common;
+using EntryPointApp.Api.Models.Dtos.ApprovedEmails;
 using EntryPointApp.Api.Models.Dtos.Users;
 using EntryPointApp.Api.Services.Admin;
+using EntryPointApp.Api.Services.ApprovedEmails;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,10 +12,11 @@ namespace EntryPointApp.Api.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize(Policy = "AdminOnly")]
-    public class AdminController(IAdminService adminService, IUserRateService userRateService, ILogger<AdminController> logger) : ControllerBase
+    public class AdminController(IAdminService adminService, IUserRateService userRateService, IApprovedEmailService approvedEmailService, ILogger<AdminController> logger) : ControllerBase
     {
         private readonly IAdminService _adminService = adminService;
         private readonly IUserRateService _userRateService = userRateService;
+        private readonly IApprovedEmailService _approvedEmailService = approvedEmailService;
         private readonly ILogger<AdminController> _logger = logger;
 
         /// <summary>
@@ -768,6 +771,154 @@ namespace EntryPointApp.Api.Controllers
                     Title = "Timesheet Retrieval Error",
                     Status = 500,
                     Detail = "An unexpected error occurred while retrieving timesheets",
+                    Instance = HttpContext.Request.Path,
+                    TraceId = HttpContext.TraceIdentifier
+                });
+            }
+        }
+
+        /// <summary>
+        /// Get all approved emails
+        /// </summary>
+        [HttpGet("approved-emails")]
+        [ProducesResponseType(typeof(ApiResponse<List<ApprovedEmailResponse>>), 200)]
+        [ProducesResponseType(typeof(ErrorResponse), 500)]
+        public async Task<IActionResult> GetApprovedEmails()
+        {
+            try
+            {
+                var result = await _approvedEmailService.GetAllAsync();
+
+                return Ok(new ApiResponse<List<ApprovedEmailResponse>>
+                {
+                    Success = true,
+                    Message = result.Message,
+                    Data = result.Data
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error retrieving approved emails");
+                return StatusCode(500, new ErrorResponse
+                {
+                    Type = "InternalServerError",
+                    Title = "Approved Email Retrieval Error",
+                    Status = 500,
+                    Detail = "An unexpected error occurred while retrieving approved emails",
+                    Instance = HttpContext.Request.Path,
+                    TraceId = HttpContext.TraceIdentifier
+                });
+            }
+        }
+
+        /// <summary>
+        /// Add an email to the approved list
+        /// </summary>
+        [HttpPost("approved-emails")]
+        [ProducesResponseType(typeof(ApiResponse<ApprovedEmailResponse>), 201)]
+        [ProducesResponseType(typeof(ApiResponse), 400)]
+        [ProducesResponseType(typeof(ErrorResponse), 500)]
+        public async Task<IActionResult> AddApprovedEmail([FromBody] AddApprovedEmailRequest request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList();
+
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Validation failed",
+                        Errors = errors
+                    });
+                }
+
+                var adminIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (!int.TryParse(adminIdStr, out var adminId))
+                    return Unauthorized();
+
+                var result = await _approvedEmailService.AddAsync(request, adminId);
+
+                if (!result.Success)
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = result.Message,
+                        Errors = result.Errors
+                    });
+                }
+
+                _logger.LogInformation("Admin {AdminId} added approved email {Email}", adminId, request.Email);
+
+                return StatusCode(201, new ApiResponse<ApprovedEmailResponse>
+                {
+                    Success = true,
+                    Message = result.Message,
+                    Data = result.Data
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error adding approved email");
+                return StatusCode(500, new ErrorResponse
+                {
+                    Type = "InternalServerError",
+                    Title = "Approved Email Add Error",
+                    Status = 500,
+                    Detail = "An unexpected error occurred while adding the approved email",
+                    Instance = HttpContext.Request.Path,
+                    TraceId = HttpContext.TraceIdentifier
+                });
+            }
+        }
+
+        /// <summary>
+        /// Remove an email from the approved list
+        /// </summary>
+        [HttpDelete("approved-emails/{id}")]
+        [ProducesResponseType(typeof(ApiResponse), 200)]
+        [ProducesResponseType(typeof(ApiResponse), 404)]
+        [ProducesResponseType(typeof(ErrorResponse), 500)]
+        public async Task<IActionResult> RemoveApprovedEmail([FromRoute] int id)
+        {
+            try
+            {
+                var adminId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                var result = await _approvedEmailService.RemoveAsync(id);
+
+                if (!result.Success)
+                {
+                    return NotFound(new ApiResponse
+                    {
+                        Success = false,
+                        Message = result.Message,
+                        Errors = result.Errors
+                    });
+                }
+
+                _logger.LogInformation("Admin {AdminId} removed approved email {Id}", adminId, id);
+
+                return Ok(new ApiResponse
+                {
+                    Success = true,
+                    Message = result.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error removing approved email {Id}", id);
+                return StatusCode(500, new ErrorResponse
+                {
+                    Type = "InternalServerError",
+                    Title = "Approved Email Remove Error",
+                    Status = 500,
+                    Detail = "An unexpected error occurred while removing the approved email",
                     Instance = HttpContext.Request.Path,
                     TraceId = HttpContext.TraceIdentifier
                 });
