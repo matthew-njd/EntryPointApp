@@ -2,27 +2,61 @@
   <app-nav></app-nav>
 
   <div class="grow mt-6 sm:mt-10 max-w-7xl mx-auto px-4 w-full">
-
     @if (service.error()) {
       <div class="alert alert-error mb-4">
         <span>{{ service.error() }}</span>
       </div>
     }
 
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-3xl font-bold">{{ 'admin.title' | translate }}</h1>
+    <div class="flex justify-between items-center mb-4">
+      <div class="flex items-center gap-2.5">
+        <div class="w-0.5 h-[30px] bg-primary rounded-sm shrink-0"></div>
+        <h1 class="text-3xl font-medium m-0">
+          {{ "admin.title" | translate }}
+        </h1>
+      </div>
       <div class="flex gap-2">
         <button class="btn btn-outline btn-sm" (click)="goToApprovedEmails()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-            <path fill="currentColor" d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2m0 4l-8 5l-8-5V6l8 5l8-5z"/>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2m0 4l-8 5l-8-5V6l8 5l8-5z"
+            />
           </svg>
           Approved Emails
         </button>
         <button class="btn btn-outline btn-sm" (click)="goToPayrollSchedule()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-            <path fill="currentColor" d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m0 16H5V8h14zm-7-6h5v5h-5z"/>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m0 16H5V8h14zm-7-6h5v5h-5z"
+            />
           </svg>
           Payroll Schedule
+        </button>
+        <button class="btn btn-outline btn-sm" (click)="goToPayrollSummary()">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m-7 14H7v-2h5zm5-4H7v-2h10zm0-4H7V7h10z"
+            />
+          </svg>
+          Payroll Summary
         </button>
       </div>
     </div>
@@ -53,38 +87,40 @@
     <div class="flex flex-col sm:flex-row gap-4 mb-6">
       <div class="form-control w-full sm:w-auto">
         <label class="label">
-          <span class="label-text">{{ 'admin.filterByRole' | translate }}</span>
+          <span class="label-text">{{ "admin.filterByRole" | translate }}</span>
         </label>
         <select
           class="select select-bordered"
           [(ngModel)]="roleFilter"
           (ngModelChange)="roleFilter.set($event); onFilterChange()"
         >
-          <option value="All">{{ 'admin.allRoles' | translate }}</option>
-          <option value="User">{{ 'admin.users' | translate }}</option>
-          <option value="Manager">{{ 'admin.managers' | translate }}</option>
-          <option value="Admin">{{ 'admin.admins' | translate }}</option>
+          <option value="All">{{ "admin.allRoles" | translate }}</option>
+          <option value="User">{{ "admin.users" | translate }}</option>
+          <option value="Manager">{{ "admin.managers" | translate }}</option>
+          <option value="Admin">{{ "admin.admins" | translate }}</option>
         </select>
       </div>
 
       <div class="form-control w-full sm:w-auto">
         <label class="label">
-          <span class="label-text">{{ 'admin.filterByStatus' | translate }}</span>
+          <span class="label-text">{{
+            "admin.filterByStatus" | translate
+          }}</span>
         </label>
         <select
           class="select select-bordered"
           [(ngModel)]="statusFilter"
           (ngModelChange)="statusFilter.set($event); onFilterChange()"
         >
-          <option value="All">{{ 'admin.allStatuses' | translate }}</option>
-          <option value="Active">{{ 'admin.active' | translate }}</option>
-          <option value="Inactive">{{ 'admin.inactive' | translate }}</option>
+          <option value="All">{{ "admin.allStatuses" | translate }}</option>
+          <option value="Active">{{ "admin.active" | translate }}</option>
+          <option value="Inactive">{{ "admin.inactive" | translate }}</option>
         </select>
       </div>
 
       <div class="form-control w-full">
         <label class="label">
-          <span class="label-text">{{ 'admin.search' | translate }}</span>
+          <span class="label-text">{{ "admin.search" | translate }}</span>
         </label>
         <input
           type="text"
@@ -105,12 +141,12 @@
         <table class="table">
           <thead>
             <tr>
-              <th>{{ 'admin.tableUser' | translate }}</th>
-              <th>{{ 'admin.tableEmail' | translate }}</th>
-              <th>{{ 'admin.tableRole' | translate }}</th>
-              <th>{{ 'admin.tableManager' | translate }}</th>
-              <th>{{ 'admin.tableStatus' | translate }}</th>
-              <th>{{ 'admin.tableActions' | translate }}</th>
+              <th>{{ "admin.tableUser" | translate }}</th>
+              <th>{{ "admin.tableEmail" | translate }}</th>
+              <th>{{ "admin.tableRole" | translate }}</th>
+              <th>{{ "admin.tableManager" | translate }}</th>
+              <th>{{ "admin.tableStatus" | translate }}</th>
+              <th>{{ "admin.tableActions" | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -135,7 +171,10 @@
                     class="badge"
                     [ngClass]="user.isActive ? 'badge-success' : 'badge-ghost'"
                   >
-                    {{ (user.isActive ? 'admin.active' : 'admin.inactive') | translate }}
+                    {{
+                      (user.isActive ? "admin.active" : "admin.inactive")
+                        | translate
+                    }}
                   </span>
                 </td>
                 <td>
@@ -182,7 +221,10 @@
                       class="btn btn-xs btn-outline"
                       [ngClass]="user.isActive ? 'btn-error' : 'btn-success'"
                       (click)="toggleUserStatus(user)"
-                      [title]="(user.isActive ? 'admin.deactivate' : 'admin.activate') | translate"
+                      [title]="
+                        (user.isActive ? 'admin.deactivate' : 'admin.activate')
+                          | translate
+                      "
                     >
                       @if (user.isActive) {
                         <svg
@@ -216,7 +258,7 @@
             } @empty {
               <tr>
                 <td colspan="6" class="text-center py-8">
-                  {{ 'admin.noUsers' | translate }}
+                  {{ "admin.noUsers" | translate }}
                 </td>
               </tr>
             }

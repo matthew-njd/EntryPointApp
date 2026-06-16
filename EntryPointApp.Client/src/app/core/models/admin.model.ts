@@ -124,3 +124,21 @@ export function getRoleDisplayName(role: string | UserRole): string {
       return 'Unknown';
   }
 }
+
+export interface PayrollSummaryItem {
+  userId: number;
+  fullName: string;
+  employeeType: string;
+  hourlyRate: number;
+  mileageRate: number;
+  totalHours: number;
+  totalMileage: number;
+  grossPay: number;
+  mileageReimbursement: number;
+}
+
+export interface PayrollSummaryResponse {
+  dateFrom: string;
+  dateTo: string;
+  items: PayrollSummaryItem[];
+}

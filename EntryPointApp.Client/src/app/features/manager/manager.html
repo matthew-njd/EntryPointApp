@@ -2,15 +2,19 @@
   <app-nav></app-nav>
 
   <div class="grow mt-6 sm:mt-10 max-w-7xl mx-auto px-4 w-full">
-
     @if (service.error()) {
       <div class="alert alert-error mb-4">
         <span>{{ service.error() }}</span>
       </div>
     }
 
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-3xl font-bold">{{ 'manager.title' | translate }}</h1>
+    <div class="flex justify-between items-center mb-4">
+      <div class="flex items-center gap-2.5">
+        <div class="w-0.5 h-[30px] bg-primary rounded-sm shrink-0"></div>
+        <h1 class="text-3xl font-medium m-0">
+          {{ "manager.title" | translate }}
+        </h1>
+      </div>
     </div>
 
     <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
@@ -34,24 +38,26 @@
     <div class="flex flex-col sm:flex-row gap-4 mb-6">
       <div class="form-control w-full sm:w-auto">
         <label class="label">
-          <span class="label-text">{{ 'manager.filterByStatus' | translate }}</span>
+          <span class="label-text">{{
+            "manager.filterByStatus" | translate
+          }}</span>
         </label>
         <select
           class="select select-bordered"
           [(ngModel)]="statusFilter"
           (ngModelChange)="statusFilter.set($event); onStatusFilterChange()"
         >
-          <option value="All">{{ 'manager.allStatuses' | translate }}</option>
-          <option value="Pending">{{ 'manager.pending' | translate }}</option>
-          <option value="Approved">{{ 'manager.approved' | translate }}</option>
-          <option value="Denied">{{ 'manager.denied' | translate }}</option>
-          <option value="Draft">{{ 'manager.draft' | translate }}</option>
+          <option value="All">{{ "manager.allStatuses" | translate }}</option>
+          <option value="Pending">{{ "manager.pending" | translate }}</option>
+          <option value="Approved">{{ "manager.approved" | translate }}</option>
+          <option value="Denied">{{ "manager.denied" | translate }}</option>
+          <option value="Draft">{{ "manager.draft" | translate }}</option>
         </select>
       </div>
 
       <div class="form-control w-full">
         <label class="label">
-          <span class="label-text">{{ 'manager.search' | translate }}</span>
+          <span class="label-text">{{ "manager.search" | translate }}</span>
         </label>
         <input
           type="text"
@@ -72,13 +78,13 @@
         <table class="table">
           <thead>
             <tr>
-              <th>{{ 'manager.tableEmployee' | translate }}</th>
-              <th>{{ 'manager.tableWeek' | translate }}</th>
-              <th>{{ 'manager.tableHours' | translate }}</th>
-              <th>{{ 'manager.tableCharges' | translate }}</th>
-              <th>{{ 'manager.tableStatus' | translate }}</th>
-              <th>{{ 'manager.tableSubmitted' | translate }}</th>
-              <th>{{ 'manager.tableActions' | translate }}</th>
+              <th>{{ "manager.tableEmployee" | translate }}</th>
+              <th>{{ "manager.tableWeek" | translate }}</th>
+              <th>{{ "manager.tableHours" | translate }}</th>
+              <th>{{ "manager.tableCharges" | translate }}</th>
+              <th>{{ "manager.tableStatus" | translate }}</th>
+              <th>{{ "manager.tableSubmitted" | translate }}</th>
+              <th>{{ "manager.tableActions" | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -100,14 +106,16 @@
                     {{ timesheet.dateTo | date: "MMM d, y" }}
                   </div>
                 </td>
-                <td>{{ timesheet.totalHours }} {{ 'common.hrs' | translate }}</td>
+                <td>
+                  {{ timesheet.totalHours }} {{ "common.hrs" | translate }}
+                </td>
                 <td>${{ timesheet.totalCharges.toFixed(2) }}</td>
                 <td>
                   <span
                     class="badge"
                     [ngClass]="getStatusClass(timesheet.status)"
                   >
-                    {{ ('status.' + timesheet.status.toLowerCase()) | translate }}
+                    {{ "status." + timesheet.status.toLowerCase() | translate }}
                   </span>
                 </td>
                 <td>
@@ -140,14 +148,14 @@
                         <circle cx="12" cy="12" r="3" />
                       </g>
                     </svg>
-                    {{ 'manager.review' | translate }}
+                    {{ "manager.review" | translate }}
                   </button>
                 </td>
               </tr>
             } @empty {
               <tr>
                 <td colspan="7" class="text-center py-8">
-                  {{ 'manager.noTimesheets' | translate }}
+                  {{ "manager.noTimesheets" | translate }}
                 </td>
               </tr>
             }

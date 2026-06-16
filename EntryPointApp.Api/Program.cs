@@ -65,6 +65,7 @@ builder.Services.AddScoped<IWeeklyLogService, WeeklyLogService>();
 builder.Services.AddScoped<IDailyLogService, DailyLogService>();
 
 builder.Services.AddScoped<IAdminService, AdminService>();
+builder.Services.AddScoped<IAdminSummaryService, AdminSummaryService>();
 builder.Services.AddScoped<IUserRateService, UserRateService>();
 builder.Services.AddScoped<IManagerService, ManagerService>();
 builder.Services.AddScoped<IPayrollScheduleService, PayrollScheduleService>();

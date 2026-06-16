@@ -128,6 +128,10 @@ export class Admin {
     this.router.navigate(['/admin/payroll-schedule']);
   }
 
+  goToPayrollSummary(): void {
+    this.router.navigate(['/admin/payroll-summary']);
+  }
+
   goToApprovedEmails(): void {
     this.router.navigate(['/admin/approved-emails']);
   }

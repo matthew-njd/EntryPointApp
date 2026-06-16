@@ -19,6 +19,7 @@ import { AdminUserTimesheets } from './features/admin-user-timesheets/admin-user
 import { AdminTimesheetDetail } from './features/admin-timesheet-detail/admin-timesheet-detail';
 import { AdminPayrollSchedule } from './features/admin-payroll-schedule/admin-payroll-schedule';
 import { AdminApprovedEmails } from './features/admin-approved-emails/admin-approved-emails';
+import { AdminPayrollSummary } from './features/admin-payroll-summary/admin-payroll-summary';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
@@ -59,6 +60,11 @@ export const routes: Routes = [
   {
     path: 'admin/approved-emails',
     component: AdminApprovedEmails,
+    canActivate: [adminGuard],
+  },
+  {
+    path: 'admin/payroll-summary',
+    component: AdminPayrollSummary,
     canActivate: [adminGuard],
   },
   {
