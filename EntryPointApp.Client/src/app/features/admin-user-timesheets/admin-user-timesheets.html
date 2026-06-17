@@ -20,14 +20,19 @@
               d="m7.825 13l4.9 4.9q.3.3.288.7t-.313.7q-.3.275-.7.288t-.7-.288l-6.6-6.6q-.15-.15-.213-.325T4.426 12t.063-.375t.212-.325l6.6-6.6q.275-.275.688-.275t.712.275q.3.3.3.713t-.3.712L7.825 11H19q.425 0 .713.288T20 12t-.288.713T19 13z"
             />
           </svg>
-          {{ 'adminUserTimesheets.backToUser' | translate }}
+          {{ "adminUserTimesheets.backToUser" | translate }}
         </button>
       </div>
 
       @if (user()) {
-        <div class="mb-6">
-          <h1 class="text-3xl font-bold">{{ 'adminUserTimesheets.title' | translate }}</h1>
-          <p class="text-base-content/60 mt-2">
+        <div class="mb-4">
+          <div class="flex items-center gap-2.5">
+            <div class="w-0.5 h-[26px] bg-primary rounded-sm shrink-0"></div>
+            <h1 class="text-2xl font-medium m-0">
+              {{ "adminUserTimesheets.title" | translate }}
+            </h1>
+          </div>
+          <p class="text-base-content/60">
             {{ getUserDisplayName(user()!) }} ({{ user()!.email }})
           </p>
         </div>
@@ -37,11 +42,11 @@
         <table class="table">
           <thead>
             <tr>
-              <th>{{ 'adminUserTimesheets.tableWeek' | translate }}</th>
-              <th>{{ 'adminUserTimesheets.tableStatus' | translate }}</th>
-              <th>{{ 'adminUserTimesheets.tableTotalHours' | translate }}</th>
-              <th>{{ 'adminUserTimesheets.tableTotalCharges' | translate }}</th>
-              <th>{{ 'adminUserTimesheets.tableSubmitted' | translate }}</th>
+              <th>{{ "adminUserTimesheets.tableWeek" | translate }}</th>
+              <th>{{ "adminUserTimesheets.tableStatus" | translate }}</th>
+              <th>{{ "adminUserTimesheets.tableTotalHours" | translate }}</th>
+              <th>{{ "adminUserTimesheets.tableTotalCharges" | translate }}</th>
+              <th>{{ "adminUserTimesheets.tableSubmitted" | translate }}</th>
               <th></th>
             </tr>
           </thead>
@@ -53,11 +58,14 @@
                   {{ ts.dateTo | date: "MMM d, y" }}
                 </td>
                 <td>
-                  <span class="badge badge-sm" [ngClass]="getStatusClass(ts.status)">
-                    {{ ('status.' + ts.status.toLowerCase()) | translate }}
+                  <span
+                    class="badge badge-sm"
+                    [ngClass]="getStatusClass(ts.status)"
+                  >
+                    {{ "status." + ts.status.toLowerCase() | translate }}
                   </span>
                 </td>
-                <td>{{ ts.totalHours }} {{ 'common.hrs' | translate }}</td>
+                <td>{{ ts.totalHours }} {{ "common.hrs" | translate }}</td>
                 <td>${{ ts.totalCharges.toFixed(2) }}</td>
                 <td>{{ ts.submittedAt | date: "MMM d, y" }}</td>
                 <td>
@@ -65,14 +73,14 @@
                     class="btn btn-xs btn-outline"
                     (click)="viewTimesheet(ts.id)"
                   >
-                    {{ 'adminUserTimesheets.view' | translate }}
+                    {{ "adminUserTimesheets.view" | translate }}
                   </button>
                 </td>
               </tr>
             } @empty {
               <tr>
                 <td colspan="6" class="text-center py-8">
-                  {{ 'adminUserTimesheets.noTimesheets' | translate }}
+                  {{ "adminUserTimesheets.noTimesheets" | translate }}
                 </td>
               </tr>
             }

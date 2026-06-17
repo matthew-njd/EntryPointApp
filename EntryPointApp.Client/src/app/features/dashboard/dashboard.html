@@ -2,9 +2,9 @@
   <app-nav></app-nav>
 
   <div class="grow mt-6 sm:mt-10 max-w-4xl mx-auto px-4 w-full">
-    @if (service.error()) {
+    @if (weeklyLogService.error()) {
       <div class="alert alert-error mb-4">
-        <span>{{ service.error() }}</span>
+        <span>{{ weeklyLogService.error() }}</span>
       </div>
     }
 
@@ -19,8 +19,8 @@
     </div>
 
     <div class="flex items-center gap-2.5 mt-12">
-      <div class="w-0.5 h-[22px] bg-primary rounded-sm shrink-0"></div>
-      <h2 class="text-xl font-medium m-0">
+      <div class="w-0.5 h-[26px] bg-primary rounded-sm shrink-0"></div>
+      <h2 class="text-2xl font-medium m-0">
         {{ "dashboard.summarySubTitle" | translate }}
       </h2>
     </div>
@@ -52,8 +52,8 @@
       class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3"
     >
       <div class="flex items-center gap-2.5">
-        <div class="w-0.5 h-[22px] bg-primary rounded-sm shrink-0"></div>
-        <h2 class="text-xl font-medium m-0">
+        <div class="w-0.5 h-[26px] bg-primary rounded-sm shrink-0"></div>
+        <h2 class="text-2xl font-medium m-0">
           {{ "dashboard.timesheetSubTitle" | translate }}
         </h2>
       </div>
@@ -108,13 +108,13 @@
       </div>
     </div>
 
-    @if (service.isLoading()) {
+    @if (weeklyLogService.isLoading()) {
       <div class="flex justify-center items-center py-20">
         <span class="loading loading-spinner loading-xl"></span>
       </div>
     } @else {
       <div class="flex flex-col gap-6 mt-2 mb-4">
-        @for (weeklyLog of service.weeklyLogs(); track weeklyLog.id) {
+        @for (weeklyLog of weeklyLogService.weeklyLogs(); track weeklyLog.id) {
           <div
             class="card bg-base-200 border border-base-300 shadow-none rounded-box overflow-hidden"
           >
@@ -229,12 +229,12 @@
         }
       </div>
 
-      @if (service.totalPages() > 1) {
+      @if (weeklyLogService.totalPages() > 1) {
         <div class="join mb-8 flex justify-center">
           <button
             class="join-item btn btn-square"
-            [disabled]="service.page() === 1"
-            (click)="onPageChange(service.page() - 1)"
+            [disabled]="weeklyLogService.page() === 1"
+            (click)="onPageChange(weeklyLogService.page() - 1)"
           >
             «
           </button>
@@ -242,7 +242,7 @@
           @for (pageNum of pageNumbers(); track pageNum) {
             <button
               class="join-item btn btn-square"
-              [class.btn-active]="pageNum === service.page()"
+              [class.btn-active]="pageNum === weeklyLogService.page()"
               (click)="onPageChange(pageNum)"
             >
               {{ pageNum }}
@@ -251,8 +251,10 @@
 
           <button
             class="join-item btn btn-square"
-            [disabled]="service.page() === service.totalPages()"
-            (click)="onPageChange(service.page() + 1)"
+            [disabled]="
+              weeklyLogService.page() === weeklyLogService.totalPages()
+            "
+            (click)="onPageChange(weeklyLogService.page() + 1)"
           >
             »
           </button>

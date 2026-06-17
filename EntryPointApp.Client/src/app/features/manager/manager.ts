@@ -1,5 +1,6 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { ManagerService } from '../../core/services/manager.service';
+import { AuthService } from '../../core/services/auth.service';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -15,15 +16,24 @@ import { TranslatePipe } from '@ngx-translate/core';
   styleUrl: './manager.css',
 })
 export class Manager {
-  readonly service = inject(ManagerService);
+  readonly managerService = inject(ManagerService);
+  readonly authService = inject(AuthService);
   private router = inject(Router);
+  today = new Date();
+
+  userFullName = '';
 
   statusFilter = signal<string>('All');
   searchQuery = signal<string>('');
 
+  constructor() {
+    const user = this.authService.getCurrentUser();
+    this.userFullName = user ? `${user.firstName} ${user.lastName}` : '';
+  }
+
   pageNumbers = computed(() => {
-    const totalPages = this.service.totalPages();
-    const current = this.service.page();
+    const totalPages = this.managerService.totalPages();
+    const current = this.managerService.page();
     const pages: number[] = [];
     const maxButtons = 5;
 
@@ -40,36 +50,36 @@ export class Manager {
   });
 
   loadEffect = effect(() => {
-    this.service.loadTimesheets(
-      this.service.page(),
-      this.service.pageSize(),
+    this.managerService.loadTimesheets(
+      this.managerService.page(),
+      this.managerService.pageSize(),
       this.statusFilter(),
       this.searchQuery(),
     );
   });
 
   onPageChange(page: number) {
-    this.service.loadTimesheets(
+    this.managerService.loadTimesheets(
       page,
-      this.service.pageSize(),
+      this.managerService.pageSize(),
       this.statusFilter(),
       this.searchQuery(),
     );
   }
 
   onStatusFilterChange() {
-    this.service.loadTimesheets(
+    this.managerService.loadTimesheets(
       1,
-      this.service.pageSize(),
+      this.managerService.pageSize(),
       this.statusFilter(),
       this.searchQuery(),
     );
   }
 
   onSearchChange() {
-    this.service.loadTimesheets(
+    this.managerService.loadTimesheets(
       1,
-      this.service.pageSize(),
+      this.managerService.pageSize(),
       this.statusFilter(),
       this.searchQuery(),
     );
@@ -93,5 +103,4 @@ export class Manager {
         return '';
     }
   }
-
 }

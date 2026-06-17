@@ -9,6 +9,7 @@ import {
 import { Nav } from '../../shared/nav/nav';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { AuthService } from '../../core/services/auth.service';
 import { UserDto } from '../../core/models/admin.model';
 import { AdminService } from '../../core/services/admin.service';
 import { Router } from '@angular/router';
@@ -16,7 +17,7 @@ import { ToastService } from '../../core/services/toast.service';
 import { Card } from '../../shared/card/card';
 import { Footer } from '../../shared/footer/footer';
 import { Modal } from '../../shared/modal/modal';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-admin',
@@ -25,21 +26,29 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
   styleUrl: './admin.css',
 })
 export class Admin {
-  readonly service = inject(AdminService);
+  readonly adminService = inject(AdminService);
+  readonly authService = inject(AuthService);
   private router = inject(Router);
   private toastService = inject(ToastService);
+  today = new Date();
+
+  userFullName = '';
 
   toggleStatusModal = viewChild<Modal>('toggleStatusModal');
   pendingStatusUser = signal<UserDto | null>(null);
 
-  // Filter state
   roleFilter = signal<string>('All');
   statusFilter = signal<string>('All');
   searchQuery = signal<string>('');
 
+  constructor() {
+    const user = this.authService.getCurrentUser();
+    this.userFullName = user ? `${user.firstName} ${user.lastName}` : '';
+  }
+
   pageNumbers = computed(() => {
-    const totalPages = this.service.totalPages();
-    const current = this.service.page();
+    const totalPages = this.adminService.totalPages();
+    const current = this.adminService.page();
     const pages: number[] = [];
     const maxButtons = 5;
 
@@ -56,9 +65,9 @@ export class Admin {
   });
 
   loadEffect = effect(() => {
-    this.service.loadUsers(
-      this.service.page(),
-      this.service.pageSize(),
+    this.adminService.loadUsers(
+      this.adminService.page(),
+      this.adminService.pageSize(),
       this.roleFilter(),
       this.statusFilter(),
       this.searchQuery(),
@@ -66,9 +75,9 @@ export class Admin {
   });
 
   onFilterChange() {
-    this.service.loadUsers(
+    this.adminService.loadUsers(
       1,
-      this.service.pageSize(),
+      this.adminService.pageSize(),
       this.roleFilter(),
       this.statusFilter(),
       this.searchQuery(),
@@ -76,9 +85,9 @@ export class Admin {
   }
 
   onPageChange(page: number) {
-    this.service.loadUsers(
+    this.adminService.loadUsers(
       page,
-      this.service.pageSize(),
+      this.adminService.pageSize(),
       this.roleFilter(),
       this.statusFilter(),
       this.searchQuery(),
@@ -99,8 +108,8 @@ export class Admin {
     if (!user) return;
 
     const operation = user.isActive
-      ? this.service.deactivateUser(user.id)
-      : this.service.activateUser(user.id);
+      ? this.adminService.deactivateUser(user.id)
+      : this.adminService.activateUser(user.id);
 
     operation.subscribe({
       next: (response) => {

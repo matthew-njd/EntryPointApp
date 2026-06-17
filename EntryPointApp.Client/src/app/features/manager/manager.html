@@ -2,16 +2,26 @@
   <app-nav></app-nav>
 
   <div class="grow mt-6 sm:mt-10 max-w-7xl mx-auto px-4 w-full">
-    @if (service.error()) {
+    @if (managerService.error()) {
       <div class="alert alert-error mb-4">
-        <span>{{ service.error() }}</span>
+        <span>{{ managerService.error() }}</span>
       </div>
     }
 
-    <div class="flex justify-between items-center mb-4">
+    <div>
+      <p class="text-md text-secondary mb-0.5">
+        {{ "dashboard.hello" | translate }}
+      </p>
+      <h1 class="text-4xl font-medium">{{ userFullName }}</h1>
+      <p class="text-md text-secondary mt-1">
+        {{ today | date: "EEEE, MMMM d, y" }}
+      </p>
+    </div>
+
+    <div class="flex justify-between items-center mb-4 mt-12">
       <div class="flex items-center gap-2.5">
-        <div class="w-0.5 h-[30px] bg-primary rounded-sm shrink-0"></div>
-        <h1 class="text-3xl font-medium m-0">
+        <div class="w-0.5 h-[26px] bg-primary rounded-sm shrink-0"></div>
+        <h1 class="text-2xl font-medium m-0">
           {{ "manager.title" | translate }}
         </h1>
       </div>
@@ -20,17 +30,17 @@
     <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
       <app-card
         [title]="'manager.pendingApproval' | translate"
-        [value]="service.totalPending().toString()"
+        [value]="managerService.totalPending().toString()"
         cardClasses="text-warning"
       ></app-card>
       <app-card
         [title]="'manager.approved' | translate"
-        [value]="service.totalApproved().toString()"
+        [value]="managerService.totalApproved().toString()"
         cardClasses="text-success"
       ></app-card>
       <app-card
         [title]="'manager.denied' | translate"
-        [value]="service.totalDenied().toString()"
+        [value]="managerService.totalDenied().toString()"
         cardClasses="text-error"
       ></app-card>
     </div>
@@ -69,7 +79,7 @@
       </div>
     </div>
 
-    @if (service.isLoading()) {
+    @if (managerService.isLoading()) {
       <div class="flex justify-center items-center py-20">
         <span class="loading loading-spinner loading-xl"></span>
       </div>
@@ -88,7 +98,10 @@
             </tr>
           </thead>
           <tbody>
-            @for (timesheet of service.timesheets(); track timesheet.id) {
+            @for (
+              timesheet of managerService.timesheets();
+              track timesheet.id
+            ) {
               <tr>
                 <td>
                   <div>
@@ -163,13 +176,13 @@
         </table>
       </div>
 
-      @if (service.totalPages() > 1) {
+      @if (managerService.totalPages() > 1) {
         <div class="flex justify-center mb-8">
           <div class="join">
             <button
               class="join-item btn btn-square"
-              [disabled]="service.page() === 1"
-              (click)="onPageChange(service.page() - 1)"
+              [disabled]="managerService.page() === 1"
+              (click)="onPageChange(managerService.page() - 1)"
             >
               «
             </button>
@@ -177,7 +190,7 @@
             @for (pageNum of pageNumbers(); track pageNum) {
               <button
                 class="join-item btn btn-square"
-                [class.btn-active]="pageNum === service.page()"
+                [class.btn-active]="pageNum === managerService.page()"
                 (click)="onPageChange(pageNum)"
               >
                 {{ pageNum }}
@@ -186,8 +199,8 @@
 
             <button
               class="join-item btn btn-square"
-              [disabled]="service.page() === service.totalPages()"
-              (click)="onPageChange(service.page() + 1)"
+              [disabled]="managerService.page() === managerService.totalPages()"
+              (click)="onPageChange(managerService.page() + 1)"
             >
               »
             </button>

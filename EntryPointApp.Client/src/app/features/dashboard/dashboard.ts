@@ -4,8 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { Nav } from '../../shared/nav/nav';
 import { Card } from '../../shared/card/card';
 import { WeeklyLogService } from '../../core/services/weeklog.service';
+import { AuthService } from '../../core/services/auth.service';
 import { Router } from '@angular/router';
-import { UserResponse } from '../../core/models/auth.model';
 import { Footer } from '../../shared/footer/footer';
 import { TranslatePipe } from '@ngx-translate/core';
 
@@ -17,7 +17,8 @@ import { TranslatePipe } from '@ngx-translate/core';
   styleUrl: './dashboard.css',
 })
 export class Dashboard {
-  public service = inject(WeeklyLogService);
+  readonly weeklyLogService = inject(WeeklyLogService);
+  readonly authService = inject(AuthService);
   private router = inject(Router);
   today = new Date();
 
@@ -28,17 +29,18 @@ export class Dashboard {
   endDate = signal<string>('');
 
   constructor() {
-    this.loadUserFullName();
+    const user = this.authService.getCurrentUser();
+    this.userFullName = user ? `${user.firstName} ${user.lastName}` : '';
   }
 
-  totalApproved = computed(() => this.service.totalApproved());
-  totalPending = computed(() => this.service.totalPending());
-  totalDenied = computed(() => this.service.totalDenied());
-  totalDrafts = computed(() => this.service.totalDraft());
+  totalApproved = computed(() => this.weeklyLogService.totalApproved());
+  totalPending = computed(() => this.weeklyLogService.totalPending());
+  totalDenied = computed(() => this.weeklyLogService.totalDenied());
+  totalDrafts = computed(() => this.weeklyLogService.totalDraft());
 
   pageNumbers = computed(() => {
-    const totalPages = this.service.totalPages();
-    const current = this.service.page();
+    const totalPages = this.weeklyLogService.totalPages();
+    const current = this.weeklyLogService.page();
     const pages: number[] = [];
     const maxButtons = 5;
 
@@ -55,9 +57,9 @@ export class Dashboard {
   });
 
   loadEffect = effect(() => {
-    this.service.loadWeeklyLogs(
-      this.service.page(),
-      this.service.pageSize(),
+    this.weeklyLogService.loadWeeklyLogs(
+      this.weeklyLogService.page(),
+      this.weeklyLogService.pageSize(),
       this.statusFilter(),
       this.startDate(),
       this.endDate(),
@@ -65,9 +67,9 @@ export class Dashboard {
   });
 
   onFilterChange() {
-    this.service.loadWeeklyLogs(
+    this.weeklyLogService.loadWeeklyLogs(
       1,
-      this.service.pageSize(),
+      this.weeklyLogService.pageSize(),
       this.statusFilter(),
       this.startDate(),
       this.endDate(),
@@ -87,9 +89,9 @@ export class Dashboard {
   }
 
   onPageChange(page: number) {
-    this.service.loadWeeklyLogs(
+    this.weeklyLogService.loadWeeklyLogs(
       page,
-      this.service.pageSize(),
+      this.weeklyLogService.pageSize(),
       this.statusFilter(),
       this.startDate(),
       this.endDate(),
@@ -108,18 +110,6 @@ export class Dashboard {
         return 'badge-error';
       default:
         return '';
-    }
-  }
-
-  private loadUserFullName() {
-    try {
-      const userJson = localStorage.getItem('current_user');
-      if (userJson) {
-        const user: UserResponse = JSON.parse(userJson);
-        this.userFullName = `${user.firstName} ${user.lastName}`;
-      }
-    } catch (err) {
-      console.error('Failed to parse user data', err);
     }
   }
 }
