@@ -197,26 +197,6 @@
                       </svg>
                     </button>
 
-                    @if (user.managerId && user.role === "User") {
-                      <button
-                        class="btn btn-xs btn-outline btn-warning"
-                        (click)="removeManager(user)"
-                        [title]="'admin.removeManager' | translate"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            fill="currentColor"
-                            d="M14.08 15.59L16.67 13H7v-2h9.67l-2.59-2.59L15.5 7l5 5l-5 5z"
-                          />
-                        </svg>
-                      </button>
-                    }
-
                     <button
                       class="btn btn-xs btn-outline"
                       [ngClass]="user.isActive ? 'btn-error' : 'btn-success'"
@@ -302,3 +282,13 @@
 
   <app-footer class="mt-8"></app-footer>
 </div>
+
+<app-modal
+  #toggleStatusModal
+  [title]="(pendingStatusUser()?.isActive ? 'admin.confirmDeactivateTitle' : 'admin.confirmActivateTitle') | translate"
+  [body]="(pendingStatusUser()?.isActive ? 'admin.confirmDeactivateBody' : 'admin.confirmActivateBody') | translate: { email: pendingStatusUser()?.email }"
+  [confirmLabel]="(pendingStatusUser()?.isActive ? 'admin.confirmDeactivateBtn' : 'admin.confirmActivateBtn') | translate"
+  [cancelLabel]="'common.cancel' | translate"
+  [confirmClass]="pendingStatusUser()?.isActive ? 'btn btn-error' : 'btn btn-success'"
+  (confirmed)="onToggleStatusConfirmed()"
+/>

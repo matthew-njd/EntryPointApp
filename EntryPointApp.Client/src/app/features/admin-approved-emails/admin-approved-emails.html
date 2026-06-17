@@ -110,3 +110,13 @@
 
   <app-footer class="mt-8"></app-footer>
 </div>
+
+<app-modal
+  #removeEmailModal
+  title="Remove Email"
+  [body]="removeEmailBody()"
+  confirmLabel="Remove"
+  cancelLabel="Cancel"
+  confirmClass="btn btn-error"
+  (confirmed)="onRemoveEmailConfirmed()"
+/>

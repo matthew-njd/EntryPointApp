@@ -1,22 +1,26 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { Nav } from '../../shared/nav/nav';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import {
-  getRoleDisplayName,
-  UserDto,
-  UserRole,
-} from '../../core/models/admin.model';
+import { UserDto } from '../../core/models/admin.model';
 import { AdminService } from '../../core/services/admin.service';
 import { Router } from '@angular/router';
 import { ToastService } from '../../core/services/toast.service';
 import { Card } from '../../shared/card/card';
 import { Footer } from '../../shared/footer/footer';
+import { Modal } from '../../shared/modal/modal';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-admin',
-  imports: [CommonModule, FormsModule, Nav, Card, Footer, TranslatePipe],
+  imports: [CommonModule, FormsModule, Nav, Card, Footer, Modal, TranslatePipe],
   templateUrl: './admin.html',
   styleUrl: './admin.css',
 })
@@ -24,7 +28,9 @@ export class Admin {
   readonly service = inject(AdminService);
   private router = inject(Router);
   private toastService = inject(ToastService);
-  private translateService = inject(TranslateService);
+
+  toggleStatusModal = viewChild<Modal>('toggleStatusModal');
+  pendingStatusUser = signal<UserDto | null>(null);
 
   // Filter state
   roleFilter = signal<string>('All');
@@ -83,27 +89,14 @@ export class Admin {
     this.router.navigate(['/admin/users', userId, 'edit']);
   }
 
-  removeManager(user: UserDto) {
-    if (!confirm(`Remove manager from ${user.email}?`)) return;
-
-    this.service.removeManager(user.id).subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.toastService.success(response.message);
-          this.onFilterChange();
-        } else {
-          this.toastService.error(response.message);
-        }
-      },
-      error: (err) => {
-        this.toastService.error(err.message || this.translateService.instant('toast.failedRemoveManager'));
-      },
-    });
+  toggleUserStatus(user: UserDto) {
+    this.pendingStatusUser.set(user);
+    this.toggleStatusModal()?.open();
   }
 
-  toggleUserStatus(user: UserDto) {
-    const action = user.isActive ? 'deactivate' : 'activate';
-    if (!confirm(`Are you sure you want to ${action} ${user.email}?`)) return;
+  onToggleStatusConfirmed() {
+    const user = this.pendingStatusUser();
+    if (!user) return;
 
     const operation = user.isActive
       ? this.service.deactivateUser(user.id)
@@ -117,9 +110,12 @@ export class Admin {
         } else {
           this.toastService.error(response.message);
         }
+        this.pendingStatusUser.set(null);
       },
       error: (err) => {
+        const action = user.isActive ? 'deactivate' : 'activate';
         this.toastService.error(err.message || `Failed to ${action} user`);
+        this.pendingStatusUser.set(null);
       },
     });
   }

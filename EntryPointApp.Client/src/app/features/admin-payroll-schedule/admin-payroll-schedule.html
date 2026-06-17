@@ -225,3 +225,13 @@
 
   <app-footer class="mt-8"></app-footer>
 </div>
+
+<app-modal
+  #deleteEntryModal
+  title="Delete Entry"
+  body="This payroll schedule entry will be permanently deleted."
+  confirmLabel="Delete"
+  cancelLabel="Cancel"
+  confirmClass="btn btn-error"
+  (confirmed)="onDeleteEntryConfirmed()"
+/>

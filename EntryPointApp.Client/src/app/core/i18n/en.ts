@@ -218,6 +218,12 @@ export const EN = {
     removeManager: 'Remove Manager',
     deactivate: 'Deactivate',
     activate: 'Activate',
+    confirmDeactivateTitle: 'Deactivate User',
+    confirmDeactivateBody: 'Are you sure you want to deactivate {{email}}? They will no longer be able to log in.',
+    confirmDeactivateBtn: 'Deactivate',
+    confirmActivateTitle: 'Activate User',
+    confirmActivateBody: 'Are you sure you want to activate {{email}}? They will regain access to the app.',
+    confirmActivateBtn: 'Activate',
   },
   userEdit: {
     title: 'Edit User',

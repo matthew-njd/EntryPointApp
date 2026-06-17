@@ -1,9 +1,10 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Nav } from '../../shared/nav/nav';
 import { Footer } from '../../shared/footer/footer';
+import { Modal } from '../../shared/modal/modal';
 import { ToastService } from '../../core/services/toast.service';
 import {
   PayrollScheduleService,
@@ -18,7 +19,7 @@ interface EditState {
 
 @Component({
   selector: 'app-admin-payroll-schedule',
-  imports: [CommonModule, FormsModule, Nav, Footer],
+  imports: [CommonModule, FormsModule, Nav, Footer, Modal],
   templateUrl: './admin-payroll-schedule.html',
 })
 export class AdminPayrollSchedule implements OnInit {
@@ -38,6 +39,8 @@ export class AdminPayrollSchedule implements OnInit {
   csvFile = signal<File | null>(null);
   replaceExisting = signal(true);
   isImporting = signal(false);
+  deleteEntryModal = viewChild<Modal>('deleteEntryModal');
+  pendingDeleteId = signal<number | null>(null);
 
   ngOnInit(): void {
     this.loadEntries();
@@ -90,7 +93,13 @@ export class AdminPayrollSchedule implements OnInit {
   }
 
   deleteEntry(id: number): void {
-    if (!confirm('Delete this payroll schedule entry?')) return;
+    this.pendingDeleteId.set(id);
+    this.deleteEntryModal()?.open();
+  }
+
+  onDeleteEntryConfirmed(): void {
+    const id = this.pendingDeleteId();
+    if (id === null) return;
 
     this.service.delete(id).subscribe({
       next: (res) => {
@@ -100,8 +109,12 @@ export class AdminPayrollSchedule implements OnInit {
         } else {
           this.toastService.error(res.message || 'Failed to delete entry');
         }
+        this.pendingDeleteId.set(null);
       },
-      error: () => this.toastService.error('Failed to delete entry'),
+      error: () => {
+        this.toastService.error('Failed to delete entry');
+        this.pendingDeleteId.set(null);
+      },
     });
   }
 

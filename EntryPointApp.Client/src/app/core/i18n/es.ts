@@ -222,6 +222,12 @@ export const ES = {
     removeManager: 'Quitar gerente',
     deactivate: 'Desactivar',
     activate: 'Activar',
+    confirmDeactivateTitle: 'Desactivar usuario',
+    confirmDeactivateBody: '¿Está seguro de que desea desactivar a {{email}}? Ya no podrá iniciar sesión.',
+    confirmDeactivateBtn: 'Desactivar',
+    confirmActivateTitle: 'Activar usuario',
+    confirmActivateBody: '¿Está seguro de que desea activar a {{email}}? Recuperará el acceso a la aplicación.',
+    confirmActivateBtn: 'Activar',
   },
   userEdit: {
     title: 'Editar usuario',

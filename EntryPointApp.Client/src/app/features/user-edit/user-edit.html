@@ -254,11 +254,11 @@
                     class="select select-bordered"
                     formControlName="managerId"
                   >
-                    <option [value]="null">
+                    <option [ngValue]="null">
                       {{ "userEdit.noManagerAssigned" | translate }}
                     </option>
                     @for (manager of availableManagers(); track manager.id) {
-                      <option [value]="manager.id">
+                      <option [ngValue]="manager.id">
                         {{ getUserFullName(manager) }} ({{ manager.email }})
                       </option>
                     }

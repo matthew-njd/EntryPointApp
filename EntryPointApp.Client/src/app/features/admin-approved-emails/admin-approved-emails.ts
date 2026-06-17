@@ -1,16 +1,17 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, computed, inject, signal, OnInit, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Nav } from '../../shared/nav/nav';
 import { Footer } from '../../shared/footer/footer';
+import { Modal } from '../../shared/modal/modal';
 import { ToastService } from '../../core/services/toast.service';
 import { ApprovedEmailsService } from '../../core/services/approved-emails.service';
 import { ApprovedEmailDto } from '../../core/models/approved-emails.model';
 
 @Component({
   selector: 'app-admin-approved-emails',
-  imports: [CommonModule, FormsModule, Nav, Footer],
+  imports: [CommonModule, FormsModule, Nav, Footer, Modal],
   templateUrl: './admin-approved-emails.html',
 })
 export class AdminApprovedEmails implements OnInit {
@@ -22,6 +23,9 @@ export class AdminApprovedEmails implements OnInit {
   isLoading = signal(false);
   isAdding = signal(false);
   newEmail = '';
+  removeEmailModal = viewChild<Modal>('removeEmailModal');
+  pendingEmailEntry = signal<ApprovedEmailDto | null>(null);
+  removeEmailBody = computed(() => `Remove "${this.pendingEmailEntry()?.email}" from the approved list?`);
 
   ngOnInit(): void {
     this.loadEmails();
@@ -70,7 +74,13 @@ export class AdminApprovedEmails implements OnInit {
   }
 
   removeEmail(entry: ApprovedEmailDto): void {
-    if (!confirm(`Remove "${entry.email}" from the approved list?`)) return;
+    this.pendingEmailEntry.set(entry);
+    this.removeEmailModal()?.open();
+  }
+
+  onRemoveEmailConfirmed(): void {
+    const entry = this.pendingEmailEntry();
+    if (!entry) return;
 
     this.service.remove(entry.id).subscribe({
       next: (res) => {
@@ -80,8 +90,12 @@ export class AdminApprovedEmails implements OnInit {
         } else {
           this.toastService.error(res.message || 'Failed to remove email');
         }
+        this.pendingEmailEntry.set(null);
       },
-      error: () => this.toastService.error('Failed to remove email'),
+      error: () => {
+        this.toastService.error('Failed to remove email');
+        this.pendingEmailEntry.set(null);
+      },
     });
   }
 
