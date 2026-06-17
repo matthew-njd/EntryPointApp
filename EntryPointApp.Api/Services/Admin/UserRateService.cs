@@ -141,7 +141,7 @@ namespace EntryPointApp.Api.Services.Admin
                     UserId = userId,
                     HourlyRate = request.HourlyRate,
                     MileageRate = request.MileageRate,
-                    EffectiveDate = request.EffectiveDate.ToUniversalTime(),
+                    EffectiveDate = request.EffectiveDate.Date,
                     CreatedAt = DateTime.UtcNow,
                     CreatedByAdminId = adminId
                 };

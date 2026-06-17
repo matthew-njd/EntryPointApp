@@ -26,13 +26,12 @@
       Only emails on this list can register for an account.
     </p>
 
-    <!-- Add Email -->
     <div class="bg-base-200 rounded-box p-4 mb-6">
       <h2 class="text-lg font-semibold mb-3">Add Email</h2>
       <div class="flex flex-col sm:flex-row gap-3 items-end">
         <div class="form-control grow">
           <label class="label"
-            ><span class="label-text text-xs">Email address</span></label
+            ><span class="label-text text-xs mt-2">Email address:</span></label
           >
           <input
             type="email"
@@ -55,7 +54,6 @@
       </div>
     </div>
 
-    <!-- Approved Emails Table -->
     @if (isLoading()) {
       <div class="flex justify-center py-10">
         <span class="loading loading-spinner loading-xl"></span>
