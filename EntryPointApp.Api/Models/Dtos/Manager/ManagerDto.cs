@@ -15,6 +15,7 @@ namespace EntryPointApp.Api.Models.Dtos.Manager
         public decimal TotalHours { get; set; }
         public decimal TotalCharges { get; set; }
         public string Status { get; set; } = string.Empty;
+        public string? SalesRepComment { get; set; }
         public string? ManagerComment { get; set; }
         public DateTime SubmittedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
@@ -79,6 +80,7 @@ namespace EntryPointApp.Api.Models.Dtos.Manager
     {
         public int TotalApproved { get; set; }
         public int TotalPending { get; set; }
+        public int TotalPendingSalesRep { get; set; }
         public int TotalDenied { get; set; }
     }
 

@@ -1,13 +1,6 @@
-import {
-  Component,
-  computed,
-  effect,
-  inject,
-  signal,
-  viewChild,
-} from '@angular/core';
+import { Component, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ManagerService } from '../../core/services/manager.service';
+import { SalesRepService } from '../../core/services/sales-rep.service';
 import { DailyLogService } from '../../core/services/dailylog.service';
 import { ToastService } from '../../core/services/toast.service';
 import {
@@ -29,22 +22,15 @@ import { CommonModule } from '@angular/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 @Component({
-  selector: 'app-review-timsheet',
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    Footer,
-    Nav,
-    Modal,
-    TranslatePipe,
-  ],
-  templateUrl: './review-timsheet.html',
-  styleUrl: './review-timsheet.css',
+  selector: 'app-sales-rep-review',
+  imports: [CommonModule, ReactiveFormsModule, Footer, Nav, Modal, TranslatePipe],
+  templateUrl: './sales-rep-review.html',
+  styleUrl: './sales-rep-review.css',
 })
-export class ReviewTimsheet {
+export class SalesRepReview {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private managerService = inject(ManagerService);
+  private salesRepService = inject(SalesRepService);
   private dailyLogService = inject(DailyLogService);
   private toastService = inject(ToastService);
   private translateService = inject(TranslateService);
@@ -85,34 +71,27 @@ export class ReviewTimsheet {
   loadTimesheetDetail(timesheetId: number): void {
     this.isLoadingData.set(true);
 
-    this.managerService.getTimesheetDetail(timesheetId).subscribe({
+    this.salesRepService.getTimesheetDetail(timesheetId).subscribe({
       next: (response) => {
         if (response.success && response.data) {
           this.timesheet.set(response.data);
           this.isLoadingData.set(false);
         } else {
-          this.toastService.error(
-            this.translateService.instant('toast.failedLoadTimesheet'),
-          );
-          this.router.navigate(['/manager']);
+          this.toastService.error(this.translateService.instant('toast.failedLoadTimesheet'));
+          this.router.navigate(['/sales-rep']);
         }
       },
       error: (err) => {
-        this.toastService.error(
-          err.message ||
-            this.translateService.instant('toast.failedLoadTimesheet'),
-        );
-        this.router.navigate(['/manager']);
+        this.toastService.error(err.message || this.translateService.instant('toast.failedLoadTimesheet'));
+        this.router.navigate(['/sales-rep']);
       },
     });
   }
 
   approveTimesheet(): void {
     const ts = this.timesheet();
-    if (!ts || ts.status !== 'PendingManager') {
-      this.toastService.error(
-        this.translateService.instant('toast.onlyPendingApprovable'),
-      );
+    if (!ts || ts.status !== 'PendingSalesRep') {
+      this.toastService.error(this.translateService.instant('toast.onlyPendingApprovable'));
       return;
     }
     this.approveModal()?.open();
@@ -126,23 +105,18 @@ export class ReviewTimsheet {
 
     const request: ApproveTimesheetRequest = { comment: null };
 
-    this.managerService.approveTimesheet(ts.id, request).subscribe({
+    this.salesRepService.approveTimesheet(ts.id, request).subscribe({
       next: (response) => {
         if (response.success) {
-          this.toastService.success(
-            this.translateService.instant('toast.timesheetApproved'),
-          );
-          this.router.navigate(['/manager']);
+          this.toastService.success(this.translateService.instant('toast.timesheetApproved'));
+          this.router.navigate(['/sales-rep']);
         } else {
           this.toastService.error(response.message);
           this.isSubmitting.set(false);
         }
       },
       error: (err) => {
-        this.toastService.error(
-          err.message ||
-            this.translateService.instant('toast.failedApproveTimesheet'),
-        );
+        this.toastService.error(err.message || this.translateService.instant('toast.failedApproveTimesheet'));
         this.isSubmitting.set(false);
       },
     });
@@ -150,10 +124,8 @@ export class ReviewTimsheet {
 
   toggleDenyForm(): void {
     const ts = this.timesheet();
-    if (!ts || ts.status !== 'PendingManager') {
-      this.toastService.error(
-        this.translateService.instant('toast.onlyPendingDeniable'),
-      );
+    if (!ts || ts.status !== 'PendingSalesRep') {
+      this.toastService.error(this.translateService.instant('toast.onlyPendingDeniable'));
       return;
     }
 
@@ -181,61 +153,46 @@ export class ReviewTimsheet {
       reason: this.denyForm.value.reason,
     };
 
-    this.managerService.denyTimesheet(ts.id, request).subscribe({
+    this.salesRepService.denyTimesheet(ts.id, request).subscribe({
       next: (response) => {
         if (response.success) {
-          this.toastService.success(
-            this.translateService.instant('toast.timesheetDenied'),
-          );
-          this.router.navigate(['/manager']);
+          this.toastService.success(this.translateService.instant('toast.timesheetDenied'));
+          this.router.navigate(['/sales-rep']);
         } else {
           this.toastService.error(response.message);
           this.isSubmitting.set(false);
         }
       },
       error: (err) => {
-        this.toastService.error(
-          err.message ||
-            this.translateService.instant('toast.failedDenyTimesheet'),
-        );
+        this.toastService.error(err.message || this.translateService.instant('toast.failedDenyTimesheet'));
         this.isSubmitting.set(false);
       },
     });
   }
 
-  downloadReceipt(
-    weeklyLogId: number,
-    dailyLogId: number,
-    attachmentId: number,
-    fileName: string,
-  ): void {
-    this.dailyLogService
-      .downloadReceipt(weeklyLogId, dailyLogId, attachmentId)
-      .subscribe({
-        next: (blob) => {
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = fileName;
-          a.click();
-          URL.revokeObjectURL(url);
-        },
-        error: () => {
-          this.toastService.error(
-            this.translateService.instant('toast.failedDownloadReceipt'),
-          );
-        },
-      });
+  downloadReceipt(weeklyLogId: number, dailyLogId: number, attachmentId: number, fileName: string): void {
+    this.dailyLogService.downloadReceipt(weeklyLogId, dailyLogId, attachmentId).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        a.click();
+        URL.revokeObjectURL(url);
+      },
+      error: () => {
+        this.toastService.error(this.translateService.instant('toast.failedDownloadReceipt'));
+      },
+    });
   }
 
   goBack(): void {
-    this.router.navigate(['/manager']);
+    this.router.navigate(['/sales-rep']);
   }
 
   getStatusClass(status: string): string {
     switch (status) {
       case 'PendingSalesRep':
-        return 'badge-info';
       case 'PendingManager':
         return 'badge-warning';
       case 'Approved':
@@ -253,29 +210,8 @@ export class ReviewTimsheet {
     return this.denyForm.get('reason')!;
   }
 
-  private readonly DAY_KEYS = [
-    'days.sunday',
-    'days.monday',
-    'days.tuesday',
-    'days.wednesday',
-    'days.thursday',
-    'days.friday',
-    'days.saturday',
-  ];
-  private readonly MONTH_KEYS = [
-    'months.january',
-    'months.february',
-    'months.march',
-    'months.april',
-    'months.may',
-    'months.june',
-    'months.july',
-    'months.august',
-    'months.september',
-    'months.october',
-    'months.november',
-    'months.december',
-  ];
+  private readonly DAY_KEYS = ['days.sunday', 'days.monday', 'days.tuesday', 'days.wednesday', 'days.thursday', 'days.friday', 'days.saturday'];
+  private readonly MONTH_KEYS = ['months.january', 'months.february', 'months.march', 'months.april', 'months.may', 'months.june', 'months.july', 'months.august', 'months.september', 'months.october', 'months.november', 'months.december'];
 
   getDayKey(dateStr: string): string {
     const [y, m, d] = dateStr.split('-').map(Number);

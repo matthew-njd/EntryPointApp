@@ -17,6 +17,7 @@ namespace EntryPointApp.Api.Models.Dtos.Users
     public class UserSummaryDto
     {
         public int TotalUsers { get; set; }
+        public int TotalSalesReps { get; set; }
         public int TotalManagers { get; set; }
         public int TotalAdmins { get; set; }
         public int ActiveUsers { get; set; }

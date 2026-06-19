@@ -11,6 +11,8 @@ namespace EntryPointApp.Api.Services.Admin
         Task<UserResult> UpdateEmployeeTypeAsync(int userId, EmployeeType? employeeType);
         Task<UserResult> AssignManagerAsync(int userId, int managerId);
         Task<UserResult> RemoveManagerAsync(int userId);
+        Task<UserResult> AssignSalesRepAsync(int userId, int salesRepId);
+        Task<UserResult> RemoveSalesRepAsync(int userId);
         Task<UserResult> DeactivateUserAsync(int userId);
         Task<UserResult> ActivateUserAsync(int userId);
         Task<AdminTimesheetListResult> GetUserTimesheetsAsync(int userId);

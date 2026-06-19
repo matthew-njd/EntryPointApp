@@ -1,39 +1,34 @@
-﻿using EntryPointApp.Api.Data.Context;
+using EntryPointApp.Api.Data.Context;
 using EntryPointApp.Api.Models.Dtos.Common;
 using EntryPointApp.Api.Models.Dtos.DailyLog;
 using EntryPointApp.Api.Models.Dtos.Manager;
 using EntryPointApp.Api.Models.Enums;
 using EntryPointApp.Api.Services.Email;
-using EntryPointApp.Api.Services.Excel;
 using Microsoft.EntityFrameworkCore;
 
-namespace EntryPointApp.Api.Services.Manager
+namespace EntryPointApp.Api.Services.SalesRep
 {
-    public class ManagerService(
+    public class SalesRepService(
         ApplicationDbContext context,
-        ILogger<ManagerService> logger,
-        IExcelService excelService,
+        ILogger<SalesRepService> logger,
         IEmailService emailService,
-        IConfiguration configuration) : IManagerService
+        IConfiguration configuration) : ISalesRepService
     {
         private readonly ApplicationDbContext _context = context;
-        private readonly ILogger<ManagerService> _logger = logger;
-        private readonly IExcelService _excelService = excelService;
+        private readonly ILogger<SalesRepService> _logger = logger;
         private readonly IEmailService _emailService = emailService;
         private readonly IConfiguration _configuration = configuration;
 
-        public async Task<TeamTimesheetPagedResult> GetTeamTimesheetsAsync(int managerId, int page, int pageSize, string? statusFilter, string? search)
+        public async Task<TeamTimesheetPagedResult> GetTeamTimesheetsAsync(int salesRepId, int page, int pageSize, string? statusFilter, string? search)
         {
             try
             {
-                _logger.LogInformation("Retrieving team timesheets for manager {ManagerId} - Page: {Page}, PageSize: {PageSize}, Filter: {Filter}",
-                    managerId, page, pageSize, statusFilter ?? "All");
+                _logger.LogInformation("Retrieving team timesheets for sales rep {SalesRepId} - Page: {Page}, PageSize: {PageSize}, Filter: {Filter}",
+                    salesRepId, page, pageSize, statusFilter ?? "All");
 
                 var baseQuery = _context.Timesheet_WeeklyLogs
                     .Include(w => w.User)
-                    .Where(w => !w.IsDeleted && (
-                        (w.User.SalesRepId == null && w.User.ManagerId == managerId) ||
-                        (w.User.SalesRepId != null && w.User.SalesRep!.ManagerId == managerId)));
+                    .Where(w => w.User.SalesRepId == salesRepId && !w.IsDeleted);
 
                 var statusCounts = await baseQuery
                     .GroupBy(w => w.Status)
@@ -61,7 +56,7 @@ namespace EntryPointApp.Api.Services.Manager
                 var totalCount = await query.CountAsync();
 
                 var timesheets = await query
-                    .OrderBy(w => w.Status == TimesheetStatus.PendingManager ? 0 : 1)
+                    .OrderBy(w => w.Status == TimesheetStatus.PendingSalesRep ? 0 : 1)
                     .ThenBy(w => w.CreatedAt)
                     .ThenBy(w => w.User.FirstName)
                     .ThenBy(w => w.User.LastName)
@@ -98,15 +93,13 @@ namespace EntryPointApp.Api.Services.Manager
                     HasPreviousPage = page > 1,
                     Summary = new TimesheetSummaryDto
                     {
-                        TotalApproved        = statusCounts.GetValueOrDefault(TimesheetStatus.Approved),
-                        TotalPending         = statusCounts.GetValueOrDefault(TimesheetStatus.PendingManager),
-                        TotalPendingSalesRep = statusCounts.GetValueOrDefault(TimesheetStatus.PendingSalesRep),
-                        TotalDenied          = statusCounts.GetValueOrDefault(TimesheetStatus.Denied)
+                        TotalApproved = statusCounts.GetValueOrDefault(TimesheetStatus.Approved),
+                        TotalPending  = statusCounts.GetValueOrDefault(TimesheetStatus.PendingSalesRep),
+                        TotalDenied   = statusCounts.GetValueOrDefault(TimesheetStatus.Denied)
                     }
                 };
 
-                _logger.LogInformation("Successfully retrieved {Count} timesheets (page {Page} of {TotalPages}) for manager {ManagerId}",
-                    timesheets.Count, page, totalPages, managerId);
+                _logger.LogInformation("Successfully retrieved {Count} timesheets for sales rep {SalesRepId}", timesheets.Count, salesRepId);
 
                 return new TeamTimesheetPagedResult
                 {
@@ -117,7 +110,7 @@ namespace EntryPointApp.Api.Services.Manager
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving team timesheets for manager {ManagerId}", managerId);
+                _logger.LogError(ex, "Error retrieving team timesheets for sales rep {SalesRepId}", salesRepId);
                 return new TeamTimesheetPagedResult
                 {
                     Success = false,
@@ -127,17 +120,17 @@ namespace EntryPointApp.Api.Services.Manager
             }
         }
 
-        public async Task<TeamTimesheetListResult> GetPendingTimesheetsAsync(int managerId)
+        public async Task<TeamTimesheetListResult> GetPendingTimesheetsAsync(int salesRepId)
         {
             try
             {
-                _logger.LogInformation("Retrieving pending timesheets for manager {ManagerId}", managerId);
+                _logger.LogInformation("Retrieving pending timesheets for sales rep {SalesRepId}", salesRepId);
 
                 var timesheets = await _context.Timesheet_WeeklyLogs
                     .Include(w => w.User)
-                    .Where(w => w.Status == TimesheetStatus.PendingManager && !w.IsDeleted && (
-                        (w.User.SalesRepId == null && w.User.ManagerId == managerId) ||
-                        (w.User.SalesRepId != null && w.User.SalesRep!.ManagerId == managerId)))
+                    .Where(w => w.User.SalesRepId == salesRepId
+                        && w.Status == TimesheetStatus.PendingSalesRep
+                        && !w.IsDeleted)
                     .OrderBy(w => w.UpdatedAt)
                     .Select(w => new TeamTimesheetResponse
                     {
@@ -157,8 +150,8 @@ namespace EntryPointApp.Api.Services.Manager
                     })
                     .ToListAsync();
 
-                _logger.LogInformation("Successfully retrieved {Count} pending timesheets for manager {ManagerId}",
-                    timesheets.Count, managerId);
+                _logger.LogInformation("Successfully retrieved {Count} pending timesheets for sales rep {SalesRepId}",
+                    timesheets.Count, salesRepId);
 
                 return new TeamTimesheetListResult
                 {
@@ -169,7 +162,7 @@ namespace EntryPointApp.Api.Services.Manager
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving pending timesheets for manager {ManagerId}", managerId);
+                _logger.LogError(ex, "Error retrieving pending timesheets for sales rep {SalesRepId}", salesRepId);
                 return new TeamTimesheetListResult
                 {
                     Success = false,
@@ -179,31 +172,31 @@ namespace EntryPointApp.Api.Services.Manager
             }
         }
 
-        public async Task<TeamTimesheetDetailResult> GetTimesheetDetailAsync(int weeklyLogId, int managerId)
+        public async Task<TeamTimesheetDetailResult> GetTimesheetDetailAsync(int weeklyLogId, int salesRepId)
         {
             try
             {
-                _logger.LogInformation("Retrieving timesheet detail {WeeklyLogId} for manager {ManagerId}",
-                    weeklyLogId, managerId);
+                _logger.LogInformation("Retrieving timesheet detail {WeeklyLogId} for sales rep {SalesRepId}",
+                    weeklyLogId, salesRepId);
 
                 var weeklyLog = await _context.Timesheet_WeeklyLogs
                     .Include(w => w.User)
                     .Include(w => w.DailyLogs.Where(d => !d.IsDeleted))
                         .ThenInclude(d => d.Attachments)
-                    .Where(w => w.Id == weeklyLogId && !w.IsDeleted && (
-                        (w.User.SalesRepId == null && w.User.ManagerId == managerId) ||
-                        (w.User.SalesRepId != null && w.User.SalesRep!.ManagerId == managerId)))
+                    .Where(w => w.Id == weeklyLogId
+                        && w.User.SalesRepId == salesRepId
+                        && !w.IsDeleted)
                     .FirstOrDefaultAsync();
 
                 if (weeklyLog == null)
                 {
-                    _logger.LogWarning("Timesheet {WeeklyLogId} not found for manager {ManagerId}",
-                        weeklyLogId, managerId);
+                    _logger.LogWarning("Timesheet {WeeklyLogId} not found for sales rep {SalesRepId}",
+                        weeklyLogId, salesRepId);
                     return new TeamTimesheetDetailResult
                     {
                         Success = false,
                         Message = "Timesheet not found",
-                        Errors = ["The requested timesheet does not exist or does not belong to your team"]
+                        Errors = ["The requested timesheet does not exist or does not belong to your clients"]
                     };
                 }
 
@@ -271,113 +264,94 @@ namespace EntryPointApp.Api.Services.Manager
             }
         }
 
-        public async Task<TeamTimesheetResult> ApproveTimesheetAsync(int weeklyLogId, int managerId, ApproveTimesheetRequest request)
+        public async Task<TeamTimesheetResult> ApproveTimesheetAsync(int weeklyLogId, int salesRepId, ApproveTimesheetRequest request)
         {
             try
             {
-                _logger.LogInformation("Manager {ManagerId} approving timesheet {WeeklyLogId}",
-                    managerId, weeklyLogId);
+                _logger.LogInformation("Sales rep {SalesRepId} approving timesheet {WeeklyLogId}",
+                    salesRepId, weeklyLogId);
 
                 var weeklyLog = await _context.Timesheet_WeeklyLogs
                     .Include(w => w.User)
-                        .ThenInclude(u => u.SalesRep)
-                    .FirstOrDefaultAsync(w => w.Id == weeklyLogId && !w.IsDeleted && (
-                        (w.User.SalesRepId == null && w.User.ManagerId == managerId) ||
-                        (w.User.SalesRepId != null && w.User.SalesRep!.ManagerId == managerId)));
+                        .ThenInclude(u => u.Manager)
+                    .FirstOrDefaultAsync(w => w.Id == weeklyLogId
+                        && w.User.SalesRepId == salesRepId
+                        && !w.IsDeleted);
 
                 if (weeklyLog == null)
                 {
-                    _logger.LogWarning("Timesheet {WeeklyLogId} not found for manager {ManagerId}",
-                        weeklyLogId, managerId);
+                    _logger.LogWarning("Timesheet {WeeklyLogId} not found for sales rep {SalesRepId}",
+                        weeklyLogId, salesRepId);
                     return new TeamTimesheetResult
                     {
                         Success = false,
                         Message = "Timesheet not found",
-                        Errors = ["The requested timesheet does not exist or does not belong to your team"]
+                        Errors = ["The requested timesheet does not exist or does not belong to your clients"]
                     };
                 }
 
-                if (weeklyLog.Status != TimesheetStatus.PendingManager)
+                if (weeklyLog.Status != TimesheetStatus.PendingSalesRep)
                 {
                     return new TeamTimesheetResult
                     {
                         Success = false,
                         Message = "Cannot approve timesheet",
-                        Errors = [$"Only timesheets pending manager approval can be approved. Current status: {weeklyLog.Status}"]
+                        Errors = [$"Only timesheets pending Sales Rep review can be approved. Current status: {weeklyLog.Status}"]
                     };
                 }
 
-                weeklyLog.Status = TimesheetStatus.Approved;
-                weeklyLog.ManagerComment = request.Comment;
+                var salesRep = await _context.Timesheet_Users.FirstOrDefaultAsync(u => u.Id == salesRepId);
+                if (salesRep?.ManagerId == null)
+                {
+                    return new TeamTimesheetResult
+                    {
+                        Success = false,
+                        Message = "Cannot approve timesheet",
+                        Errors = ["You do not have a Manager assigned. Please contact your admin."]
+                    };
+                }
+
+                weeklyLog.Status = TimesheetStatus.PendingManager;
+                weeklyLog.SalesRepComment = request.Comment;
                 weeklyLog.UpdatedAt = DateTime.UtcNow;
 
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("Manager {ManagerId} successfully approved timesheet {WeeklyLogId}",
-                    managerId, weeklyLogId);
+                _logger.LogInformation("Sales rep {SalesRepId} successfully approved timesheet {WeeklyLogId}", salesRepId, weeklyLogId);
 
-                var employeeName = $"{weeklyLog.User.FirstName} {weeklyLog.User.LastName}".Trim();
-                var weekPeriod = $"{weeklyLog.DateFrom:MM/dd/yyyy} - {weeklyLog.DateTo:MM/dd/yyyy}";
-                var filename = $"Timesheet_{employeeName.Replace(" ", "_")}_{weeklyLog.DateFrom:yyyyMMdd}.xlsx";
-                var userEmail = weeklyLog.User.Email;
-                var managerUser = await _context.Timesheet_Users.FirstOrDefaultAsync(u => u.Id == managerId);
-                var managerName = managerUser != null ? $"{managerUser.FirstName} {managerUser.LastName}".Trim() : "Manager";
-                var managerEmail = managerUser?.Email ?? "";
-                var salesRepEmail = weeklyLog.User.SalesRep?.Email;
-                var salesRepName = weeklyLog.User.SalesRep != null
-                    ? $"{weeklyLog.User.SalesRep.FirstName} {weeklyLog.User.SalesRep.LastName}".Trim()
-                    : null;
-                var totalHours = weeklyLog.TotalHours;
-                var totalCharges = weeklyLog.TotalCharges;
-
-                var weeklyLogDateFrom = weeklyLog.DateFrom.ToDateTime(TimeOnly.MinValue);
-                var userRate = await _context.Timesheet_UserRates
-                    .Where(r => r.UserId == weeklyLog.UserId && r.EffectiveDate <= weeklyLogDateFrom)
-                    .OrderByDescending(r => r.EffectiveDate)
-                    .FirstOrDefaultAsync();
-                var hourlyRate = userRate?.HourlyRate ?? 0m;
-                var mileageRate = userRate?.MileageRate ?? 0m;
-
-                var totalMileage = await _context.Timesheet_DailyLogs
-                    .Where(d => d.WeeklyLogId == weeklyLogId && !d.IsDeleted)
-                    .SumAsync(d => d.Mileage);
-
-                var totalPay = hourlyRate * totalHours;
-                var mileagePay = mileageRate * totalMileage;
-
-                var excelBytes = await _excelService.GenerateTimesheetExcelAsync(weeklyLogId, hourlyRate, mileageRate);
-
-                _ = Task.Run(async () =>
+                var manager = await _context.Timesheet_Users.FirstOrDefaultAsync(u => u.Id == salesRep.ManagerId);
+                if (manager != null)
                 {
-                    try
+                    var salesRepName = $"{salesRep.FirstName} {salesRep.LastName}".Trim();
+                    var employeeName = $"{weeklyLog.User.FirstName} {weeklyLog.User.LastName}".Trim();
+                    var weekPeriod = $"{weeklyLog.DateFrom:MMM d} - {weeklyLog.DateTo:MMM d, yyyy}";
+                    var timesheetUrl = $"{_configuration["AppSettings:BaseUrl"]}/manager/timesheets/{weeklyLogId}";
+
+                    _ = Task.Run(async () =>
                     {
-                        await _emailService.SendTimesheetApprovalEmailAsync(
-                            userEmail,
-                            employeeName,
-                            managerEmail,
-                            managerName,
-                            salesRepEmail,
-                            salesRepName,
-                            weekPeriod,
-                            totalHours,
-                            totalCharges,
-                            hourlyRate,
-                            totalPay,
-                            mileageRate,
-                            mileagePay,
-                            excelBytes,
-                            filename);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Failed to send approval email for timesheet {WeeklyLogId}", weeklyLogId);
-                    }
-                });
+                        try
+                        {
+                            await _emailService.SendManagerNotificationEmailAsync(
+                                manager.Email,
+                                $"{manager.FirstName} {manager.LastName}".Trim(),
+                                salesRepName,
+                                employeeName,
+                                weekPeriod,
+                                weeklyLog.TotalHours,
+                                weeklyLog.TotalCharges,
+                                timesheetUrl);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Failed to send manager notification email for timesheet {WeeklyLogId}", weeklyLogId);
+                        }
+                    });
+                }
 
                 return new TeamTimesheetResult
                 {
                     Success = true,
-                    Message = "Timesheet approved successfully!",
+                    Message = "Timesheet approved — forwarded to manager for final approval.",
                     Data = new TeamTimesheetResponse
                     {
                         Id = weeklyLog.Id,
@@ -408,56 +382,58 @@ namespace EntryPointApp.Api.Services.Manager
             }
         }
 
-        public async Task<TeamTimesheetResult> DenyTimesheetAsync(int weeklyLogId, int managerId, DenyTimesheetRequest request)
+        public async Task<TeamTimesheetResult> DenyTimesheetAsync(int weeklyLogId, int salesRepId, DenyTimesheetRequest request)
         {
             try
             {
-                _logger.LogInformation("Manager {ManagerId} denying timesheet {WeeklyLogId}",
-                    managerId, weeklyLogId);
+                _logger.LogInformation("Sales rep {SalesRepId} denying timesheet {WeeklyLogId}",
+                    salesRepId, weeklyLogId);
 
                 var weeklyLog = await _context.Timesheet_WeeklyLogs
                     .Include(w => w.User)
-                    .FirstOrDefaultAsync(w => w.Id == weeklyLogId && !w.IsDeleted && (
-                        (w.User.SalesRepId == null && w.User.ManagerId == managerId) ||
-                        (w.User.SalesRepId != null && w.User.SalesRep!.ManagerId == managerId)));
+                    .FirstOrDefaultAsync(w => w.Id == weeklyLogId
+                        && w.User.SalesRepId == salesRepId
+                        && !w.IsDeleted);
 
                 if (weeklyLog == null)
                 {
-                    _logger.LogWarning("Timesheet {WeeklyLogId} not found for manager {ManagerId}",
-                        weeklyLogId, managerId);
+                    _logger.LogWarning("Timesheet {WeeklyLogId} not found for sales rep {SalesRepId}",
+                        weeklyLogId, salesRepId);
                     return new TeamTimesheetResult
                     {
                         Success = false,
                         Message = "Timesheet not found",
-                        Errors = ["The requested timesheet does not exist or does not belong to your team"]
+                        Errors = ["The requested timesheet does not exist or does not belong to your clients"]
                     };
                 }
 
-                if (weeklyLog.Status != TimesheetStatus.PendingManager)
+                if (weeklyLog.Status != TimesheetStatus.PendingSalesRep)
                 {
                     return new TeamTimesheetResult
                     {
                         Success = false,
                         Message = "Cannot deny timesheet",
-                        Errors = [$"Only timesheets pending manager approval can be denied. Current status: {weeklyLog.Status}"]
+                        Errors = [$"Only timesheets pending Sales Rep review can be denied. Current status: {weeklyLog.Status}"]
                     };
                 }
 
+                var salesRep = await _context.Timesheet_Users.FirstOrDefaultAsync(u => u.Id == salesRepId);
+                var salesRepName = salesRep != null
+                    ? $"{salesRep.FirstName} {salesRep.LastName}".Trim()
+                    : "Sales Rep";
+
                 weeklyLog.Status = TimesheetStatus.Denied;
-                weeklyLog.ManagerComment = request.Reason;
+                weeklyLog.SalesRepComment = request.Reason;
                 weeklyLog.UpdatedAt = DateTime.UtcNow;
 
                 await _context.SaveChangesAsync();
 
-                var managerUser = await _context.Timesheet_Users.FirstOrDefaultAsync(u => u.Id == managerId);
-                var managerName = managerUser != null ? $"{managerUser.FirstName} {managerUser.LastName}".Trim() : "Manager";
-
                 _ = Task.Run(async () =>
                 {
                     await _emailService.SendTimesheetDenialEmailAsync(
-                        weeklyLog.User.Email!,
+                        weeklyLog.User.Email,
                         $"{weeklyLog.User.FirstName} {weeklyLog.User.LastName}".Trim(),
-                        managerName,
+                        salesRepName,
                         $"{weeklyLog.DateFrom:MMMM d, yyyy} - {weeklyLog.DateTo:MMMM d, yyyy}",
                         weeklyLog.TotalHours,
                         weeklyLog.TotalCharges,
@@ -466,8 +442,7 @@ namespace EntryPointApp.Api.Services.Manager
                     );
                 });
 
-                _logger.LogInformation("Manager {ManagerId} successfully denied timesheet {WeeklyLogId}",
-                    managerId, weeklyLogId);
+                _logger.LogInformation("Sales rep {SalesRepId} successfully denied timesheet {WeeklyLogId}", salesRepId, weeklyLogId);
 
                 return new TeamTimesheetResult
                 {

@@ -76,7 +76,8 @@
           (ngModelChange)="statusFilter.set($event); onFilterChange()"
         >
           <option value="All">{{ "dashboard.allStatuses" | translate }}</option>
-          <option value="Pending">{{ "status.pending" | translate }}</option>
+          <option value="PendingSalesRep">{{ "status.pendingsalesrep" | translate }}</option>
+          <option value="PendingManager">{{ "status.pendingmanager" | translate }}</option>
           <option value="Approved">{{ "status.approved" | translate }}</option>
           <option value="Denied">{{ "status.denied" | translate }}</option>
           <option value="Draft">{{ "status.draft" | translate }}</option>

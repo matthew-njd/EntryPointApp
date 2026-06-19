@@ -8,6 +8,8 @@ namespace EntryPointApp.Api.Services.Email
             string employeeName,
             string managerEmail,
             string managerName,
+            string? salesRepEmail,
+            string? salesRepName,
             string weekPeriod,
             decimal totalHours,
             decimal totalCharges,
@@ -30,11 +32,30 @@ namespace EntryPointApp.Api.Services.Email
         Task<bool> SendTimesheetDenialEmailAsync(
             string employeeEmail,
             string employeeName,
-            string managerName,
+            string deniedByName,
             string weekPeriod,
             decimal totalHours,
             decimal totalCharges,
             string denialReason,
+            string timesheetUrl);
+
+        Task<bool> SendSalesRepSubmissionEmailAsync(
+            string salesRepEmail,
+            string salesRepName,
+            string employeeName,
+            string weekPeriod,
+            decimal totalHours,
+            decimal totalCharges,
+            string timesheetUrl);
+
+        Task<bool> SendManagerNotificationEmailAsync(
+            string managerEmail,
+            string managerName,
+            string salesRepName,
+            string employeeName,
+            string weekPeriod,
+            decimal totalHours,
+            decimal totalCharges,
             string timesheetUrl);
     }
 }

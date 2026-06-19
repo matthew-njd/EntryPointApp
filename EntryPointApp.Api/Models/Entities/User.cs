@@ -28,6 +28,8 @@ namespace EntryPointApp.Api.Models.Entities
 
         public int? ManagerId { get; set; }
 
+        public int? SalesRepId { get; set; }
+
         [StringLength(256)]
         public string? PasswordResetToken { get; set; }
 
@@ -38,6 +40,8 @@ namespace EntryPointApp.Api.Models.Entities
         // Navigation properties
         public User? Manager { get; set; }
         public ICollection<User> ManagedUsers { get; set; } = [];
+        public User? SalesRep { get; set; }
+        public ICollection<User> AssignedClients { get; set; } = [];
         public ICollection<RefreshToken> RefreshTokens { get; set; } = [];
         public ICollection<WeeklyLog> WeeklyLogs { get; set; } = [];
         public ICollection<DailyLog> DailyLogs { get; set; } = [];

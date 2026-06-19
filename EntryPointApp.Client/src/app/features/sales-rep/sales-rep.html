@@ -2,9 +2,9 @@
   <app-nav></app-nav>
 
   <div class="grow mt-6 sm:mt-10 max-w-7xl mx-auto px-4 w-full">
-    @if (managerService.error()) {
+    @if (salesRepService.error()) {
       <div class="alert alert-error mb-4">
-        <span>{{ managerService.error() }}</span>
+        <span>{{ salesRepService.error() }}</span>
       </div>
     }
 
@@ -22,30 +22,25 @@
       <div class="flex items-center gap-2.5">
         <div class="w-0.5 h-[26px] bg-primary rounded-sm shrink-0"></div>
         <h1 class="text-2xl font-medium m-0">
-          {{ "manager.title" | translate }}
+          {{ "salesRep.title" | translate }}
         </h1>
       </div>
     </div>
 
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
       <app-card
-        [title]="'manager.pendingManager' | translate"
-        [value]="managerService.totalPending().toString()"
+        [title]="'salesRep.pending' | translate"
+        [value]="salesRepService.totalPending().toString()"
         cardClasses="text-warning"
       ></app-card>
       <app-card
-        [title]="'manager.pendingSalesRep' | translate"
-        [value]="managerService.totalPendingSalesRep().toString()"
-        cardClasses="text-info"
-      ></app-card>
-      <app-card
-        [title]="'manager.approved' | translate"
-        [value]="managerService.totalApproved().toString()"
+        [title]="'salesRep.approved' | translate"
+        [value]="salesRepService.totalApproved().toString()"
         cardClasses="text-success"
       ></app-card>
       <app-card
-        [title]="'manager.denied' | translate"
-        [value]="managerService.totalDenied().toString()"
+        [title]="'salesRep.denied' | translate"
+        [value]="salesRepService.totalDenied().toString()"
         cardClasses="text-error"
       ></app-card>
     </div>
@@ -54,7 +49,7 @@
       <div class="form-control w-full sm:w-auto">
         <label class="label">
           <span class="label-text">{{
-            "manager.filterByStatus" | translate
+            "salesRep.filterByStatus" | translate
           }}</span>
         </label>
         <select
@@ -62,26 +57,25 @@
           [(ngModel)]="statusFilter"
           (ngModelChange)="statusFilter.set($event); onStatusFilterChange()"
         >
-          <option value="All">{{ "manager.allStatuses" | translate }}</option>
-          <option value="PendingManager">
-            {{ "manager.pendingManager" | translate }}
-          </option>
+          <option value="All">{{ "salesRep.allStatuses" | translate }}</option>
           <option value="PendingSalesRep">
-            {{ "manager.pendingSalesRep" | translate }}
+            {{ "salesRep.pending" | translate }}
           </option>
-          <option value="Approved">{{ "manager.approved" | translate }}</option>
-          <option value="Denied">{{ "manager.denied" | translate }}</option>
-          <option value="Draft">{{ "manager.draft" | translate }}</option>
+          <option value="Approved">
+            {{ "salesRep.approved" | translate }}
+          </option>
+          <option value="Denied">{{ "salesRep.denied" | translate }}</option>
+          <option value="Draft">{{ "salesRep.draft" | translate }}</option>
         </select>
       </div>
 
       <div class="form-control w-full">
         <label class="label">
-          <span class="label-text">{{ "manager.search" | translate }}</span>
+          <span class="label-text">{{ "salesRep.search" | translate }}</span>
         </label>
         <input
           type="text"
-          [placeholder]="'manager.searchPlaceholder' | translate"
+          [placeholder]="'salesRep.searchPlaceholder' | translate"
           class="input input-bordered w-full"
           [(ngModel)]="searchQuery"
           (ngModelChange)="searchQuery.set($event); onSearchChange()"
@@ -89,7 +83,7 @@
       </div>
     </div>
 
-    @if (managerService.isLoading()) {
+    @if (salesRepService.isLoading()) {
       <div class="flex justify-center items-center py-20">
         <span class="loading loading-spinner loading-xl"></span>
       </div>
@@ -98,18 +92,18 @@
         <table class="table">
           <thead>
             <tr>
-              <th>{{ "manager.tableEmployee" | translate }}</th>
-              <th>{{ "manager.tableWeek" | translate }}</th>
-              <th>{{ "manager.tableHours" | translate }}</th>
-              <th>{{ "manager.tableCharges" | translate }}</th>
-              <th>{{ "manager.tableStatus" | translate }}</th>
-              <th>{{ "manager.tableSubmitted" | translate }}</th>
-              <th>{{ "manager.tableActions" | translate }}</th>
+              <th>{{ "salesRep.tableEmployee" | translate }}</th>
+              <th>{{ "salesRep.tableWeek" | translate }}</th>
+              <th>{{ "salesRep.tableHours" | translate }}</th>
+              <th>{{ "salesRep.tableCharges" | translate }}</th>
+              <th>{{ "salesRep.tableStatus" | translate }}</th>
+              <th>{{ "salesRep.tableSubmitted" | translate }}</th>
+              <th>{{ "salesRep.tableActions" | translate }}</th>
             </tr>
           </thead>
           <tbody>
             @for (
-              timesheet of managerService.timesheets();
+              timesheet of salesRepService.timesheets();
               track timesheet.id
             ) {
               <tr>
@@ -150,7 +144,7 @@
                   <button
                     class="btn btn-sm btn-outline btn-primary"
                     (click)="viewTimesheet(timesheet.id)"
-                    [title]="'manager.review' | translate"
+                    [title]="'salesRep.review' | translate"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -171,14 +165,14 @@
                         <circle cx="12" cy="12" r="3" />
                       </g>
                     </svg>
-                    {{ "manager.review" | translate }}
+                    {{ "salesRep.review" | translate }}
                   </button>
                 </td>
               </tr>
             } @empty {
               <tr>
                 <td colspan="7" class="text-center py-8">
-                  {{ "manager.noTimesheets" | translate }}
+                  {{ "salesRep.noTimesheets" | translate }}
                 </td>
               </tr>
             }
@@ -186,13 +180,13 @@
         </table>
       </div>
 
-      @if (managerService.totalPages() > 1) {
+      @if (salesRepService.totalPages() > 1) {
         <div class="flex justify-center mb-8">
           <div class="join">
             <button
               class="join-item btn btn-square"
-              [disabled]="managerService.page() === 1"
-              (click)="onPageChange(managerService.page() - 1)"
+              [disabled]="salesRepService.page() === 1"
+              (click)="onPageChange(salesRepService.page() - 1)"
             >
               «
             </button>
@@ -200,7 +194,7 @@
             @for (pageNum of pageNumbers(); track pageNum) {
               <button
                 class="join-item btn btn-square"
-                [class.btn-active]="pageNum === managerService.page()"
+                [class.btn-active]="pageNum === salesRepService.page()"
                 (click)="onPageChange(pageNum)"
               >
                 {{ pageNum }}
@@ -209,8 +203,10 @@
 
             <button
               class="join-item btn btn-square"
-              [disabled]="managerService.page() === managerService.totalPages()"
-              (click)="onPageChange(managerService.page() + 1)"
+              [disabled]="
+                salesRepService.page() === salesRepService.totalPages()
+              "
+              (click)="onPageChange(salesRepService.page() + 1)"
             >
               »
             </button>

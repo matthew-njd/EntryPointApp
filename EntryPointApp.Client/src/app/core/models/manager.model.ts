@@ -8,6 +8,7 @@ export interface TeamTimesheetResponse {
   totalHours: number;
   totalCharges: number;
   status: string;
+  salesRepComment: string | null;
   managerComment: string | null;
   submittedAt: string;
   updatedAt: string;
@@ -43,7 +44,8 @@ export interface DenyTimesheetRequest {
 
 export enum TimesheetStatus {
   Draft = 'Draft',
-  Pending = 'Pending',
+  PendingSalesRep = 'PendingSalesRep',
+  PendingManager = 'PendingManager',
   Approved = 'Approved',
   Denied = 'Denied',
 }
@@ -51,5 +53,6 @@ export enum TimesheetStatus {
 export interface TimesheetSummary {
   totalApproved: number;
   totalPending: number;
+  totalPendingSalesRep: number;
   totalDenied: number;
 }

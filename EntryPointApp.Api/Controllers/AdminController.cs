@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using EntryPointApp.Api.Models.Common;
 using EntryPointApp.Api.Models.Dtos.ApprovedEmails;
+using EntryPointApp.Api.Models.Dtos.Common;
 using EntryPointApp.Api.Models.Dtos.Users;
 using EntryPointApp.Api.Services.Admin;
 using EntryPointApp.Api.Services.ApprovedEmails;
@@ -412,6 +413,141 @@ namespace EntryPointApp.Api.Controllers
                     Title = "Manager Removal Error",
                     Status = 500,
                     Detail = "An unexpected error occurred while removing the manager",
+                    Instance = HttpContext.Request.Path,
+                    TraceId = HttpContext.TraceIdentifier
+                });
+            }
+        }
+
+        /// <summary>
+        /// Assign a sales rep to a user
+        /// </summary>
+        [HttpPut("users/{userId}/salesrep")]
+        [ProducesResponseType(typeof(ApiResponse<UserDto>), 200)]
+        [ProducesResponseType(typeof(ApiResponse), 400)]
+        [ProducesResponseType(typeof(ApiResponse), 404)]
+        [ProducesResponseType(typeof(ErrorResponse), 500)]
+        public async Task<IActionResult> AssignSalesRep([FromRoute] int userId, [FromBody] AssignSalesRepRequest request)
+        {
+            try
+            {
+                var adminId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (userId <= 0)
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Validation failed",
+                        Errors = ["User ID must be greater than 0"]
+                    });
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList();
+
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Validation failed",
+                        Errors = errors
+                    });
+                }
+
+                var result = await _adminService.AssignSalesRepAsync(userId, request.SalesRepId);
+
+                if (!result.Success)
+                {
+                    return NotFound(new ApiResponse
+                    {
+                        Success = false,
+                        Message = result.Message,
+                        Errors = result.Errors
+                    });
+                }
+
+                _logger.LogInformation("Admin {AdminId} assigned sales rep {SalesRepId} to user {UserId}", adminId, request.SalesRepId, userId);
+
+                return Ok(new ApiResponse<UserDto>
+                {
+                    Success = true,
+                    Message = result.Message,
+                    Data = result.Data
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error assigning sales rep to user {UserId}", userId);
+                return StatusCode(500, new ErrorResponse
+                {
+                    Type = "InternalServerError",
+                    Title = "Sales Rep Assignment Error",
+                    Status = 500,
+                    Detail = "An unexpected error occurred while assigning the sales rep",
+                    Instance = HttpContext.Request.Path,
+                    TraceId = HttpContext.TraceIdentifier
+                });
+            }
+        }
+
+        /// <summary>
+        /// Remove sales rep assignment from a user
+        /// </summary>
+        [HttpDelete("users/{userId}/salesrep")]
+        [ProducesResponseType(typeof(ApiResponse<UserDto>), 200)]
+        [ProducesResponseType(typeof(ApiResponse), 400)]
+        [ProducesResponseType(typeof(ApiResponse), 404)]
+        [ProducesResponseType(typeof(ErrorResponse), 500)]
+        public async Task<IActionResult> RemoveSalesRep([FromRoute] int userId)
+        {
+            try
+            {
+                var adminId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (userId <= 0)
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Validation failed",
+                        Errors = ["User ID must be greater than 0"]
+                    });
+                }
+
+                var result = await _adminService.RemoveSalesRepAsync(userId);
+
+                if (!result.Success)
+                {
+                    return NotFound(new ApiResponse
+                    {
+                        Success = false,
+                        Message = result.Message,
+                        Errors = result.Errors
+                    });
+                }
+
+                _logger.LogInformation("Admin {AdminId} removed sales rep from user {UserId}", adminId, userId);
+
+                return Ok(new ApiResponse<UserDto>
+                {
+                    Success = true,
+                    Message = result.Message,
+                    Data = result.Data
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error removing sales rep from user {UserId}", userId);
+                return StatusCode(500, new ErrorResponse
+                {
+                    Type = "InternalServerError",
+                    Title = "Sales Rep Removal Error",
+                    Status = 500,
+                    Detail = "An unexpected error occurred while removing the sales rep",
                     Instance = HttpContext.Request.Path,
                     TraceId = HttpContext.TraceIdentifier
                 });

@@ -13,6 +13,8 @@ export const redirectGuard: CanActivateFn = () => {
       router.navigate(['/admin']);
     } else if (user?.role === 'Manager') {
       router.navigate(['/manager']);
+    } else if (user?.role === 'SalesRep') {
+      router.navigate(['/sales-rep']);
     } else {
       router.navigate(['/dashboard']);
     }

@@ -35,6 +35,7 @@ export interface AdminTimesheetDetailResponse extends AdminTimesheetResponse {
 
 export interface UserSummary {
   totalUsers: number;
+  totalSalesReps: number;
   totalManagers: number;
   totalAdmins: number;
   activeUsers: number;
@@ -65,6 +66,8 @@ export interface UserDto {
   employeeType: string | null;
   managerId: number | null;
   managerName: string | null;
+  salesRepId: number | null;
+  salesRepName: string | null;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -94,10 +97,15 @@ export interface AssignManagerRequest {
   managerId: number;
 }
 
+export interface AssignSalesRepRequest {
+  salesRepId: number;
+}
+
 export enum UserRole {
   User = 0,
   Manager = 1,
   Admin = 2,
+  SalesRep = 3,
 }
 
 export enum EmployeeType {
@@ -120,6 +128,8 @@ export function getRoleDisplayName(role: string | UserRole): string {
       return 'Manager';
     case UserRole.Admin:
       return 'Admin';
+    case UserRole.SalesRep:
+      return 'SalesRep';
     default:
       return 'Unknown';
   }

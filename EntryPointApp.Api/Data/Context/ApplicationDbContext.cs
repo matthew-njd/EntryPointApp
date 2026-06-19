@@ -45,6 +45,11 @@ namespace EntryPointApp.Api.Data.Context
                     .HasForeignKey(e => e.ManagerId)
                     .OnDelete(DeleteBehavior.Restrict);
                 entity.HasIndex(e => e.ManagerId);
+                entity.HasOne(e => e.SalesRep)
+                    .WithMany(s => s.AssignedClients)
+                    .HasForeignKey(e => e.SalesRepId)
+                    .OnDelete(DeleteBehavior.Restrict);
+                entity.HasIndex(e => e.SalesRepId);
                 entity.HasIndex(e => e.Role);
             });
         }
@@ -77,6 +82,8 @@ namespace EntryPointApp.Api.Data.Context
                 entity.Property(e => e.Status)
                     .HasConversion<string>()
                     .HasMaxLength(20);
+                entity.Property(e => e.SalesRepComment)
+                    .HasMaxLength(500);
                 entity.Property(e => e.ManagerComment)
                     .HasMaxLength(500);
                 entity.HasOne(e => e.User)

@@ -12,6 +12,7 @@ namespace EntryPointApp.Api.Models.Dtos.WeeklyLog
         public decimal TotalHours { get; set; }
         public decimal TotalCharges { get; set; }
         public TimesheetStatus Status { get; set; }
+        public string? SalesRepComment { get; set; }
         public string? ManagerComment { get; set; }
     }
 

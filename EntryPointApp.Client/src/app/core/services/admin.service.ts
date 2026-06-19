@@ -13,6 +13,7 @@ import {
   UpdateUserRoleRequest,
   UpdateEmployeeTypeRequest,
   AssignManagerRequest,
+  AssignSalesRepRequest,
   UserRole,
   EmployeeType,
 } from '../models/admin.model';
@@ -26,6 +27,7 @@ export interface ApiResponse<T> {
 
 const defaultSummary: UserSummary = {
   totalUsers: 0,
+  totalSalesReps: 0,
   totalManagers: 0,
   totalAdmins: 0,
   activeUsers: 0,
@@ -56,6 +58,7 @@ export class AdminService {
   );
 
   readonly totalUsers = computed(() => this._summary().totalUsers);
+  readonly totalSalesReps = computed(() => this._summary().totalSalesReps);
   readonly totalManagers = computed(() => this._summary().totalManagers);
   readonly totalAdmins = computed(() => this._summary().totalAdmins);
   readonly activeUsers = computed(() => this._summary().activeUsers);
@@ -89,27 +92,29 @@ export class AdminService {
       params = params.set('search', search);
     }
 
-    this.http.get<ApiResponse<UserPagedResponse>>(`${this.apiUrl}/users`, { params }).subscribe({
-      next: (response) => {
-        if (response.success && response.data) {
-          this._users.set(response.data.data);
-          this._totalCount.set(response.data.totalCount);
-          this._page.set(response.data.page);
-          this._pageSize.set(response.data.pageSize);
-          this._summary.set(response.data.summary ?? { ...defaultSummary });
-        } else {
-          this._error.set(response.message || 'Failed to fetch users');
+    this.http
+      .get<ApiResponse<UserPagedResponse>>(`${this.apiUrl}/users`, { params })
+      .subscribe({
+        next: (response) => {
+          if (response.success && response.data) {
+            this._users.set(response.data.data);
+            this._totalCount.set(response.data.totalCount);
+            this._page.set(response.data.page);
+            this._pageSize.set(response.data.pageSize);
+            this._summary.set(response.data.summary ?? { ...defaultSummary });
+          } else {
+            this._error.set(response.message || 'Failed to fetch users');
+            this._users.set([]);
+          }
+          this._isLoading.set(false);
+        },
+        error: (err) => {
+          console.error(err);
+          this._error.set('Failed to fetch users');
           this._users.set([]);
-        }
-        this._isLoading.set(false);
-      },
-      error: (err) => {
-        console.error(err);
-        this._error.set('Failed to fetch users');
-        this._users.set([]);
-        this._isLoading.set(false);
-      },
-    });
+          this._isLoading.set(false);
+        },
+      });
   }
 
   getUserById(userId: number): Observable<ApiResponse<UserDto>> {
@@ -157,6 +162,23 @@ export class AdminService {
     );
   }
 
+  assignSalesRep(
+    userId: number,
+    salesRepId: number,
+  ): Observable<ApiResponse<UserDto>> {
+    const request: AssignSalesRepRequest = { salesRepId };
+    return this.http.put<ApiResponse<UserDto>>(
+      `${this.apiUrl}/users/${userId}/salesrep`,
+      request,
+    );
+  }
+
+  removeSalesRep(userId: number): Observable<ApiResponse<UserDto>> {
+    return this.http.delete<ApiResponse<UserDto>>(
+      `${this.apiUrl}/users/${userId}/salesrep`,
+    );
+  }
+
   deactivateUser(userId: number): Observable<ApiResponse<UserDto>> {
     return this.http.put<ApiResponse<UserDto>>(
       `${this.apiUrl}/users/${userId}/deactivate`,
@@ -193,13 +215,18 @@ export class AdminService {
     );
   }
 
-  getUserTimesheets(userId: number): Observable<ApiResponse<AdminTimesheetResponse[]>> {
+  getUserTimesheets(
+    userId: number,
+  ): Observable<ApiResponse<AdminTimesheetResponse[]>> {
     return this.http.get<ApiResponse<AdminTimesheetResponse[]>>(
       `${this.apiUrl}/users/${userId}/timesheets`,
     );
   }
 
-  getUserTimesheetDetail(userId: number, timesheetId: number): Observable<ApiResponse<AdminTimesheetDetailResponse>> {
+  getUserTimesheetDetail(
+    userId: number,
+    timesheetId: number,
+  ): Observable<ApiResponse<AdminTimesheetDetailResponse>> {
     return this.http.get<ApiResponse<AdminTimesheetDetailResponse>>(
       `${this.apiUrl}/users/${userId}/timesheets/${timesheetId}`,
     );

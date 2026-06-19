@@ -1,5 +1,5 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
-import { ManagerService } from '../../core/services/manager.service';
+import { SalesRepService } from '../../core/services/sales-rep.service';
 import { AuthService } from '../../core/services/auth.service';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -10,13 +10,13 @@ import { Nav } from '../../shared/nav/nav';
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
-  selector: 'app-manager',
+  selector: 'app-sales-rep',
   imports: [CommonModule, FormsModule, Footer, Card, Nav, TranslatePipe],
-  templateUrl: './manager.html',
-  styleUrl: './manager.css',
+  templateUrl: './sales-rep.html',
+  styleUrl: './sales-rep.css',
 })
-export class Manager {
-  readonly managerService = inject(ManagerService);
+export class SalesRep {
+  readonly salesRepService = inject(SalesRepService);
   readonly authService = inject(AuthService);
   private router = inject(Router);
   today = new Date();
@@ -32,8 +32,8 @@ export class Manager {
   }
 
   pageNumbers = computed(() => {
-    const totalPages = this.managerService.totalPages();
-    const current = this.managerService.page();
+    const totalPages = this.salesRepService.totalPages();
+    const current = this.salesRepService.page();
     const pages: number[] = [];
     const maxButtons = 5;
 
@@ -50,49 +50,48 @@ export class Manager {
   });
 
   loadEffect = effect(() => {
-    this.managerService.loadTimesheets(
-      this.managerService.page(),
-      this.managerService.pageSize(),
+    this.salesRepService.loadTimesheets(
+      this.salesRepService.page(),
+      this.salesRepService.pageSize(),
       this.statusFilter(),
       this.searchQuery(),
     );
   });
 
   onPageChange(page: number) {
-    this.managerService.loadTimesheets(
+    this.salesRepService.loadTimesheets(
       page,
-      this.managerService.pageSize(),
+      this.salesRepService.pageSize(),
       this.statusFilter(),
       this.searchQuery(),
     );
   }
 
   onStatusFilterChange() {
-    this.managerService.loadTimesheets(
+    this.salesRepService.loadTimesheets(
       1,
-      this.managerService.pageSize(),
+      this.salesRepService.pageSize(),
       this.statusFilter(),
       this.searchQuery(),
     );
   }
 
   onSearchChange() {
-    this.managerService.loadTimesheets(
+    this.salesRepService.loadTimesheets(
       1,
-      this.managerService.pageSize(),
+      this.salesRepService.pageSize(),
       this.statusFilter(),
       this.searchQuery(),
     );
   }
 
   viewTimesheet(timesheetId: number) {
-    this.router.navigate(['/manager/timesheets', timesheetId]);
+    this.router.navigate(['/sales-rep/timesheets', timesheetId]);
   }
 
   getStatusClass(status: string): string {
     switch (status) {
       case 'PendingSalesRep':
-        return 'badge-info';
       case 'PendingManager':
         return 'badge-warning';
       case 'Approved':

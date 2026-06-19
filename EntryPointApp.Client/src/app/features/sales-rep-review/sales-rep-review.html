@@ -99,39 +99,6 @@
               ${{ timesheet()!.totalCharges.toFixed(2) }}
             </div>
           </div>
-
-          @if (timesheet()!.salesRepComment) {
-            <div class="col-span-1 sm:col-span-2">
-              <label class="label">
-                <span class="label-text font-semibold">{{
-                  "reviewTimesheet.salesRepComment" | translate
-                }}</span>
-              </label>
-              <div class="alert alert-info">
-                <span>{{ timesheet()!.salesRepComment }}</span>
-              </div>
-            </div>
-          }
-
-          @if (timesheet()!.managerComment) {
-            <div class="col-span-1 sm:col-span-2">
-              <label class="label">
-                <span class="label-text font-semibold">{{
-                  "reviewTimesheet.managerComment" | translate
-                }}</span>
-              </label>
-              <div
-                class="alert"
-                [ngClass]="
-                  timesheet()!.status === 'Approved'
-                    ? 'alert-success'
-                    : 'alert-error'
-                "
-              >
-                <span>{{ timesheet()!.managerComment }}</span>
-              </div>
-            </div>
-          }
         </div>
       </fieldset>
 
@@ -210,7 +177,7 @@
         </div>
       </fieldset>
 
-      @if (timesheet()!.status === "PendingManager") {
+      @if (timesheet()!.status === "PendingSalesRep") {
         <div class="flex gap-2 mb-6">
           <button
             class="btn btn-success flex-1"

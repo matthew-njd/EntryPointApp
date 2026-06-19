@@ -107,6 +107,7 @@
                         'badge-info': user()!.role === 'User',
                         'badge-warning': user()!.role === 'Manager',
                         'badge-error': user()!.role === 'Admin',
+                        'badge-secondary': user()!.role === 'SalesRep',
                       }"
                     >
                       {{ user()!.role }}
@@ -124,6 +125,19 @@
                   </label>
                   <div class="text-base-content">
                     {{ user()!.managerName }}
+                  </div>
+                </div>
+              }
+
+              @if (user()!.salesRepName) {
+                <div>
+                  <label class="label">
+                    <span class="label-text font-semibold">{{
+                      "userEdit.currentSalesRep" | translate
+                    }}</span>
+                  </label>
+                  <div class="text-base-content">
+                    {{ user()!.salesRepName }}
                   </div>
                 </div>
               }
@@ -177,6 +191,7 @@
                 <option [ngValue]="UserRole.User">User</option>
                 <option [ngValue]="UserRole.Manager">Manager</option>
                 <option [ngValue]="UserRole.Admin">Admin</option>
+                <option [ngValue]="UserRole.SalesRep">Sales Rep</option>
               </select>
               @if (roleControl.invalid && roleControl.touched) {
                 <div class="text-error text-sm mt-1">
@@ -235,7 +250,7 @@
             </fieldset>
           }
 
-          @if (selectedRole() === UserRole.User) {
+          @if (selectedRole() === UserRole.SalesRep || (selectedRole() === UserRole.User && !salesRepHasValue())) {
             <fieldset
               class="fieldset bg-base-200 border-base-300 rounded-box border p-6 mb-6"
             >
@@ -285,6 +300,56 @@
                     />
                   </svg>
                   <span>{{ "userEdit.noManagersAvailable" | translate }}</span>
+                </div>
+              }
+            </fieldset>
+          }
+
+          @if (selectedRole() === UserRole.User) {
+            <fieldset
+              class="fieldset bg-base-200 border-base-300 rounded-box border p-6 mb-6"
+            >
+              <legend class="fieldset-legend">
+                {{ "userEdit.salesRepAssignment" | translate }}
+              </legend>
+
+              @if (availableSalesReps().length > 0) {
+                <div class="form-control">
+                  <label class="label mr-1">
+                    <span class="label-text">{{
+                      "userEdit.assignSalesRep" | translate
+                    }}</span>
+                  </label>
+                  <select
+                    class="select select-bordered"
+                    formControlName="salesRepId"
+                  >
+                    <option [ngValue]="null">
+                      {{ "userEdit.noSalesRepAssigned" | translate }}
+                    </option>
+                    @for (rep of availableSalesReps(); track rep.id) {
+                      <option [ngValue]="rep.id">
+                        {{ getUserFullName(rep) }} ({{ rep.email }})
+                      </option>
+                    }
+                  </select>
+                </div>
+              } @else {
+                <div class="alert alert-warning">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="stroke-current shrink-0 h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                    />
+                  </svg>
+                  <span>{{ "userEdit.noSalesRepsAvailable" | translate }}</span>
                 </div>
               }
             </fieldset>

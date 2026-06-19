@@ -22,7 +22,7 @@ namespace EntryPointApp.Api.Services.Admin
                 _logger.LogInformation("Retrieving users - Page: {Page}, PageSize: {PageSize}, Role: {Role}, Status: {Status}, Search: {Search}",
                     page, pageSize, roleFilter ?? "All", statusFilter ?? "All", search ?? "");
 
-                var baseQuery = _context.Timesheet_Users.Include(u => u.Manager);
+                var baseQuery = _context.Timesheet_Users.Include(u => u.Manager).Include(u => u.SalesRep);
 
                 // Global summary counts are always based on the unfiltered set
                 var roleCounts = await baseQuery
@@ -73,6 +73,10 @@ namespace EntryPointApp.Api.Services.Admin
                         ManagerName = u.Manager != null
                             ? $"{u.Manager.FirstName} {u.Manager.LastName}".Trim()
                             : null,
+                        SalesRepId = u.SalesRepId,
+                        SalesRepName = u.SalesRep != null
+                            ? $"{u.SalesRep.FirstName} {u.SalesRep.LastName}".Trim()
+                            : null,
                         IsActive = u.IsActive,
                         CreatedAt = u.CreatedAt,
                         UpdatedAt = u.UpdatedAt
@@ -96,10 +100,11 @@ namespace EntryPointApp.Api.Services.Admin
                         HasPreviousPage = page > 1,
                         Summary = new UserSummaryDto
                         {
-                            TotalUsers    = roleCounts.GetValueOrDefault(UserRole.User),
-                            TotalManagers = roleCounts.GetValueOrDefault(UserRole.Manager),
-                            TotalAdmins   = roleCounts.GetValueOrDefault(UserRole.Admin),
-                            ActiveUsers   = activeCount
+                            TotalUsers     = roleCounts.GetValueOrDefault(UserRole.User),
+                            TotalSalesReps = roleCounts.GetValueOrDefault(UserRole.SalesRep),
+                            TotalManagers  = roleCounts.GetValueOrDefault(UserRole.Manager),
+                            TotalAdmins    = roleCounts.GetValueOrDefault(UserRole.Admin),
+                            ActiveUsers    = activeCount
                         }
                     }
                 };
@@ -124,6 +129,7 @@ namespace EntryPointApp.Api.Services.Admin
 
                 var user = await _context.Timesheet_Users
                     .Include(u => u.Manager)
+                    .Include(u => u.SalesRep)
                     .Where(u => u.Id == userId)
                     .Select(u => new UserDto
                     {
@@ -136,6 +142,10 @@ namespace EntryPointApp.Api.Services.Admin
                         ManagerId = u.ManagerId,
                         ManagerName = u.Manager != null
                             ? $"{u.Manager.FirstName} {u.Manager.LastName}".Trim()
+                            : null,
+                        SalesRepId = u.SalesRepId,
+                        SalesRepName = u.SalesRep != null
+                            ? $"{u.SalesRep.FirstName} {u.SalesRep.LastName}".Trim()
                             : null,
                         IsActive = u.IsActive,
                         CreatedAt = u.CreatedAt,
@@ -306,14 +316,14 @@ namespace EntryPointApp.Api.Services.Admin
                     };
                 }
 
-                // Only Users can have managers
-                if (user.Role != UserRole.User)
+                // Users and Sales Reps can have managers
+                if (user.Role != UserRole.User && user.Role != UserRole.SalesRep)
                 {
                     return new UserResult
                     {
                         Success = false,
                         Message = "Invalid assignment",
-                        Errors = [$"Only users with role 'User' can be assigned a manager. This user has role '{user.Role}'."]
+                        Errors = [$"Only users with role 'User' or 'SalesRep' can be assigned a manager. This user has role '{user.Role}'."]
                     };
                 }
 
@@ -768,6 +778,210 @@ namespace EntryPointApp.Api.Services.Admin
                 {
                     Success = false,
                     Message = "Failed to retrieve timesheet detail",
+                    Errors = [ex.Message]
+                };
+            }
+        }
+
+        public async Task<UserResult> AssignSalesRepAsync(int userId, int salesRepId)
+        {
+            try
+            {
+                _logger.LogInformation("Assigning sales rep {SalesRepId} to user {UserId}", salesRepId, userId);
+
+                if (userId == salesRepId)
+                {
+                    return new UserResult
+                    {
+                        Success = false,
+                        Message = "Invalid assignment",
+                        Errors = ["A user cannot be their own sales rep"]
+                    };
+                }
+
+                var user = await _context.Timesheet_Users
+                    .Include(u => u.Manager)
+                    .Include(u => u.SalesRep)
+                    .FirstOrDefaultAsync(u => u.Id == userId);
+
+                if (user == null)
+                {
+                    _logger.LogWarning("User {UserId} not found", userId);
+                    return new UserResult
+                    {
+                        Success = false,
+                        Message = "User not found",
+                        Errors = ["The requested user does not exist"]
+                    };
+                }
+
+                if (user.Role != UserRole.User)
+                {
+                    return new UserResult
+                    {
+                        Success = false,
+                        Message = "Invalid assignment",
+                        Errors = [$"Only users with role 'User' can be assigned a sales rep. This user has role '{user.Role}'."]
+                    };
+                }
+
+                var salesRep = await _context.Timesheet_Users.FirstOrDefaultAsync(u => u.Id == salesRepId);
+
+                if (salesRep == null)
+                {
+                    _logger.LogWarning("Sales rep {SalesRepId} not found", salesRepId);
+                    return new UserResult
+                    {
+                        Success = false,
+                        Message = "Sales rep not found",
+                        Errors = ["The specified sales rep does not exist"]
+                    };
+                }
+
+                if (salesRep.Role != UserRole.SalesRep)
+                {
+                    return new UserResult
+                    {
+                        Success = false,
+                        Message = "Invalid sales rep",
+                        Errors = ["The specified user is not a sales rep"]
+                    };
+                }
+
+                if (!salesRep.IsActive)
+                {
+                    return new UserResult
+                    {
+                        Success = false,
+                        Message = "Invalid sales rep",
+                        Errors = ["The specified sales rep is not active"]
+                    };
+                }
+
+                user.SalesRepId = salesRepId;
+                user.UpdatedAt = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
+
+                user = await _context.Timesheet_Users
+                    .Include(u => u.Manager)
+                    .Include(u => u.SalesRep)
+                    .FirstOrDefaultAsync(u => u.Id == userId);
+
+                var updatedUser = new UserDto
+                {
+                    Id = user!.Id,
+                    Email = user.Email,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Role = user.Role.ToString(),
+                    EmployeeType = user.EmployeeType.HasValue ? user.EmployeeType.ToString() : null,
+                    ManagerId = user.ManagerId,
+                    ManagerName = user.Manager != null
+                        ? $"{user.Manager.FirstName} {user.Manager.LastName}".Trim()
+                        : null,
+                    SalesRepId = user.SalesRepId,
+                    SalesRepName = user.SalesRep != null
+                        ? $"{user.SalesRep.FirstName} {user.SalesRep.LastName}".Trim()
+                        : null,
+                    IsActive = user.IsActive,
+                    CreatedAt = user.CreatedAt,
+                    UpdatedAt = user.UpdatedAt
+                };
+
+                _logger.LogInformation("Successfully assigned sales rep {SalesRepId} to user {UserId}", salesRepId, userId);
+
+                return new UserResult
+                {
+                    Success = true,
+                    Message = "Sales rep assigned successfully!",
+                    Data = updatedUser
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error assigning sales rep {SalesRepId} to user {UserId}", salesRepId, userId);
+                return new UserResult
+                {
+                    Success = false,
+                    Message = "Failed to assign sales rep",
+                    Errors = [ex.Message]
+                };
+            }
+        }
+
+        public async Task<UserResult> RemoveSalesRepAsync(int userId)
+        {
+            try
+            {
+                _logger.LogInformation("Removing sales rep from user {UserId}", userId);
+
+                var user = await _context.Timesheet_Users
+                    .Include(u => u.Manager)
+                    .Include(u => u.SalesRep)
+                    .FirstOrDefaultAsync(u => u.Id == userId);
+
+                if (user == null)
+                {
+                    _logger.LogWarning("User {UserId} not found", userId);
+                    return new UserResult
+                    {
+                        Success = false,
+                        Message = "User not found",
+                        Errors = ["The requested user does not exist"]
+                    };
+                }
+
+                if (user.SalesRepId == null)
+                {
+                    return new UserResult
+                    {
+                        Success = false,
+                        Message = "No sales rep assigned",
+                        Errors = ["This user does not have a sales rep to remove"]
+                    };
+                }
+
+                user.SalesRepId = null;
+                user.UpdatedAt = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
+
+                var updatedUser = new UserDto
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Role = user.Role.ToString(),
+                    EmployeeType = user.EmployeeType.HasValue ? user.EmployeeType.ToString() : null,
+                    ManagerId = user.ManagerId,
+                    ManagerName = user.Manager != null
+                        ? $"{user.Manager.FirstName} {user.Manager.LastName}".Trim()
+                        : null,
+                    SalesRepId = null,
+                    SalesRepName = null,
+                    IsActive = user.IsActive,
+                    CreatedAt = user.CreatedAt,
+                    UpdatedAt = user.UpdatedAt
+                };
+
+                _logger.LogInformation("Successfully removed sales rep from user {UserId}", userId);
+
+                return new UserResult
+                {
+                    Success = true,
+                    Message = "Sales rep removed successfully!",
+                    Data = updatedUser
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error removing sales rep from user {UserId}", userId);
+                return new UserResult
+                {
+                    Success = false,
+                    Message = "Failed to remove sales rep",
                     Errors = [ex.Message]
                 };
             }

@@ -9,27 +9,7 @@ import {
   DenyTimesheetRequest,
   TimesheetSummary,
 } from '../models/manager.model';
-
-export interface PagedResult<T> {
-  data: T[];
-  totalCount: number;
-  page: number;
-  pageSize: number;
-  totalPages: number;
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
-}
-
-export interface TeamTimesheetPagedResult extends PagedResult<TeamTimesheetResponse> {
-  summary: TimesheetSummary;
-}
-
-export interface ApiResponse<T> {
-  success: boolean;
-  message: string;
-  data?: T;
-  errors?: string[];
-}
+import { ApiResponse, TeamTimesheetPagedResult } from './manager.service';
 
 const defaultSummary: TimesheetSummary = {
   totalApproved: 0,
@@ -39,9 +19,9 @@ const defaultSummary: TimesheetSummary = {
 };
 
 @Injectable({ providedIn: 'root' })
-export class ManagerService {
+export class SalesRepService {
   private http = inject(HttpClient);
-  private apiUrl = `${environment.apiUrl}/manager`;
+  private apiUrl = `${environment.apiUrl}/salesrep`;
 
   private _timesheets = signal<TeamTimesheetResponse[]>([]);
   private _isLoading = signal(false);
@@ -63,7 +43,6 @@ export class ManagerService {
   );
 
   readonly totalPending = computed(() => this._summary().totalPending);
-  readonly totalPendingSalesRep = computed(() => this._summary().totalPendingSalesRep);
   readonly totalApproved = computed(() => this._summary().totalApproved);
   readonly totalDenied = computed(() => this._summary().totalDenied);
 
@@ -92,12 +71,9 @@ export class ManagerService {
     }
 
     this.http
-      .get<ApiResponse<TeamTimesheetPagedResult>>(
-        `${this.apiUrl}/timesheets`,
-        {
-          params,
-        },
-      )
+      .get<
+        ApiResponse<TeamTimesheetPagedResult>
+      >(`${this.apiUrl}/timesheets`, { params })
       .subscribe({
         next: (response) => {
           if (response.success && response.data) {
@@ -106,33 +82,6 @@ export class ManagerService {
             this._page.set(response.data.page);
             this._pageSize.set(response.data.pageSize);
             this._summary.set(response.data.summary ?? { ...defaultSummary });
-          } else {
-            this._error.set(response.message || 'Failed to fetch timesheets');
-            this._timesheets.set([]);
-          }
-          this._isLoading.set(false);
-        },
-        error: (err) => {
-          console.error(err);
-          this._error.set('Failed to fetch timesheets');
-          this._timesheets.set([]);
-          this._isLoading.set(false);
-        },
-      });
-  }
-
-  loadPendingTimesheets() {
-    this._isLoading.set(true);
-    this._error.set(null);
-
-    this.http
-      .get<
-        ApiResponse<TeamTimesheetResponse[]>
-      >(`${this.apiUrl}/timesheets/pending`)
-      .subscribe({
-        next: (response) => {
-          if (response.success && response.data) {
-            this._timesheets.set(response.data);
           } else {
             this._error.set(response.message || 'Failed to fetch timesheets');
             this._timesheets.set([]);

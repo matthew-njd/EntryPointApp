@@ -45,6 +45,7 @@ export class UserEdit {
   user = signal<UserDto | null>(null);
   rates = signal<UserRateDto[]>([]);
   selectedRole = signal<UserRole>(UserRole.User);
+  salesRepHasValue = signal(false);
 
   UserRole = UserRole;
   EmployeeType = EmployeeType;
@@ -58,11 +59,20 @@ export class UserEdit {
       ),
   );
 
+  availableSalesReps = computed(() =>
+    this.adminService
+      .users()
+      .filter(
+        (u) => u.role === 'SalesRep' && u.isActive && u.id !== this.user()?.id,
+      ),
+  );
+
   constructor() {
     this.userForm = this.fb.group({
       role: [UserRole.User, [Validators.required]],
       employeeType: [null as EmployeeType | null],
       managerId: [null as number | null],
+      salesRepId: [null as number | null],
     });
 
     this.rateForm = this.fb.group({
@@ -96,10 +106,15 @@ export class UserEdit {
             role: roleValue,
             employeeType: this.getEmployeeTypeEnumValue(user.employeeType),
             managerId: user.managerId,
+            salesRepId: user.salesRepId,
           });
 
           this.userForm.get('role')?.valueChanges.subscribe((role) => {
             this.handleRoleChange(role);
+          });
+
+          this.userForm.get('salesRepId')?.valueChanges.subscribe((val) => {
+            this.handleSalesRepChange(val);
           });
 
           this.handleRoleChange(roleValue);
@@ -121,15 +136,26 @@ export class UserEdit {
     this.selectedRole.set(role);
     const managerIdControl = this.userForm.get('managerId');
     const employeeTypeControl = this.userForm.get('employeeType');
+    const salesRepIdControl = this.userForm.get('salesRepId');
 
     if (role === UserRole.User) {
       managerIdControl?.enable();
       employeeTypeControl?.enable();
+      salesRepIdControl?.enable();
+      this.handleSalesRepChange(salesRepIdControl?.value);
+    } else if (role === UserRole.SalesRep) {
+      managerIdControl?.enable();
+      employeeTypeControl?.setValue(null);
+      employeeTypeControl?.disable();
+      salesRepIdControl?.setValue(null);
+      salesRepIdControl?.disable();
     } else {
       managerIdControl?.setValue(null);
       managerIdControl?.disable();
       employeeTypeControl?.setValue(null);
       employeeTypeControl?.disable();
+      salesRepIdControl?.setValue(null);
+      salesRepIdControl?.disable();
     }
   }
 
@@ -146,14 +172,16 @@ export class UserEdit {
     const currentRoleEnum = this.getRoleEnumValue(currentUser.role);
     const newRole = formValue.role;
     const newManagerId = formValue.managerId;
+    const newSalesRepId = formValue.salesRepId;
     const newEmployeeType = formValue.employeeType as EmployeeType | null;
 
     const roleChanged = currentRoleEnum !== newRole;
     const managerChanged = currentUser.managerId !== newManagerId;
+    const salesRepChanged = currentUser.salesRepId !== newSalesRepId;
     const currentEmployeeTypeEnum = this.getEmployeeTypeEnumValue(currentUser.employeeType);
     const employeeTypeChanged = currentEmployeeTypeEnum !== newEmployeeType;
 
-    if (!roleChanged && !managerChanged && !employeeTypeChanged) {
+    if (!roleChanged && !managerChanged && !salesRepChanged && !employeeTypeChanged) {
       this.toastService.info(this.translateService.instant('toast.noChanges'));
       this.isLoading.set(false);
       return;
@@ -167,11 +195,19 @@ export class UserEdit {
       }
     };
 
-    const doManager = () => {
-      if (managerChanged) {
-        this.updateManager(currentUser.id, newManagerId, doEmployeeType);
+    const doSalesRep = () => {
+      if (salesRepChanged) {
+        this.updateSalesRep(currentUser.id, newSalesRepId, doEmployeeType);
       } else {
         doEmployeeType();
+      }
+    };
+
+    const doManager = () => {
+      if (managerChanged) {
+        this.updateManager(currentUser.id, newManagerId, doSalesRep);
+      } else {
+        doSalesRep();
       }
     };
 
@@ -196,9 +232,9 @@ export class UserEdit {
         },
       });
     } else if (managerChanged) {
-      this.updateManager(currentUser.id, newManagerId, doEmployeeType);
+      this.updateManager(currentUser.id, newManagerId, doSalesRep);
     } else {
-      doEmployeeType();
+      doSalesRep();
     }
   }
 
@@ -232,6 +268,42 @@ export class UserEdit {
         },
         error: (err) => {
           this.toastService.error(err.message || this.translateService.instant('toast.failedAssignManager'));
+          this.isLoading.set(false);
+        },
+      });
+    }
+  }
+
+  updateSalesRep(userId: number, salesRepId: number | null, onComplete: () => void): void {
+    if (salesRepId === null) {
+      this.adminService.removeSalesRep(userId).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.toastService.success(this.translateService.instant('toast.salesRepRemoved'));
+            onComplete();
+          } else {
+            this.toastService.error(response.message);
+            this.isLoading.set(false);
+          }
+        },
+        error: (err) => {
+          this.toastService.error(err.message || this.translateService.instant('toast.failedRemoveSalesRep'));
+          this.isLoading.set(false);
+        },
+      });
+    } else {
+      this.adminService.assignSalesRep(userId, salesRepId).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.toastService.success(this.translateService.instant('toast.salesRepAssigned'));
+            onComplete();
+          } else {
+            this.toastService.error(response.message);
+            this.isLoading.set(false);
+          }
+        },
+        error: (err) => {
+          this.toastService.error(err.message || this.translateService.instant('toast.failedAssignSalesRep'));
           this.isLoading.set(false);
         },
       });
@@ -330,6 +402,8 @@ export class UserEdit {
         return UserRole.Admin;
       case 'Manager':
         return UserRole.Manager;
+      case 'SalesRep':
+        return UserRole.SalesRep;
       case 'User':
       default:
         return UserRole.User;
@@ -379,8 +453,26 @@ export class UserEdit {
         return 'userEdit.roleDescManager';
       case UserRole.Admin:
         return 'userEdit.roleDescAdmin';
+      case UserRole.SalesRep:
+        return 'userEdit.roleDescSalesRep';
       default:
         return '';
     }
+  }
+
+  handleSalesRepChange(salesRepId: number | null): void {
+    this.salesRepHasValue.set(salesRepId !== null);
+    if (this.selectedRole() !== UserRole.User) return;
+    const managerIdControl = this.userForm.get('managerId');
+    if (salesRepId !== null) {
+      managerIdControl?.setValue(null);
+      managerIdControl?.disable();
+    } else {
+      managerIdControl?.enable();
+    }
+  }
+
+  get salesRepIdControl() {
+    return this.userForm.get('salesRepId')!;
   }
 }

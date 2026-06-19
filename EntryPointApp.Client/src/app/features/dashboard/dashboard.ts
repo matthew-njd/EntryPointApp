@@ -102,7 +102,8 @@ export class Dashboard {
     switch (status) {
       case 'Draft':
         return 'badge-warning';
-      case 'Pending':
+      case 'PendingSalesRep':
+      case 'PendingManager':
         return 'badge-info';
       case 'Approved':
         return 'badge-success';

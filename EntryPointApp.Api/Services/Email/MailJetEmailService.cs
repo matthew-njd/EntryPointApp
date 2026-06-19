@@ -137,6 +137,8 @@ namespace EntryPointApp.Api.Services.Email
             string employeeName,
             string managerEmail,
             string managerName,
+            string? salesRepEmail,
+            string? salesRepName,
             string weekPeriod,
             decimal totalHours,
             decimal totalCharges,
@@ -261,12 +263,16 @@ namespace EntryPointApp.Api.Services.Email
                     Convert.ToBase64String(excelAttachment)
                 );
 
-                // Create email with attachment
-                var email = new TransactionalEmailBuilder()
+                var emailBuilder = new TransactionalEmailBuilder()
                     .WithFrom(new SendContact(fromEmail, fromName))
                     .WithTo(new SendContact(hrEmail, "HR Department"))
                     .WithCc(new SendContact(employeeEmail, employeeName))
-                    .WithCc(new SendContact(managerEmail, managerName))
+                    .WithCc(new SendContact(managerEmail, managerName));
+
+                if (!string.IsNullOrEmpty(salesRepEmail))
+                    emailBuilder = emailBuilder.WithCc(new SendContact(salesRepEmail, salesRepName ?? "Sales Rep"));
+
+                var email = emailBuilder
                     .WithSubject($"Timesheet Approved - {employeeName} - {weekPeriod}")
                     .WithHtmlPart(htmlBody)
                     .WithTextPart(textBody)
@@ -455,7 +461,7 @@ namespace EntryPointApp.Api.Services.Email
         public async Task<bool> SendTimesheetDenialEmailAsync(
             string employeeEmail,
             string employeeName,
-            string managerName,
+            string deniedByName,
             string weekPeriod,
             decimal totalHours,
             decimal totalCharges,
@@ -483,7 +489,7 @@ namespace EntryPointApp.Api.Services.Email
                             <!-- Body text -->
                             <p style='margin:0 0 20px 0; font-size:15px; color:#5f6b7a; line-height:1.6;'>
                                 Hi <strong>{employeeName}</strong>,<br><br>
-                                Your timesheet for <strong>{weekPeriod}</strong> has been reviewed and denied by <strong>{managerName}</strong>.
+                                Your timesheet for <strong>{weekPeriod}</strong> has been reviewed and denied by <strong>{deniedByName}</strong>.
                                 Please see the reason below and update your timesheet accordingly.
                             </p>
 
@@ -554,7 +560,7 @@ namespace EntryPointApp.Api.Services.Email
 
                     Hi {employeeName},
 
-                    Your timesheet for {weekPeriod} has been denied by {managerName}.
+                    Your timesheet for {weekPeriod} has been denied by {deniedByName}.
 
                     Reason for Denial:
                     {denialReason}
@@ -603,6 +609,302 @@ namespace EntryPointApp.Api.Services.Email
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error sending timesheet denial email to {EmployeeEmail}", employeeEmail);
+                return false;
+            }
+        }
+
+        public async Task<bool> SendSalesRepSubmissionEmailAsync(
+            string salesRepEmail,
+            string salesRepName,
+            string employeeName,
+            string weekPeriod,
+            decimal totalHours,
+            decimal totalCharges,
+            string timesheetUrl)
+        {
+            try
+            {
+                var fromEmail = _configuration["MailJet:FromEmail"]
+                    ?? throw new InvalidOperationException("MailJet:FromEmail not configured");
+                var fromName = _configuration["MailJet:FromName"] ?? "PCF Timesheet App";
+
+                _logger.LogInformation("Sending timesheet submission email to Sales Rep: {SalesRepEmail} for Employee: {EmployeeName}",
+                    salesRepEmail, employeeName);
+
+                var htmlBody = $@"
+                    <html>
+                    <body style='margin:0; padding:0; background-color:#f4f6f8; font-family: Arial, Helvetica, sans-serif;'>
+                        <div style='max-width:600px; margin:40px auto; background-color:#ffffff; padding:32px; border-radius:6px;'>
+
+                            <h1 style='margin:0 0 16px 0; font-size:26px; color:#1f2a44; font-weight:bold; text-align:center;'>
+                                Timesheet Submitted for Review
+                            </h1>
+
+                            <p style='margin:0 0 20px 0; font-size:15px; color:#5f6b7a; line-height:1.6;'>
+                                Hi <strong>{salesRepName}</strong>,<br><br>
+                                <strong>{employeeName}</strong> has submitted their timesheet for <strong>{weekPeriod}</strong> and is awaiting your review.
+                            </p>
+
+                            <div style='background-color:#f8f9fa; border-left:4px solid #1c4e80; padding:16px; margin:20px 0;'>
+                                <h3 style='margin:0 0 12px 0; font-size:16px; color:#1f2a44;'>Summary</h3>
+                                <table style='width:100%; font-size:14px; color:#5f6b7a;'>
+                                    <tr>
+                                        <td style='padding:4px 0;'><strong>Employee:</strong></td>
+                                        <td style='padding:4px 0; text-align:right;'>{employeeName}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style='padding:4px 0;'><strong>Week Period:</strong></td>
+                                        <td style='padding:4px 0; text-align:right;'>{weekPeriod}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style='padding:4px 0;'><strong>Total Hours:</strong></td>
+                                        <td style='padding:4px 0; text-align:right;'>{totalHours:F2} hrs</td>
+                                    </tr>
+                                    <tr>
+                                        <td style='padding:4px 0;'><strong>Total Charges:</strong></td>
+                                        <td style='padding:4px 0; text-align:right;'>${totalCharges:F2}</td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <div style='text-align:center; margin:30px 0;'>
+                                <a href='{timesheetUrl}'
+                                style='display:inline-block;
+                                        background-color:#1c4e80;
+                                        color:#ffffff;
+                                        text-decoration:none;
+                                        padding:14px 36px;
+                                        font-size:15px;
+                                        font-weight:bold;
+                                        border-radius:4px;'>
+                                    Review Timesheet
+                                </a>
+                            </div>
+
+                            <p style='font-size:12px; color:#9aa3ad; line-height:1.5; text-align:center;'>
+                                If the button doesn't work, copy and paste this link into your browser:
+                                <br />
+                                <a href='{timesheetUrl}' style='color:#1c4e80; word-break:break-all;'>
+                                    {timesheetUrl}
+                                </a>
+                            </p>
+
+                            <hr style='border:none; border-top:1px solid #e6e9ec; margin:30px 0;' />
+
+                            <p style='font-size:11px; color:#b0b7c3; margin:0; text-align:center;'>
+                                © {DateTime.Now.Year} The Postcard Factory. All rights reserved.<br>
+                                This is an automated notification.
+                            </p>
+
+                        </div>
+                    </body>
+                    </html>
+                ";
+
+                var textBody = $@"
+                    TIMESHEET SUBMITTED FOR REVIEW
+
+                    Hi {salesRepName},
+
+                    {employeeName} has submitted their timesheet for {weekPeriod} and is awaiting your review.
+
+                    Summary:
+                    Employee: {employeeName}
+                    Week Period: {weekPeriod}
+                    Total Hours: {totalHours:F2} hrs
+                    Total Charges: ${totalCharges:F2}
+
+                    Review the timesheet here:
+                    {timesheetUrl}
+
+                    ---
+                    This is an automated notification from the EntryPoint Timesheet System.
+                ";
+
+                var email = new TransactionalEmailBuilder()
+                    .WithFrom(new SendContact(fromEmail, fromName))
+                    .WithTo(new SendContact(salesRepEmail, salesRepName))
+                    .WithSubject($"Timesheet Submitted for Review - {employeeName} - {weekPeriod}")
+                    .WithHtmlPart(htmlBody)
+                    .WithTextPart(textBody)
+                    .Build();
+
+                var response = await _mailjetClient.SendTransactionalEmailAsync(email);
+
+                if (response.Messages != null && response.Messages.Length > 0)
+                {
+                    var message = response.Messages[0];
+                    if (message.Status == "success")
+                    {
+                        _logger.LogInformation("Timesheet submission email sent successfully to {SalesRepEmail} for {EmployeeName}",
+                            salesRepEmail, employeeName);
+                        return true;
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Failed to send timesheet submission email to {SalesRepEmail}. Status: {Status}",
+                            salesRepEmail, message.Status);
+                        return false;
+                    }
+                }
+
+                _logger.LogWarning("No response messages from MailJet for sales rep submission email");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error sending timesheet submission email for {EmployeeName}", employeeName);
+                return false;
+            }
+        }
+
+        public async Task<bool> SendManagerNotificationEmailAsync(
+            string managerEmail,
+            string managerName,
+            string salesRepName,
+            string employeeName,
+            string weekPeriod,
+            decimal totalHours,
+            decimal totalCharges,
+            string timesheetUrl)
+        {
+            try
+            {
+                var fromEmail = _configuration["MailJet:FromEmail"]
+                    ?? throw new InvalidOperationException("MailJet:FromEmail not configured");
+                var fromName = _configuration["MailJet:FromName"] ?? "PCF Timesheet App";
+
+                _logger.LogInformation("Sending manager notification email to Manager: {ManagerEmail} for Employee: {EmployeeName}",
+                    managerEmail, employeeName);
+
+                var htmlBody = $@"
+                    <html>
+                    <body style='margin:0; padding:0; background-color:#f4f6f8; font-family: Arial, Helvetica, sans-serif;'>
+                        <div style='max-width:600px; margin:40px auto; background-color:#ffffff; padding:32px; border-radius:6px;'>
+
+                            <h1 style='margin:0 0 16px 0; font-size:26px; color:#1f2a44; font-weight:bold; text-align:center;'>
+                                Timesheet Awaiting Your Approval
+                            </h1>
+
+                            <p style='margin:0 0 20px 0; font-size:15px; color:#5f6b7a; line-height:1.6;'>
+                                Hi <strong>{managerName}</strong>,<br><br>
+                                <strong>{employeeName}</strong>'s timesheet for <strong>{weekPeriod}</strong> has been reviewed and approved by Sales Rep <strong>{salesRepName}</strong> and is now awaiting your final approval.
+                            </p>
+
+                            <div style='background-color:#f8f9fa; border-left:4px solid #1c4e80; padding:16px; margin:20px 0;'>
+                                <h3 style='margin:0 0 12px 0; font-size:16px; color:#1f2a44;'>Summary</h3>
+                                <table style='width:100%; font-size:14px; color:#5f6b7a;'>
+                                    <tr>
+                                        <td style='padding:4px 0;'><strong>Employee:</strong></td>
+                                        <td style='padding:4px 0; text-align:right;'>{employeeName}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style='padding:4px 0;'><strong>Week Period:</strong></td>
+                                        <td style='padding:4px 0; text-align:right;'>{weekPeriod}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style='padding:4px 0;'><strong>Total Hours:</strong></td>
+                                        <td style='padding:4px 0; text-align:right;'>{totalHours:F2} hrs</td>
+                                    </tr>
+                                    <tr>
+                                        <td style='padding:4px 0;'><strong>Total Charges:</strong></td>
+                                        <td style='padding:4px 0; text-align:right;'>${totalCharges:F2}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style='padding:4px 0;'><strong>Reviewed By (Sales Rep):</strong></td>
+                                        <td style='padding:4px 0; text-align:right;'>{salesRepName}</td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <div style='text-align:center; margin:30px 0;'>
+                                <a href='{timesheetUrl}'
+                                style='display:inline-block;
+                                        background-color:#1c4e80;
+                                        color:#ffffff;
+                                        text-decoration:none;
+                                        padding:14px 36px;
+                                        font-size:15px;
+                                        font-weight:bold;
+                                        border-radius:4px;'>
+                                    Review Timesheet
+                                </a>
+                            </div>
+
+                            <p style='font-size:12px; color:#9aa3ad; line-height:1.5; text-align:center;'>
+                                If the button doesn't work, copy and paste this link into your browser:
+                                <br />
+                                <a href='{timesheetUrl}' style='color:#1c4e80; word-break:break-all;'>
+                                    {timesheetUrl}
+                                </a>
+                            </p>
+
+                            <hr style='border:none; border-top:1px solid #e6e9ec; margin:30px 0;' />
+
+                            <p style='font-size:11px; color:#b0b7c3; margin:0; text-align:center;'>
+                                © {DateTime.Now.Year} The Postcard Factory. All rights reserved.<br>
+                                This is an automated notification.
+                            </p>
+
+                        </div>
+                    </body>
+                    </html>
+                ";
+
+                var textBody = $@"
+                    TIMESHEET AWAITING YOUR APPROVAL
+
+                    Hi {managerName},
+
+                    {employeeName}'s timesheet for {weekPeriod} has been reviewed and approved by Sales Rep {salesRepName} and is now awaiting your final approval.
+
+                    Summary:
+                    Employee: {employeeName}
+                    Week Period: {weekPeriod}
+                    Total Hours: {totalHours:F2} hrs
+                    Total Charges: ${totalCharges:F2}
+                    Reviewed By (Sales Rep): {salesRepName}
+
+                    Review the timesheet here:
+                    {timesheetUrl}
+
+                    ---
+                    This is an automated notification from the EntryPoint Timesheet System.
+                ";
+
+                var email = new TransactionalEmailBuilder()
+                    .WithFrom(new SendContact(fromEmail, fromName))
+                    .WithTo(new SendContact(managerEmail, managerName))
+                    .WithSubject($"Timesheet Awaiting Approval - {employeeName} - {weekPeriod}")
+                    .WithHtmlPart(htmlBody)
+                    .WithTextPart(textBody)
+                    .Build();
+
+                var response = await _mailjetClient.SendTransactionalEmailAsync(email);
+
+                if (response.Messages != null && response.Messages.Length > 0)
+                {
+                    var message = response.Messages[0];
+                    if (message.Status == "success")
+                    {
+                        _logger.LogInformation("Manager notification email sent successfully to {ManagerEmail} for {EmployeeName}",
+                            managerEmail, employeeName);
+                        return true;
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Failed to send manager notification email to {ManagerEmail}. Status: {Status}",
+                            managerEmail, message.Status);
+                        return false;
+                    }
+                }
+
+                _logger.LogWarning("No response messages from MailJet for manager notification email");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error sending manager notification email for {EmployeeName}", employeeName);
                 return false;
             }
         }

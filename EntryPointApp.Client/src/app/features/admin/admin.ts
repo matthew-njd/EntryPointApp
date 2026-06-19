@@ -154,6 +154,8 @@ export class Admin {
         return 'badge-error';
       case 'Manager':
         return 'badge-warning';
+      case 'SalesRep':
+        return 'badge-secondary';
       case 'User':
         return 'badge-info';
       default:

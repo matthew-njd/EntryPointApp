@@ -5,6 +5,7 @@ namespace EntryPointApp.Api.Models.Enums
         Approved,
         Denied,
         Draft,
-        Pending
+        PendingSalesRep,
+        PendingManager
     }
 }

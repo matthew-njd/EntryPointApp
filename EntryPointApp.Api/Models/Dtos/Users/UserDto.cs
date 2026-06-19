@@ -10,6 +10,8 @@ namespace EntryPointApp.Api.Models.Dtos.Users
         public string? EmployeeType { get; set; }
         public int? ManagerId { get; set; }
         public string? ManagerName { get; set; }
+        public int? SalesRepId { get; set; }
+        public string? SalesRepName { get; set; }
         public bool IsActive { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }

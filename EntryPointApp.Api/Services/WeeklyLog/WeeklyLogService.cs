@@ -83,7 +83,8 @@ namespace EntryPointApp.Api.Services.WeeklyLog
                     Summary = new WeeklyLogSummaryDto
                     {
                         TotalApproved = statusCounts.GetValueOrDefault(TimesheetStatus.Approved),
-                        TotalPending  = statusCounts.GetValueOrDefault(TimesheetStatus.Pending),
+                        TotalPending  = statusCounts.GetValueOrDefault(TimesheetStatus.PendingSalesRep)
+                                      + statusCounts.GetValueOrDefault(TimesheetStatus.PendingManager),
                         TotalDenied   = statusCounts.GetValueOrDefault(TimesheetStatus.Denied),
                         TotalDraft    = statusCounts.GetValueOrDefault(TimesheetStatus.Draft)
                     }
@@ -129,6 +130,7 @@ namespace EntryPointApp.Api.Services.WeeklyLog
                         TotalHours = w.TotalHours,
                         TotalCharges = w.TotalCharges,
                         Status = w.Status,
+                        SalesRepComment = w.SalesRepComment,
                         ManagerComment = w.ManagerComment
                     })
                     .FirstOrDefaultAsync();
@@ -415,32 +417,42 @@ namespace EntryPointApp.Api.Services.WeeklyLog
         public async Task<WeeklyLogResult> UpdateStatusAsync(int weeklyLogId, TimesheetStatus newStatus, int userId)
         {
             var weeklyLog = await _context.Timesheet_WeeklyLogs
+                .Include(w => w.User)
                 .FirstOrDefaultAsync(w => w.Id == weeklyLogId && w.UserId == userId && !w.IsDeleted);
-                
+
             if (weeklyLog == null)
             {
-                return new WeeklyLogResult 
-                { 
-                    Success = false, 
-                    Message = "Timesheet not found" 
+                return new WeeklyLogResult
+                {
+                    Success = false,
+                    Message = "Timesheet not found"
                 };
             }
-            
+
+            if (newStatus == TimesheetStatus.PendingSalesRep && weeklyLog.User.SalesRepId == null)
+            {
+                return new WeeklyLogResult
+                {
+                    Success = false,
+                    Message = "You must have a Sales Rep assigned before submitting. Please contact your admin."
+                };
+            }
+
             if (!IsValidStatusTransition(weeklyLog.Status, newStatus))
             {
-                return new WeeklyLogResult 
-                { 
-                    Success = false, 
-                    Message = $"Cannot change status from {weeklyLog.Status} to {newStatus}" 
+                return new WeeklyLogResult
+                {
+                    Success = false,
+                    Message = $"Cannot change status from {weeklyLog.Status} to {newStatus}"
                 };
             }
-            
+
             weeklyLog.Status = newStatus;
             weeklyLog.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
 
-            if (newStatus == TimesheetStatus.Pending)
+            if (newStatus == TimesheetStatus.PendingSalesRep)
             {
                 var emailData = await _context.Timesheet_WeeklyLogs
                     .Where(w => w.Id == weeklyLogId && !w.IsDeleted)
@@ -451,25 +463,25 @@ namespace EntryPointApp.Api.Services.WeeklyLog
                         w.TotalHours,
                         w.TotalCharges,
                         EmployeeName = (w.User.FirstName + " " + w.User.LastName).Trim(),
-                        ManagerEmail = w.User.Manager != null ? w.User.Manager.Email : null,
-                        ManagerName = w.User.Manager != null
-                            ? (w.User.Manager.FirstName + " " + w.User.Manager.LastName).Trim()
+                        SalesRepEmail = w.User.SalesRep != null ? w.User.SalesRep.Email : null,
+                        SalesRepName = w.User.SalesRep != null
+                            ? (w.User.SalesRep.FirstName + " " + w.User.SalesRep.LastName).Trim()
                             : null
                     })
                     .FirstOrDefaultAsync();
 
-                if (emailData?.ManagerEmail != null)
+                if (emailData?.SalesRepEmail != null)
                 {
                     var weekPeriod = $"{emailData.DateFrom:MMM d} - {emailData.DateTo:MMM d, yyyy}";
-                    var timesheetUrl = $"{_configuration["AppSettings:BaseUrl"]}/manager/timesheets/{weeklyLogId}";
+                    var timesheetUrl = $"{_configuration["AppSettings:BaseUrl"]}/sales-rep/timesheets/{weeklyLogId}";
 
                     _ = Task.Run(async () =>
                     {
                         try
                         {
-                            await _emailService.SendTimesheetSubmissionEmailAsync(
-                                emailData.ManagerEmail,
-                                emailData.ManagerName ?? "Manager",
+                            await _emailService.SendSalesRepSubmissionEmailAsync(
+                                emailData.SalesRepEmail,
+                                emailData.SalesRepName ?? "Sales Rep",
                                 emailData.EmployeeName,
                                 weekPeriod,
                                 emailData.TotalHours,
@@ -495,14 +507,16 @@ namespace EntryPointApp.Api.Services.WeeklyLog
         {
             return (current, next) switch
             {
-                (TimesheetStatus.Draft, TimesheetStatus.Pending) => true,
-                
-                (TimesheetStatus.Pending, TimesheetStatus.Approved) => true,
-                (TimesheetStatus.Pending, TimesheetStatus.Denied) => true,
-                
-                (TimesheetStatus.Denied, TimesheetStatus.Draft) => true,
-                (TimesheetStatus.Denied, TimesheetStatus.Pending) => true,
-                
+                (TimesheetStatus.Draft, TimesheetStatus.PendingSalesRep) => true,
+
+                (TimesheetStatus.PendingSalesRep, TimesheetStatus.PendingManager) => true,
+                (TimesheetStatus.PendingSalesRep, TimesheetStatus.Denied) => true,
+
+                (TimesheetStatus.PendingManager, TimesheetStatus.Approved) => true,
+                (TimesheetStatus.PendingManager, TimesheetStatus.Denied) => true,
+
+                (TimesheetStatus.Denied, TimesheetStatus.PendingSalesRep) => true,
+
                 var (a, b) when a == b => true,
 
                 _ => false

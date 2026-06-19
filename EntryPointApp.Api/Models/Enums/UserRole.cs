@@ -4,6 +4,7 @@ namespace EntryPointApp.Api.Models.Enums
     {
         User,
         Manager,
-        Admin
+        Admin,
+        SalesRep
     }
 }

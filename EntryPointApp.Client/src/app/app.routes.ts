@@ -15,6 +15,9 @@ import { UserEdit } from './features/user-edit/user-edit';
 import { Manager } from './features/manager/manager';
 import { managerGuard } from './core/guards/manager.guard';
 import { ReviewTimsheet } from './features/review-timsheet/review-timsheet';
+import { SalesRep } from './features/sales-rep/sales-rep';
+import { SalesRepReview } from './features/sales-rep-review/sales-rep-review';
+import { salesRepGuard } from './core/guards/sales-rep.guard';
 import { AdminUserTimesheets } from './features/admin-user-timesheets/admin-user-timesheets';
 import { AdminTimesheetDetail } from './features/admin-timesheet-detail/admin-timesheet-detail';
 import { AdminPayrollSchedule } from './features/admin-payroll-schedule/admin-payroll-schedule';
@@ -86,6 +89,16 @@ export const routes: Routes = [
     path: 'manager/timesheets/:id',
     component: ReviewTimsheet,
     canActivate: [managerGuard],
+  },
+  {
+    path: 'sales-rep',
+    component: SalesRep,
+    canActivate: [salesRepGuard],
+  },
+  {
+    path: 'sales-rep/timesheets/:id',
+    component: SalesRepReview,
+    canActivate: [salesRepGuard],
   },
   { path: '', canActivate: [redirectGuard], children: [] },
   { path: '**', redirectTo: '' },

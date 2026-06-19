@@ -68,6 +68,8 @@ export class Login {
             this.router.navigate(['/admin']);
           } else if (user.role === 'Manager') {
             this.router.navigate(['/manager']);
+          } else if (user.role === 'SalesRep') {
+            this.router.navigate(['/sales-rep']);
           } else {
             this.router.navigate(['/dashboard']);
           }

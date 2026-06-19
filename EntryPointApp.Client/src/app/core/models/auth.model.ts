@@ -66,4 +66,5 @@ export enum UserRole {
   User = 0,
   Manager = 1,
   Admin = 2,
+  SalesRep = 3,
 }

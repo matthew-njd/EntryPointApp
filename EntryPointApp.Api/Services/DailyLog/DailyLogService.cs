@@ -276,6 +276,7 @@ namespace EntryPointApp.Api.Services.DailyLog
                     requests.Count, weeklyLogId, userId);
 
                 var weeklyLog = await _context.Timesheet_WeeklyLogs
+                    .Include(w => w.User)
                     .FirstOrDefaultAsync(w => w.Id == weeklyLogId && w.UserId == userId && !w.IsDeleted);
 
                 if (weeklyLog == null)
@@ -370,18 +371,19 @@ namespace EntryPointApp.Api.Services.DailyLog
                     r.Hours > 0 || r.Comment.Equals("Day off", StringComparison.OrdinalIgnoreCase)
                 );
 
-                if (allDaysFilled && weeklyLog.Status == Models.Enums.TimesheetStatus.Draft)
+                var autoSubmitted = false;
+                if (allDaysFilled && weeklyLog.Status == Models.Enums.TimesheetStatus.Draft && weeklyLog.User?.SalesRepId != null)
                 {
-                    weeklyLog.Status = Models.Enums.TimesheetStatus.Pending;
+                    weeklyLog.Status = Models.Enums.TimesheetStatus.PendingSalesRep;
                     weeklyLog.UpdatedAt = DateTime.UtcNow;
                     await _context.SaveChangesAsync();
-                    
-                    _logger.LogInformation("WeeklyLog {WeeklyLogId} status changed to Pending (all 7 days filled)", weeklyLogId);
+                    autoSubmitted = true;
+                    _logger.LogInformation("WeeklyLog {WeeklyLogId} status changed to PendingSalesRep (all 7 days filled)", weeklyLogId);
                 }
 
                 await transaction.CommitAsync();
 
-                var statusMessage = allDaysFilled ? " Timesheet submitted for approval!" : "";
+                var statusMessage = autoSubmitted ? " Timesheet submitted for approval!" : "";
 
                 _logger.LogInformation("Successfully created {Count} dailylogs for weeklylog {WeeklyLogId}",
                     responses.Count, weeklyLogId);
@@ -597,6 +599,7 @@ namespace EntryPointApp.Api.Services.DailyLog
                     weeklyLogId, userId);
 
                 var weeklyLog = await _context.Timesheet_WeeklyLogs
+                    .Include(w => w.User)
                     .FirstOrDefaultAsync(w => w.Id == weeklyLogId && w.UserId == userId && !w.IsDeleted);
 
                 if (weeklyLog == null)
@@ -772,19 +775,20 @@ namespace EntryPointApp.Api.Services.DailyLog
                     r.Hours > 0 || r.Comment.Equals("Day off", StringComparison.OrdinalIgnoreCase)
                 );
 
-                if (allDaysFilled && weeklyLog.Status == Models.Enums.TimesheetStatus.Draft)
+                var autoSubmitted = false;
+                if (allDaysFilled && weeklyLog.Status == Models.Enums.TimesheetStatus.Draft && weeklyLog.User?.SalesRepId != null)
                 {
-                    weeklyLog.Status = Models.Enums.TimesheetStatus.Pending;
+                    weeklyLog.Status = Models.Enums.TimesheetStatus.PendingSalesRep;
                     weeklyLog.UpdatedAt = DateTime.UtcNow;
                     await _context.SaveChangesAsync();
-                    
-                    _logger.LogInformation("WeeklyLog {WeeklyLogId} status changed to Pending (all 7 days filled)", weeklyLogId);
+                    autoSubmitted = true;
+                    _logger.LogInformation("WeeklyLog {WeeklyLogId} status changed to PendingSalesRep (all 7 days filled)", weeklyLogId);
                 }
 
                 await transaction.CommitAsync();
 
-                var statusMessage = allDaysFilled ? " Timesheet submitted for approval!" : "";
-                
+                var statusMessage = autoSubmitted ? " Timesheet submitted for approval!" : "";
+
                 _logger.LogInformation("Successfully updated daily logs for weeklylog {WeeklyLogId}. Created/Updated: {Count}, Deleted: {DeletedCount}",
                     weeklyLogId, responses.Count, logsToDelete.Count);
 
