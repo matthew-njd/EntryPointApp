@@ -43,6 +43,18 @@ export class AdminPayrollSummary implements OnInit {
     (this.summary()?.items ?? []).reduce((sum, i) => sum + i.mileageReimbursement, 0)
   );
 
+  totalTollCharges = computed(() =>
+    (this.summary()?.items ?? []).reduce((sum, i) => sum + i.totalTollCharges, 0)
+  );
+
+  totalParkingFees = computed(() =>
+    (this.summary()?.items ?? []).reduce((sum, i) => sum + i.totalParkingFees, 0)
+  );
+
+  totalOtherCharges = computed(() =>
+    (this.summary()?.items ?? []).reduce((sum, i) => sum + i.totalOtherCharges, 0)
+  );
+
   ngOnInit(): void {
     this.loadScheduleEntries();
   }

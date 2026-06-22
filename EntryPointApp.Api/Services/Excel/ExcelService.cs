@@ -195,20 +195,21 @@ namespace EntryPointApp.Api.Services.Excel
                 worksheet.Cell(1, 1).Value = "PAYROLL SUMMARY";
                 worksheet.Cell(1, 1).Style.Font.Bold = true;
                 worksheet.Cell(1, 1).Style.Font.FontSize = 16;
-                worksheet.Range(1, 1, 1, 9).Merge();
+                worksheet.Range(1, 1, 1, 12).Merge();
 
                 // Period
                 worksheet.Cell(2, 1).Value = "Pay Period:";
                 worksheet.Cell(2, 1).Style.Font.Bold = true;
                 worksheet.Cell(2, 2).Value = $"{summary.DateFrom:MM/dd/yyyy} - {summary.DateTo:MM/dd/yyyy}";
-                worksheet.Range(2, 2, 2, 9).Merge();
+                worksheet.Range(2, 2, 2, 12).Merge();
 
                 // Table headers (row 4)
                 int headerRow = 4;
                 var headers = new[]
                 {
                     "Full Name", "Employee Type", "Hourly Rate", "Mileage Rate",
-                    "Total Hours", "Total Mileage", "Gross Pay", "Mileage Reimbursement", "Total Pay"
+                    "Total Hours", "Total Mileage", "Toll Charges", "Parking Fees", "Other Charges",
+                    "Gross Pay", "Mileage Reimbursement", "Total Pay"
                 };
 
                 for (int i = 0; i < headers.Length; i++)
@@ -240,16 +241,25 @@ namespace EntryPointApp.Api.Services.Excel
                     worksheet.Cell(currentRow, 6).Value = item.TotalMileage;
                     worksheet.Cell(currentRow, 6).Style.NumberFormat.Format = "0.00";
 
-                    worksheet.Cell(currentRow, 7).Value = item.GrossPay;
+                    worksheet.Cell(currentRow, 7).Value = item.TotalTollCharges;
                     worksheet.Cell(currentRow, 7).Style.NumberFormat.Format = "$#,##0.00";
 
-                    worksheet.Cell(currentRow, 8).Value = item.MileageReimbursement;
+                    worksheet.Cell(currentRow, 8).Value = item.TotalParkingFees;
                     worksheet.Cell(currentRow, 8).Style.NumberFormat.Format = "$#,##0.00";
 
-                    worksheet.Cell(currentRow, 9).Value = item.GrossPay + item.MileageReimbursement;
+                    worksheet.Cell(currentRow, 9).Value = item.TotalOtherCharges;
                     worksheet.Cell(currentRow, 9).Style.NumberFormat.Format = "$#,##0.00";
 
-                    for (int col = 1; col <= 9; col++)
+                    worksheet.Cell(currentRow, 10).Value = item.GrossPay;
+                    worksheet.Cell(currentRow, 10).Style.NumberFormat.Format = "$#,##0.00";
+
+                    worksheet.Cell(currentRow, 11).Value = item.MileageReimbursement;
+                    worksheet.Cell(currentRow, 11).Style.NumberFormat.Format = "$#,##0.00";
+
+                    worksheet.Cell(currentRow, 12).Value = item.GrossPay + item.MileageReimbursement;
+                    worksheet.Cell(currentRow, 12).Style.NumberFormat.Format = "$#,##0.00";
+
+                    for (int col = 1; col <= 12; col++)
                         worksheet.Cell(currentRow, col).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
 
                     currentRow++;
@@ -269,32 +279,47 @@ namespace EntryPointApp.Api.Services.Excel
                     worksheet.Cell(currentRow, 6).Style.NumberFormat.Format = "0.00";
                     worksheet.Cell(currentRow, 6).Style.Font.Bold = true;
 
-                    worksheet.Cell(currentRow, 7).Value = summary.Items.Sum(i => i.GrossPay);
+                    worksheet.Cell(currentRow, 7).Value = summary.Items.Sum(i => i.TotalTollCharges);
                     worksheet.Cell(currentRow, 7).Style.NumberFormat.Format = "$#,##0.00";
                     worksheet.Cell(currentRow, 7).Style.Font.Bold = true;
 
-                    worksheet.Cell(currentRow, 8).Value = summary.Items.Sum(i => i.MileageReimbursement);
+                    worksheet.Cell(currentRow, 8).Value = summary.Items.Sum(i => i.TotalParkingFees);
                     worksheet.Cell(currentRow, 8).Style.NumberFormat.Format = "$#,##0.00";
                     worksheet.Cell(currentRow, 8).Style.Font.Bold = true;
 
-                    worksheet.Cell(currentRow, 9).Value = summary.Items.Sum(i => i.GrossPay + i.MileageReimbursement);
+                    worksheet.Cell(currentRow, 9).Value = summary.Items.Sum(i => i.TotalOtherCharges);
                     worksheet.Cell(currentRow, 9).Style.NumberFormat.Format = "$#,##0.00";
                     worksheet.Cell(currentRow, 9).Style.Font.Bold = true;
 
-                    for (int col = 1; col <= 9; col++)
+                    worksheet.Cell(currentRow, 10).Value = summary.Items.Sum(i => i.GrossPay);
+                    worksheet.Cell(currentRow, 10).Style.NumberFormat.Format = "$#,##0.00";
+                    worksheet.Cell(currentRow, 10).Style.Font.Bold = true;
+
+                    worksheet.Cell(currentRow, 11).Value = summary.Items.Sum(i => i.MileageReimbursement);
+                    worksheet.Cell(currentRow, 11).Style.NumberFormat.Format = "$#,##0.00";
+                    worksheet.Cell(currentRow, 11).Style.Font.Bold = true;
+
+                    worksheet.Cell(currentRow, 12).Value = summary.Items.Sum(i => i.GrossPay + i.MileageReimbursement);
+                    worksheet.Cell(currentRow, 12).Style.NumberFormat.Format = "$#,##0.00";
+                    worksheet.Cell(currentRow, 12).Style.Font.Bold = true;
+
+                    for (int col = 1; col <= 12; col++)
                         worksheet.Cell(currentRow, col).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
                 }
 
                 // Column widths
-                worksheet.Column(1).Width = 25; // Full Name
-                worksheet.Column(2).Width = 16; // Employee Type
-                worksheet.Column(3).Width = 14; // Hourly Rate
-                worksheet.Column(4).Width = 14; // Mileage Rate
-                worksheet.Column(5).Width = 14; // Total Hours
-                worksheet.Column(6).Width = 14; // Total Mileage
-                worksheet.Column(7).Width = 14; // Gross Pay
-                worksheet.Column(8).Width = 22; // Mileage Reimbursement
-                worksheet.Column(9).Width = 14; // Total Pay
+                worksheet.Column(1).Width = 25;  // Full Name
+                worksheet.Column(2).Width = 16;  // Employee Type
+                worksheet.Column(3).Width = 14;  // Hourly Rate
+                worksheet.Column(4).Width = 14;  // Mileage Rate
+                worksheet.Column(5).Width = 14;  // Total Hours
+                worksheet.Column(6).Width = 14;  // Total Mileage
+                worksheet.Column(7).Width = 14;  // Toll Charges
+                worksheet.Column(8).Width = 14;  // Parking Fees
+                worksheet.Column(9).Width = 14;  // Other Charges
+                worksheet.Column(10).Width = 14; // Gross Pay
+                worksheet.Column(11).Width = 22; // Mileage Reimbursement
+                worksheet.Column(12).Width = 14; // Total Pay
 
                 using var stream = new MemoryStream();
                 workbook.SaveAs(stream);

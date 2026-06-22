@@ -9,6 +9,9 @@ namespace EntryPointApp.Api.Models.Dtos.Admin
         public decimal MileageRate { get; set; }
         public decimal TotalHours { get; set; }
         public decimal TotalMileage { get; set; }
+        public decimal TotalTollCharges { get; set; }
+        public decimal TotalParkingFees { get; set; }
+        public decimal TotalOtherCharges { get; set; }
         public decimal GrossPay { get; set; }
         public decimal MileageReimbursement { get; set; }
     }

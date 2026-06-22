@@ -38,7 +38,11 @@ namespace EntryPointApp.Api.Services.Admin
                 {
                     var user = group.First().User;
                     var totalHours = group.Sum(w => w.TotalHours);
-                    var totalMileage = group.SelectMany(w => w.DailyLogs).Sum(d => d.Mileage);
+                    var allDailyLogs = group.SelectMany(w => w.DailyLogs).ToList();
+                    var totalMileage = allDailyLogs.Sum(d => d.Mileage);
+                    var totalTollCharges = allDailyLogs.Sum(d => d.TollCharge);
+                    var totalParkingFees = allDailyLogs.Sum(d => d.ParkingFee);
+                    var totalOtherCharges = allDailyLogs.Sum(d => d.OtherCharges);
 
                     var userRate = await _context.Timesheet_UserRates
                         .Where(r => r.UserId == user.Id && r.EffectiveDate <= dateFromAsDateTime)
@@ -57,6 +61,9 @@ namespace EntryPointApp.Api.Services.Admin
                         MileageRate = mileageRate,
                         TotalHours = totalHours,
                         TotalMileage = totalMileage,
+                        TotalTollCharges = totalTollCharges,
+                        TotalParkingFees = totalParkingFees,
+                        TotalOtherCharges = totalOtherCharges,
                         GrossPay = hourlyRate * totalHours,
                         MileageReimbursement = mileageRate * totalMileage
                     });

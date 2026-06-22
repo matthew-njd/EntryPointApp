@@ -143,6 +143,9 @@ export interface PayrollSummaryItem {
   mileageRate: number;
   totalHours: number;
   totalMileage: number;
+  totalTollCharges: number;
+  totalParkingFees: number;
+  totalOtherCharges: number;
   grossPay: number;
   mileageReimbursement: number;
 }
