@@ -1,4 +1,11 @@
-import { Component, computed, effect, inject, signal, viewChild } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SalesRepService } from '../../core/services/sales-rep.service';
 import { DailyLogService } from '../../core/services/dailylog.service';
@@ -23,7 +30,14 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-sales-rep-review',
-  imports: [CommonModule, ReactiveFormsModule, Footer, Nav, Modal, TranslatePipe],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    Footer,
+    Nav,
+    Modal,
+    TranslatePipe,
+  ],
   templateUrl: './sales-rep-review.html',
   styleUrl: './sales-rep-review.css',
 })
@@ -77,12 +91,17 @@ export class SalesRepReview {
           this.timesheet.set(response.data);
           this.isLoadingData.set(false);
         } else {
-          this.toastService.error(this.translateService.instant('toast.failedLoadTimesheet'));
+          this.toastService.error(
+            this.translateService.instant('toast.failedLoadTimesheet'),
+          );
           this.router.navigate(['/sales-rep']);
         }
       },
       error: (err) => {
-        this.toastService.error(err.message || this.translateService.instant('toast.failedLoadTimesheet'));
+        this.toastService.error(
+          err.message ||
+            this.translateService.instant('toast.failedLoadTimesheet'),
+        );
         this.router.navigate(['/sales-rep']);
       },
     });
@@ -91,7 +110,9 @@ export class SalesRepReview {
   approveTimesheet(): void {
     const ts = this.timesheet();
     if (!ts || ts.status !== 'PendingSalesRep') {
-      this.toastService.error(this.translateService.instant('toast.onlyPendingApprovable'));
+      this.toastService.error(
+        this.translateService.instant('toast.onlyPendingApprovable'),
+      );
       return;
     }
     this.approveModal()?.open();
@@ -108,7 +129,9 @@ export class SalesRepReview {
     this.salesRepService.approveTimesheet(ts.id, request).subscribe({
       next: (response) => {
         if (response.success) {
-          this.toastService.success(this.translateService.instant('toast.timesheetApproved'));
+          this.toastService.success(
+            this.translateService.instant('toast.timesheetApproved'),
+          );
           this.router.navigate(['/sales-rep']);
         } else {
           this.toastService.error(response.message);
@@ -116,7 +139,10 @@ export class SalesRepReview {
         }
       },
       error: (err) => {
-        this.toastService.error(err.message || this.translateService.instant('toast.failedApproveTimesheet'));
+        this.toastService.error(
+          err.message ||
+            this.translateService.instant('toast.failedApproveTimesheet'),
+        );
         this.isSubmitting.set(false);
       },
     });
@@ -125,7 +151,9 @@ export class SalesRepReview {
   toggleDenyForm(): void {
     const ts = this.timesheet();
     if (!ts || ts.status !== 'PendingSalesRep') {
-      this.toastService.error(this.translateService.instant('toast.onlyPendingDeniable'));
+      this.toastService.error(
+        this.translateService.instant('toast.onlyPendingDeniable'),
+      );
       return;
     }
 
@@ -156,7 +184,9 @@ export class SalesRepReview {
     this.salesRepService.denyTimesheet(ts.id, request).subscribe({
       next: (response) => {
         if (response.success) {
-          this.toastService.success(this.translateService.instant('toast.timesheetDenied'));
+          this.toastService.success(
+            this.translateService.instant('toast.timesheetDenied'),
+          );
           this.router.navigate(['/sales-rep']);
         } else {
           this.toastService.error(response.message);
@@ -164,26 +194,38 @@ export class SalesRepReview {
         }
       },
       error: (err) => {
-        this.toastService.error(err.message || this.translateService.instant('toast.failedDenyTimesheet'));
+        this.toastService.error(
+          err.message ||
+            this.translateService.instant('toast.failedDenyTimesheet'),
+        );
         this.isSubmitting.set(false);
       },
     });
   }
 
-  downloadReceipt(weeklyLogId: number, dailyLogId: number, attachmentId: number, fileName: string): void {
-    this.dailyLogService.downloadReceipt(weeklyLogId, dailyLogId, attachmentId).subscribe({
-      next: (blob) => {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        a.click();
-        URL.revokeObjectURL(url);
-      },
-      error: () => {
-        this.toastService.error(this.translateService.instant('toast.failedDownloadReceipt'));
-      },
-    });
+  downloadReceipt(
+    weeklyLogId: number,
+    dailyLogId: number,
+    attachmentId: number,
+    fileName: string,
+  ): void {
+    this.dailyLogService
+      .downloadReceipt(weeklyLogId, dailyLogId, attachmentId)
+      .subscribe({
+        next: (blob) => {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = fileName;
+          a.click();
+          URL.revokeObjectURL(url);
+        },
+        error: () => {
+          this.toastService.error(
+            this.translateService.instant('toast.failedDownloadReceipt'),
+          );
+        },
+      });
   }
 
   goBack(): void {
@@ -193,8 +235,9 @@ export class SalesRepReview {
   getStatusClass(status: string): string {
     switch (status) {
       case 'PendingSalesRep':
-      case 'PendingManager':
         return 'badge-warning';
+      case 'PendingManager':
+        return 'badge-info';
       case 'Approved':
         return 'badge-success';
       case 'Denied':
@@ -210,8 +253,29 @@ export class SalesRepReview {
     return this.denyForm.get('reason')!;
   }
 
-  private readonly DAY_KEYS = ['days.sunday', 'days.monday', 'days.tuesday', 'days.wednesday', 'days.thursday', 'days.friday', 'days.saturday'];
-  private readonly MONTH_KEYS = ['months.january', 'months.february', 'months.march', 'months.april', 'months.may', 'months.june', 'months.july', 'months.august', 'months.september', 'months.october', 'months.november', 'months.december'];
+  private readonly DAY_KEYS = [
+    'days.sunday',
+    'days.monday',
+    'days.tuesday',
+    'days.wednesday',
+    'days.thursday',
+    'days.friday',
+    'days.saturday',
+  ];
+  private readonly MONTH_KEYS = [
+    'months.january',
+    'months.february',
+    'months.march',
+    'months.april',
+    'months.may',
+    'months.june',
+    'months.july',
+    'months.august',
+    'months.september',
+    'months.october',
+    'months.november',
+    'months.december',
+  ];
 
   getDayKey(dateStr: string): string {
     const [y, m, d] = dateStr.split('-').map(Number);

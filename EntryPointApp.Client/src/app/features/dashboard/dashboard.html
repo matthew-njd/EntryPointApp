@@ -32,7 +32,7 @@
         [value]="totalApproved().toString()"
       ></app-card>
       <app-card
-        cardClasses="text-info"
+        cardClasses="text-warning"
         [title]="'dashboard.totalPending' | translate"
         [value]="totalPending().toString()"
       ></app-card>
@@ -42,7 +42,7 @@
         [value]="totalDenied().toString()"
       ></app-card>
       <app-card
-        cardClasses="text-warning"
+        cardClasses="text-info"
         [title]="'dashboard.totalDrafts' | translate"
         [value]="totalDrafts().toString()"
       ></app-card>
@@ -76,8 +76,12 @@
           (ngModelChange)="statusFilter.set($event); onFilterChange()"
         >
           <option value="All">{{ "dashboard.allStatuses" | translate }}</option>
-          <option value="PendingSalesRep">{{ "status.pendingsalesrep" | translate }}</option>
-          <option value="PendingManager">{{ "status.pendingmanager" | translate }}</option>
+          <option value="PendingSalesRep">
+            {{ "status.pendingsalesrep" | translate }}
+          </option>
+          <option value="PendingManager">
+            {{ "status.pendingmanager" | translate }}
+          </option>
           <option value="Approved">{{ "status.approved" | translate }}</option>
           <option value="Denied">{{ "status.denied" | translate }}</option>
           <option value="Draft">{{ "status.draft" | translate }}</option>

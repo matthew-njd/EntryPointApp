@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { DailyLogService } from '../../core/services/dailylog.service';
 import { Nav } from '../../shared/nav/nav';
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 import { Card } from '../../shared/card/card';
 import { Footer } from '../../shared/footer/footer';
 import { WeeklyLogService } from '../../core/services/weeklog.service';
@@ -15,7 +15,7 @@ import { PayrollScheduleService } from '../../core/services/payroll-schedule.ser
 @Component({
   selector: 'app-dailylogs',
   standalone: true,
-  imports: [Nav, DatePipe, Card, Footer, TranslatePipe],
+  imports: [Nav, DatePipe, Card, Footer, TranslatePipe, NgClass],
   templateUrl: './dailylogs.html',
   styleUrl: './dailylogs.css',
 })
@@ -46,13 +46,15 @@ export class Dailylogs {
         next: (response) => {
           if (response.success && response.data) {
             this.weeklyLog.set(response.data);
-            this.payrollScheduleService.lookup(response.data.dateFrom).subscribe({
-              next: (res) => {
-                this.payrollDate.set(res.data?.payrollDate ?? null);
-                this.deadlineDate.set(res.data?.deadlineDate ?? null);
-              },
-              error: () => {},
-            });
+            this.payrollScheduleService
+              .lookup(response.data.dateFrom)
+              .subscribe({
+                next: (res) => {
+                  this.payrollDate.set(res.data?.payrollDate ?? null);
+                  this.deadlineDate.set(res.data?.deadlineDate ?? null);
+                },
+                error: () => {},
+              });
           }
           this.isLoadingWeeklyLog.set(false);
         },
@@ -88,20 +90,29 @@ export class Dailylogs {
       .toFixed(2),
   );
 
-  downloadReceipt(weeklyLogId: number, dailyLogId: number, attachmentId: number, fileName: string): void {
-    this.service.downloadReceipt(weeklyLogId, dailyLogId, attachmentId).subscribe({
-      next: (blob) => {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        a.click();
-        URL.revokeObjectURL(url);
-      },
-      error: () => {
-        this.toastService.error(this.translateService.instant('toast.failedDownloadReceipt'));
-      },
-    });
+  downloadReceipt(
+    weeklyLogId: number,
+    dailyLogId: number,
+    attachmentId: number,
+    fileName: string,
+  ): void {
+    this.service
+      .downloadReceipt(weeklyLogId, dailyLogId, attachmentId)
+      .subscribe({
+        next: (blob) => {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = fileName;
+          a.click();
+          URL.revokeObjectURL(url);
+        },
+        error: () => {
+          this.toastService.error(
+            this.translateService.instant('toast.failedDownloadReceipt'),
+          );
+        },
+      });
   }
 
   editTimesheet() {
@@ -115,8 +126,29 @@ export class Dailylogs {
     this.router.navigate(['/dashboard']);
   }
 
-  private readonly DAY_KEYS = ['days.sunday', 'days.monday', 'days.tuesday', 'days.wednesday', 'days.thursday', 'days.friday', 'days.saturday'];
-  private readonly MONTH_KEYS = ['months.january', 'months.february', 'months.march', 'months.april', 'months.may', 'months.june', 'months.july', 'months.august', 'months.september', 'months.october', 'months.november', 'months.december'];
+  private readonly DAY_KEYS = [
+    'days.sunday',
+    'days.monday',
+    'days.tuesday',
+    'days.wednesday',
+    'days.thursday',
+    'days.friday',
+    'days.saturday',
+  ];
+  private readonly MONTH_KEYS = [
+    'months.january',
+    'months.february',
+    'months.march',
+    'months.april',
+    'months.may',
+    'months.june',
+    'months.july',
+    'months.august',
+    'months.september',
+    'months.october',
+    'months.november',
+    'months.december',
+  ];
 
   getDayKey(dateStr: string): string {
     const [y, m, d] = dateStr.split('-').map(Number);
@@ -126,5 +158,21 @@ export class Dailylogs {
   getMonthKey(dateStr: string): string {
     const [y, m, d] = dateStr.split('-').map(Number);
     return this.MONTH_KEYS[new Date(y, m - 1, d).getMonth()];
+  }
+
+  getStatusClass(status: string): string {
+    switch (status) {
+      case 'PendingSalesRep':
+      case 'PendingManager':
+        return 'badge-warning';
+      case 'Approved':
+        return 'badge-success';
+      case 'Denied':
+        return 'badge-error';
+      case 'Draft':
+        return 'badge-info';
+      default:
+        return '';
+    }
   }
 }

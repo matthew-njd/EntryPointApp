@@ -101,10 +101,10 @@ export class Dashboard {
   getStatusBadgeClass(status: string | undefined): string {
     switch (status) {
       case 'Draft':
-        return 'badge-warning';
+        return 'badge-info';
       case 'PendingSalesRep':
       case 'PendingManager':
-        return 'badge-info';
+        return 'badge-warning';
       case 'Approved':
         return 'badge-success';
       case 'Denied':

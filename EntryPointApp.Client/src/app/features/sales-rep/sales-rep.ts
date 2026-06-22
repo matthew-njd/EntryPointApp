@@ -92,8 +92,9 @@ export class SalesRep {
   getStatusClass(status: string): string {
     switch (status) {
       case 'PendingSalesRep':
-      case 'PendingManager':
         return 'badge-warning';
+      case 'PendingManager':
+        return 'badge-info';
       case 'Approved':
         return 'badge-success';
       case 'Denied':
