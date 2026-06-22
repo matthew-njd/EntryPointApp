@@ -137,11 +137,11 @@
               <th class="text-right">Mileage Rate</th>
               <th class="text-right">Total Hours</th>
               <th class="text-right">Total Mileage</th>
+              <th class="text-right">Gross Pay</th>
+              <th class="text-right">Mileage Reimb.</th>
               <th class="text-right">Toll Charges</th>
               <th class="text-right">Parking Fees</th>
               <th class="text-right">Other Charges</th>
-              <th class="text-right">Gross Pay</th>
-              <th class="text-right">Mileage Reimb.</th>
               <th class="text-right">Total Pay</th>
             </tr>
           </thead>
@@ -162,18 +162,18 @@
                 <td class="text-right">
                   {{ item.totalMileage.toFixed(2) }} mi
                 </td>
-                <td class="text-right">{{ formatCurrency(item.totalTollCharges) }}</td>
-                <td class="text-right">{{ formatCurrency(item.totalParkingFees) }}</td>
-                <td class="text-right">{{ formatCurrency(item.totalOtherCharges) }}</td>
                 <td class="text-right font-medium">
                   {{ formatCurrency(item.grossPay) }}
                 </td>
                 <td class="text-right">
                   {{ formatCurrency(item.mileageReimbursement) }}
                 </td>
+                <td class="text-right">{{ formatCurrency(item.totalTollCharges) }}</td>
+                <td class="text-right">{{ formatCurrency(item.totalParkingFees) }}</td>
+                <td class="text-right">{{ formatCurrency(item.totalOtherCharges) }}</td>
                 <td class="text-right font-semibold text-success">
                   {{
-                    formatCurrency(item.grossPay + item.mileageReimbursement)
+                    formatCurrency(item.grossPay + item.mileageReimbursement + item.totalTollCharges + item.totalParkingFees + item.totalOtherCharges)
                   }}
                 </td>
               </tr>
@@ -187,16 +187,16 @@
               >
                 Totals
               </td>
-              <td class="text-right">{{ formatCurrency(totalTollCharges()) }}</td>
-              <td class="text-right">{{ formatCurrency(totalParkingFees()) }}</td>
-              <td class="text-right">{{ formatCurrency(totalOtherCharges()) }}</td>
               <td class="text-right">{{ formatCurrency(totalGrossPay()) }}</td>
               <td class="text-right">
                 {{ formatCurrency(totalMileageReimbursement()) }}
               </td>
+              <td class="text-right">{{ formatCurrency(totalTollCharges()) }}</td>
+              <td class="text-right">{{ formatCurrency(totalParkingFees()) }}</td>
+              <td class="text-right">{{ formatCurrency(totalOtherCharges()) }}</td>
               <td class="text-right text-success">
                 {{
-                  formatCurrency(totalGrossPay() + totalMileageReimbursement())
+                  formatCurrency(totalGrossPay() + totalMileageReimbursement() + totalTollCharges() + totalParkingFees() + totalOtherCharges())
                 }}
               </td>
             </tr>
