@@ -54,5 +54,6 @@ export interface TimesheetSummary {
   totalApproved: number;
   totalPending: number;
   totalPendingSalesRep: number;
+  totalPendingManager: number;
   totalDenied: number;
 }

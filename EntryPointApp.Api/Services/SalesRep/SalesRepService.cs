@@ -93,9 +93,10 @@ namespace EntryPointApp.Api.Services.SalesRep
                     HasPreviousPage = page > 1,
                     Summary = new TimesheetSummaryDto
                     {
-                        TotalApproved = statusCounts.GetValueOrDefault(TimesheetStatus.Approved),
-                        TotalPending  = statusCounts.GetValueOrDefault(TimesheetStatus.PendingSalesRep),
-                        TotalDenied   = statusCounts.GetValueOrDefault(TimesheetStatus.Denied)
+                        TotalApproved        = statusCounts.GetValueOrDefault(TimesheetStatus.Approved),
+                        TotalPending         = statusCounts.GetValueOrDefault(TimesheetStatus.PendingSalesRep),
+                        TotalPendingManager  = statusCounts.GetValueOrDefault(TimesheetStatus.PendingManager),
+                        TotalDenied          = statusCounts.GetValueOrDefault(TimesheetStatus.Denied)
                     }
                 };
 

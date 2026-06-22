@@ -15,6 +15,7 @@ const defaultSummary: TimesheetSummary = {
   totalApproved: 0,
   totalPending: 0,
   totalPendingSalesRep: 0,
+  totalPendingManager: 0,
   totalDenied: 0,
 };
 
@@ -43,6 +44,7 @@ export class SalesRepService {
   );
 
   readonly totalPending = computed(() => this._summary().totalPending);
+  readonly totalPendingManager = computed(() => this._summary().totalPendingManager);
   readonly totalApproved = computed(() => this._summary().totalApproved);
   readonly totalDenied = computed(() => this._summary().totalDenied);
 

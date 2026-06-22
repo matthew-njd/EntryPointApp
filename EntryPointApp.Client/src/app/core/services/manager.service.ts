@@ -35,6 +35,7 @@ const defaultSummary: TimesheetSummary = {
   totalApproved: 0,
   totalPending: 0,
   totalPendingSalesRep: 0,
+  totalPendingManager: 0,
   totalDenied: 0,
 };
 

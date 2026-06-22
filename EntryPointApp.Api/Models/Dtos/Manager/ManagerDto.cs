@@ -81,6 +81,7 @@ namespace EntryPointApp.Api.Models.Dtos.Manager
         public int TotalApproved { get; set; }
         public int TotalPending { get; set; }
         public int TotalPendingSalesRep { get; set; }
+        public int TotalPendingManager { get; set; }
         public int TotalDenied { get; set; }
     }
 

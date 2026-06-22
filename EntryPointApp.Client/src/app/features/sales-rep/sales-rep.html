@@ -27,11 +27,16 @@
       </div>
     </div>
 
-    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
       <app-card
-        [title]="'salesRep.pending' | translate"
+        [title]="'salesRep.pendingSalesRep' | translate"
         [value]="salesRepService.totalPending().toString()"
         cardClasses="text-warning"
+      ></app-card>
+      <app-card
+        [title]="'salesRep.pendingManager' | translate"
+        [value]="salesRepService.totalPendingManager().toString()"
+        cardClasses="text-info"
       ></app-card>
       <app-card
         [title]="'salesRep.approved' | translate"
@@ -59,7 +64,10 @@
         >
           <option value="All">{{ "salesRep.allStatuses" | translate }}</option>
           <option value="PendingSalesRep">
-            {{ "salesRep.pending" | translate }}
+            {{ "salesRep.pendingSalesRep" | translate }}
+          </option>
+          <option value="PendingManager">
+            {{ "salesRep.pendingManager" | translate }}
           </option>
           <option value="Approved">
             {{ "salesRep.approved" | translate }}
