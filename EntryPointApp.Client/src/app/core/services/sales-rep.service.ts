@@ -8,6 +8,7 @@ import {
   ApproveTimesheetRequest,
   DenyTimesheetRequest,
   TimesheetSummary,
+  TimesheetStatusHistoryEntry,
 } from '../models/manager.model';
 import { ApiResponse, TeamTimesheetPagedResult } from './manager.service';
 
@@ -124,6 +125,14 @@ export class SalesRepService {
     return this.http.put<ApiResponse<TeamTimesheetResponse>>(
       `${this.apiUrl}/timesheets/${timesheetId}/deny`,
       request,
+    );
+  }
+
+  getTimesheetHistory(
+    timesheetId: number,
+  ): Observable<ApiResponse<TimesheetStatusHistoryEntry[]>> {
+    return this.http.get<ApiResponse<TimesheetStatusHistoryEntry[]>>(
+      `${this.apiUrl}/timesheets/${timesheetId}/history`,
     );
   }
 

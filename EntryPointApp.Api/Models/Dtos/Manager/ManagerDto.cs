@@ -94,4 +94,20 @@ namespace EntryPointApp.Api.Models.Dtos.Manager
     {
         public TeamTimesheetPagedResponse? Data { get; set; }
     }
+
+    public class TimesheetStatusHistoryResponse
+    {
+        public int Id { get; set; }
+        public string ActorFullName { get; set; } = string.Empty;
+        public string ActorRole { get; set; } = string.Empty;
+        public string FromStatus { get; set; } = string.Empty;
+        public string ToStatus { get; set; } = string.Empty;
+        public string? Comment { get; set; }
+        public DateTime CreatedAt { get; set; }
+    }
+
+    public class TimesheetHistoryResult : BaseManagerResult
+    {
+        public List<TimesheetStatusHistoryResponse>? Data { get; set; }
+    }
 }

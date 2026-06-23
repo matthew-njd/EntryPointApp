@@ -13,6 +13,7 @@ namespace EntryPointApp.Api.Data.Context
         public DbSet<DailyLogAttachment> Timesheet_DailyLogAttachments { get; set; }
         public DbSet<PayrollSchedule> Timesheet_PayrollSchedules { get; set; }
         public DbSet<ApprovedEmail> Timesheet_ApprovedEmails { get; set; }
+        public DbSet<WeeklyLogStatusHistory> Timesheet_WeeklyLogStatusHistories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -26,6 +27,7 @@ namespace EntryPointApp.Api.Data.Context
             ConfigureDailyLogAttachment(modelBuilder);
             ConfigurePayrollSchedule(modelBuilder);
             ConfigureApprovedEmail(modelBuilder);
+            ConfigureWeeklyLogStatusHistory(modelBuilder);
         }
 
         private void ConfigureUser(ModelBuilder modelBuilder)
@@ -186,6 +188,29 @@ namespace EntryPointApp.Api.Data.Context
                     .WithMany()
                     .HasForeignKey(e => e.AddedByAdminId)
                     .OnDelete(DeleteBehavior.SetNull);
+            });
+        }
+
+        private void ConfigureWeeklyLogStatusHistory(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<WeeklyLogStatusHistory>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.WeeklyLogId).IsRequired();
+                entity.Property(e => e.ActorId).IsRequired();
+                entity.Property(e => e.FromStatus).HasConversion<string>().HasMaxLength(20);
+                entity.Property(e => e.ToStatus).HasConversion<string>().HasMaxLength(20);
+                entity.Property(e => e.Comment).HasMaxLength(500);
+                entity.Property(e => e.CreatedAt).IsRequired();
+                entity.HasOne(e => e.WeeklyLog)
+                    .WithMany()
+                    .HasForeignKey(e => e.WeeklyLogId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(e => e.Actor)
+                    .WithMany()
+                    .HasForeignKey(e => e.ActorId)
+                    .OnDelete(DeleteBehavior.Restrict);
+                entity.HasIndex(e => e.WeeklyLogId);
             });
         }
     }

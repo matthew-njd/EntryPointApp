@@ -57,3 +57,13 @@ export interface TimesheetSummary {
   totalPendingManager: number;
   totalDenied: number;
 }
+
+export interface TimesheetStatusHistoryEntry {
+  id: number;
+  actorFullName: string;
+  actorRole: string;
+  fromStatus: string;
+  toStatus: string;
+  comment: string | null;
+  createdAt: string;
+}

@@ -2,6 +2,7 @@ using EntryPointApp.Api.Data.Context;
 using EntryPointApp.Api.Models.Dtos.Common;
 using EntryPointApp.Api.Models.Dtos.DailyLog;
 using EntryPointApp.Api.Models.Dtos.Manager;
+using EntryPointApp.Api.Models.Entities;
 using EntryPointApp.Api.Models.Enums;
 using EntryPointApp.Api.Services.Email;
 using Microsoft.EntityFrameworkCore;
@@ -312,9 +313,20 @@ namespace EntryPointApp.Api.Services.SalesRep
                     };
                 }
 
+                var fromStatusApprove = weeklyLog.Status;
                 weeklyLog.Status = TimesheetStatus.PendingManager;
                 weeklyLog.SalesRepComment = request.Comment;
                 weeklyLog.UpdatedAt = DateTime.UtcNow;
+
+                _context.Timesheet_WeeklyLogStatusHistories.Add(new WeeklyLogStatusHistory
+                {
+                    WeeklyLogId = weeklyLogId,
+                    ActorId = salesRepId,
+                    FromStatus = fromStatusApprove,
+                    ToStatus = TimesheetStatus.PendingManager,
+                    Comment = request.Comment,
+                    CreatedAt = weeklyLog.UpdatedAt
+                });
 
                 await _context.SaveChangesAsync();
 
@@ -423,9 +435,20 @@ namespace EntryPointApp.Api.Services.SalesRep
                     ? $"{salesRep.FirstName} {salesRep.LastName}".Trim()
                     : "Sales Rep";
 
+                var fromStatusDeny = weeklyLog.Status;
                 weeklyLog.Status = TimesheetStatus.Denied;
                 weeklyLog.SalesRepComment = request.Reason;
                 weeklyLog.UpdatedAt = DateTime.UtcNow;
+
+                _context.Timesheet_WeeklyLogStatusHistories.Add(new WeeklyLogStatusHistory
+                {
+                    WeeklyLogId = weeklyLogId,
+                    ActorId = salesRepId,
+                    FromStatus = fromStatusDeny,
+                    ToStatus = TimesheetStatus.Denied,
+                    Comment = request.Reason,
+                    CreatedAt = weeklyLog.UpdatedAt
+                });
 
                 await _context.SaveChangesAsync();
 
@@ -474,6 +497,60 @@ namespace EntryPointApp.Api.Services.SalesRep
                 {
                     Success = false,
                     Message = "Failed to deny timesheet",
+                    Errors = [ex.Message]
+                };
+            }
+        }
+
+        public async Task<TimesheetHistoryResult> GetTimesheetStatusHistoryAsync(int weeklyLogId, int salesRepId)
+        {
+            try
+            {
+                var exists = await _context.Timesheet_WeeklyLogs
+                    .AnyAsync(w => w.Id == weeklyLogId
+                        && w.User.SalesRepId == salesRepId
+                        && !w.IsDeleted);
+
+                if (!exists)
+                {
+                    return new TimesheetHistoryResult
+                    {
+                        Success = false,
+                        Message = "Timesheet not found",
+                        Errors = ["The requested timesheet does not exist or does not belong to your clients"]
+                    };
+                }
+
+                var history = await _context.Timesheet_WeeklyLogStatusHistories
+                    .Include(h => h.Actor)
+                    .Where(h => h.WeeklyLogId == weeklyLogId)
+                    .OrderBy(h => h.CreatedAt)
+                    .Select(h => new TimesheetStatusHistoryResponse
+                    {
+                        Id = h.Id,
+                        ActorFullName = $"{h.Actor.FirstName} {h.Actor.LastName}".Trim(),
+                        ActorRole = h.Actor.Role.ToString(),
+                        FromStatus = h.FromStatus.ToString(),
+                        ToStatus = h.ToStatus.ToString(),
+                        Comment = h.Comment,
+                        CreatedAt = h.CreatedAt
+                    })
+                    .ToListAsync();
+
+                return new TimesheetHistoryResult
+                {
+                    Success = true,
+                    Message = "Timesheet status history retrieved successfully.",
+                    Data = history
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving status history for timesheet {WeeklyLogId}", weeklyLogId);
+                return new TimesheetHistoryResult
+                {
+                    Success = false,
+                    Message = "Failed to retrieve timesheet status history",
                     Errors = [ex.Message]
                 };
             }

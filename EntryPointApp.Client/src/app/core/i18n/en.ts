@@ -120,6 +120,8 @@ export const EN = {
     allStatuses: 'All Statuses',
     dateFrom: 'From',
     dateTo: 'To',
+    approvedOn: 'Approved On',
+    deniedOn: 'Denied On',
   },
   timesheet: {
     createTitle: 'Create Timesheet',
@@ -335,6 +337,7 @@ export const EN = {
     timesheet: 'Timesheet Summary',
     weekPeriod: 'Week Period',
     submitted: 'Submitted',
+    status: 'Current Status',
     totalHours: 'Total Hours',
     totalCharges: 'Total Charges',
     salesRepComment: 'Sales Rep Comment',
@@ -369,6 +372,7 @@ export const EN = {
     confirmDenyBody:
       'Are you sure you want to deny this timesheet? The employee will be notified.',
     confirmDenyBtn: 'Deny',
+    approvalHistory: 'Approval History',
   },
   adminTimesheetDetail: {
     backToTimesheets: 'Back to Timesheets',

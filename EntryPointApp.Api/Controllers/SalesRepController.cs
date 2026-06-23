@@ -380,5 +380,74 @@ namespace EntryPointApp.Api.Controllers
                 });
             }
         }
+
+        /// <summary>
+        /// Get the status change history for a specific timesheet.
+        /// </summary>
+        [HttpGet("timesheets/{id:int}/history")]
+        [ProducesResponseType(typeof(ApiResponse<List<TimesheetStatusHistoryResponse>>), 200)]
+        [ProducesResponseType(typeof(ApiResponse), 400)]
+        [ProducesResponseType(typeof(ApiResponse), 404)]
+        [ProducesResponseType(typeof(ErrorResponse), 500)]
+        public async Task<IActionResult> GetTimesheetStatusHistory([FromRoute] int id)
+        {
+            try
+            {
+                if (id <= 0)
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Validation failed",
+                        Errors = ["Timesheet ID must be greater than 0"]
+                    });
+                }
+
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int salesRepId))
+                {
+                    return BadRequest(new ApiResponse
+                    {
+                        Success = false,
+                        Message = "Invalid user context",
+                        Errors = ["Unable to identify user"]
+                    });
+                }
+
+                var result = await _salesRepService.GetTimesheetStatusHistoryAsync(id, salesRepId);
+
+                if (!result.Success)
+                {
+                    return NotFound(new ApiResponse
+                    {
+                        Success = false,
+                        Message = result.Message,
+                        Errors = result.Errors
+                    });
+                }
+
+                _logger.LogInformation("Sales rep {SalesRepId} retrieved status history for timesheet {TimesheetId}", salesRepId, id);
+
+                return Ok(new ApiResponse<List<TimesheetStatusHistoryResponse>>
+                {
+                    Success = true,
+                    Message = result.Message,
+                    Data = result.Data
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error retrieving status history for timesheet {TimesheetId}", id);
+                return StatusCode(500, new ErrorResponse
+                {
+                    Type = "InternalServerError",
+                    Title = "Timesheet History Retrieval Error",
+                    Status = 500,
+                    Detail = "An unexpected error occurred while retrieving timesheet status history",
+                    Instance = HttpContext.Request.Path,
+                    TraceId = HttpContext.TraceIdentifier
+                });
+            }
+        }
     }
 }

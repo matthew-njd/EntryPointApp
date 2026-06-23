@@ -65,7 +65,8 @@ namespace EntryPointApp.Api.Services.WeeklyLog
                         DateTo = w.DateTo,
                         TotalHours = w.TotalHours,
                         TotalCharges = w.TotalCharges,
-                        Status = w.Status
+                        Status = w.Status,
+                        UpdatedAt = w.UpdatedAt
                     })
                     .ToListAsync();
 
@@ -131,7 +132,8 @@ namespace EntryPointApp.Api.Services.WeeklyLog
                         TotalCharges = w.TotalCharges,
                         Status = w.Status,
                         SalesRepComment = w.SalesRepComment,
-                        ManagerComment = w.ManagerComment
+                        ManagerComment = w.ManagerComment,
+                        UpdatedAt = w.UpdatedAt
                     })
                     .FirstOrDefaultAsync();
 
@@ -217,7 +219,8 @@ namespace EntryPointApp.Api.Services.WeeklyLog
                     DateTo = weeklyLog.DateTo,
                     TotalHours = weeklyLog.TotalHours,
                     TotalCharges = weeklyLog.TotalCharges,
-                    Status = weeklyLog.Status
+                    Status = weeklyLog.Status,
+                    UpdatedAt = weeklyLog.UpdatedAt
                 };
 
                 _logger.LogInformation("Successfully created weeklylog {WeeklyLogId} for user {UserId}",
@@ -297,7 +300,8 @@ namespace EntryPointApp.Api.Services.WeeklyLog
                     DateTo = weeklyLog.DateTo,
                     TotalHours = weeklyLog.TotalHours,
                     TotalCharges = weeklyLog.TotalCharges,
-                    Status = weeklyLog.Status
+                    Status = weeklyLog.Status,
+                    UpdatedAt = weeklyLog.UpdatedAt
                 };
 
                 _logger.LogInformation("Successfully updated weeklylog {WeeklyLogId} for user {UserId}", id, userId);

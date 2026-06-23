@@ -21,6 +21,7 @@ import {
   ApproveTimesheetRequest,
   DenyTimesheetRequest,
   TeamTimesheetDetailResponse,
+  TimesheetStatusHistoryEntry,
 } from '../../core/models/manager.model';
 import { Footer } from '../../shared/footer/footer';
 import { Nav } from '../../shared/nav/nav';
@@ -53,6 +54,7 @@ export class SalesRepReview {
   isLoadingData = signal(true);
   isSubmitting = signal(false);
   timesheet = signal<TeamTimesheetDetailResponse | null>(null);
+  history = signal<TimesheetStatusHistoryEntry[]>([]);
   showDenyForm = signal(false);
   approveModal = viewChild<Modal>('approveModal');
   denyModal = viewChild<Modal>('denyModal');
@@ -67,6 +69,14 @@ export class SalesRepReview {
         sum + log.tollCharge + log.parkingFee + log.otherCharges + log.mileage,
       0,
     );
+  });
+
+  statusChangedAt = computed(() => {
+    const ts = this.timesheet();
+    const h = this.history();
+    if (!ts) return null;
+    const match = [...h].reverse().find(e => e.toStatus === ts.status);
+    return match?.createdAt ?? ts.updatedAt;
   });
 
   constructor() {
@@ -90,6 +100,7 @@ export class SalesRepReview {
         if (response.success && response.data) {
           this.timesheet.set(response.data);
           this.isLoadingData.set(false);
+          this.loadHistory(timesheetId);
         } else {
           this.toastService.error(
             this.translateService.instant('toast.failedLoadTimesheet'),
@@ -104,6 +115,17 @@ export class SalesRepReview {
         );
         this.router.navigate(['/sales-rep']);
       },
+    });
+  }
+
+  loadHistory(timesheetId: number): void {
+    this.salesRepService.getTimesheetHistory(timesheetId).subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          this.history.set(response.data);
+        }
+      },
+      error: () => {},
     });
   }
 

@@ -29,6 +29,7 @@ builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        options.JsonSerializerOptions.Converters.Add(new EntryPointApp.Api.Extensions.DateTimeUtcConverter());
     });
     
 builder.Services.AddEndpointsApiExplorer();

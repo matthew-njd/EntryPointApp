@@ -9,5 +9,6 @@ namespace EntryPointApp.Api.Services.Manager
         Task<TeamTimesheetDetailResult> GetTimesheetDetailAsync(int weeklyLogId, int managerId);
         Task<TeamTimesheetResult> ApproveTimesheetAsync(int weeklyLogId, int managerId, ApproveTimesheetRequest request);
         Task<TeamTimesheetResult> DenyTimesheetAsync(int weeklyLogId, int managerId, DenyTimesheetRequest request);
+        Task<TimesheetHistoryResult> GetTimesheetStatusHistoryAsync(int weeklyLogId, int managerId);
     }
 }

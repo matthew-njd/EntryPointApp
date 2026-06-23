@@ -14,6 +14,7 @@ namespace EntryPointApp.Api.Models.Dtos.WeeklyLog
         public TimesheetStatus Status { get; set; }
         public string? SalesRepComment { get; set; }
         public string? ManagerComment { get; set; }
+        public DateTime UpdatedAt { get; set; }
     }
 
     public class WeeklyLogSummaryDto

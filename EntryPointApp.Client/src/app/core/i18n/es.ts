@@ -124,6 +124,8 @@ export const ES = {
     allStatuses: 'Todos los estados',
     dateFrom: 'Desde',
     dateTo: 'Hasta',
+    approvedOn: 'Aprobado el',
+    deniedOn: 'Denegado el',
   },
   timesheet: {
     createTitle: 'Crear registro de horas',
@@ -341,6 +343,7 @@ export const ES = {
     timesheet: 'Resumen de hoja de tiempo',
     weekPeriod: 'Período de la semana',
     submitted: 'Enviado',
+    status: 'Estado actual',
     totalHours: 'Total de horas',
     totalCharges: 'Total de cargos',
     salesRepComment: 'Comentario del rep de ventas',
@@ -375,6 +378,7 @@ export const ES = {
     confirmDenyBody:
       '¿Está seguro de que desea denegar esta hoja de tiempo? El empleado será notificado.',
     confirmDenyBtn: 'Denegar',
+    approvalHistory: 'Historial de aprobación',
   },
   adminTimesheetDetail: {
     backToTimesheets: 'Volver a hojas de tiempo',

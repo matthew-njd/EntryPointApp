@@ -24,27 +24,17 @@
         </button>
       </div>
 
-      <div
-        class="flex flex-col sm:flex-row justify-between items-start gap-2 mb-4"
-      >
-        <div>
-          <div class="flex items-center gap-2.5">
-            <div class="w-0.5 h-[26px] bg-primary rounded-sm shrink-0"></div>
-            <h1 class="text-2xl font-medium m-0">
-              {{ "reviewTimesheet.title" | translate }}
-            </h1>
-          </div>
-
-          <p class="text-base-content/60 mt-2">
-            {{ timesheet()!.userFullName }} ({{ timesheet()!.userEmail }})
-          </p>
+      <div class="mb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-0.5 h-[26px] bg-primary rounded-sm shrink-0"></div>
+          <h1 class="text-2xl font-medium m-0">
+            {{ "reviewTimesheet.title" | translate }}
+          </h1>
         </div>
-        <span
-          class="badge badge-lg"
-          [ngClass]="getStatusClass(timesheet()!.status)"
-        >
-          {{ "status." + timesheet()!.status.toLowerCase() | translate }}
-        </span>
+
+        <p class="text-base-content/60 mt-2">
+          {{ timesheet()!.userFullName }} ({{ timesheet()!.userEmail }})
+        </p>
       </div>
 
       <fieldset
@@ -54,7 +44,7 @@
           {{ "reviewTimesheet.timesheet" | translate }}
         </legend>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label class="label">
               <span class="label-text font-semibold">{{
@@ -75,6 +65,25 @@
             </label>
             <div class="text-base-content">
               {{ timesheet()!.submittedAt | date: "MMM d, y" }}
+            </div>
+          </div>
+
+          <div>
+            <label class="label">
+              <span class="label-text font-semibold">{{
+                "reviewTimesheet.status" | translate
+              }}</span>
+            </label>
+            <div class="flex flex-col gap-1">
+              <span
+                class="badge badge-md w-fit"
+                [ngClass]="getStatusClass(timesheet()!.status)"
+              >
+                {{ "status." + timesheet()!.status.toLowerCase() | translate }}
+              </span>
+              <span class="text-xs text-base-content/50">
+                {{ statusChangedAt() | date: "MMM d, y, h:mm a" }}
+              </span>
             </div>
           </div>
 
@@ -176,6 +185,54 @@
           </table>
         </div>
       </fieldset>
+
+      @if (history().length > 0) {
+        <fieldset
+          class="fieldset bg-base-200 border-base-300 rounded-box border p-4 sm:p-6 mb-6"
+        >
+          <legend class="fieldset-legend">
+            {{ "reviewTimesheet.approvalHistory" | translate }}
+          </legend>
+
+          <ul class="timeline timeline-vertical timeline-compact timeline-snap-icon">
+            @for (entry of history(); track entry.id; let last = $last) {
+              <li>
+                <div class="timeline-middle">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-5 w-5"
+                    [class.text-success]="entry.toStatus === 'Approved'"
+                    [class.text-error]="entry.toStatus === 'Denied'"
+                    [class.text-warning]="entry.toStatus === 'PendingManager'"
+                    [class.text-info]="entry.toStatus === 'PendingSalesRep'">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+                <div class="timeline-end mb-6">
+                  <time class="text-xs text-base-content/50">
+                    {{ entry.createdAt | date: "MMM d, y, h:mm a" }}
+                  </time>
+                  <div class="font-semibold text-sm">
+                    {{ entry.actorFullName }}
+                    <span class="badge badge-ghost badge-sm ml-1">{{ entry.actorRole }}</span>
+                  </div>
+                  <div class="text-xs text-base-content/60 mt-0.5">
+                    {{ "status." + entry.fromStatus.toLowerCase() | translate }}
+                    →
+                    <span
+                      [class.text-success]="entry.toStatus === 'Approved'"
+                      [class.text-error]="entry.toStatus === 'Denied'"
+                      [class.text-warning]="entry.toStatus === 'PendingManager'"
+                    >{{ "status." + entry.toStatus.toLowerCase() | translate }}</span>
+                  </div>
+                  @if (entry.comment) {
+                    <div class="text-sm mt-1 italic text-base-content/70">"{{ entry.comment }}"</div>
+                  }
+                </div>
+                @if (!last) { <hr /> }
+              </li>
+            }
+          </ul>
+        </fieldset>
+      }
 
       @if (timesheet()!.status === "PendingSalesRep") {
         <div class="flex gap-2 mb-6">

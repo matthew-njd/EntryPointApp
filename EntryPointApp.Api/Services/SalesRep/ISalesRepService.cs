@@ -9,5 +9,6 @@ namespace EntryPointApp.Api.Services.SalesRep
         Task<TeamTimesheetDetailResult> GetTimesheetDetailAsync(int weeklyLogId, int salesRepId);
         Task<TeamTimesheetResult> ApproveTimesheetAsync(int weeklyLogId, int salesRepId, ApproveTimesheetRequest request);
         Task<TeamTimesheetResult> DenyTimesheetAsync(int weeklyLogId, int salesRepId, DenyTimesheetRequest request);
+        Task<TimesheetHistoryResult> GetTimesheetStatusHistoryAsync(int weeklyLogId, int salesRepId);
     }
 }
