@@ -1,15 +1,15 @@
-import { Component, inject, signal, OnInit, viewChild } from '@angular/core';
+﻿import { Component, inject, signal, OnInit, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Nav } from '../../shared/nav/nav';
-import { Footer } from '../../shared/footer/footer';
-import { Modal } from '../../shared/modal/modal';
-import { ToastService } from '../../core/services/toast.service';
+import { Nav } from '../../../shared/nav/nav';
+import { Footer } from '../../../shared/footer/footer';
+import { Modal } from '../../../shared/modal/modal';
+import { ToastService } from '../../../core/services/toast.service';
 import {
   PayrollScheduleService,
   PayrollScheduleEntry,
-} from '../../core/services/payroll-schedule.service';
+} from '../../../core/services/payroll-schedule.service';
 
 interface EditState {
   dateFrom: string;

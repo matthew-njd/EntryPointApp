@@ -1,19 +1,19 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
-import { ManagerService } from '../../core/services/manager.service';
-import { AuthService } from '../../core/services/auth.service';
+﻿import { Component, computed, effect, inject, signal } from '@angular/core';
+import { ManagerService } from '../../../core/services/manager.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Footer } from '../../shared/footer/footer';
-import { Card } from '../../shared/card/card';
-import { Nav } from '../../shared/nav/nav';
+import { Footer } from '../../../shared/footer/footer';
+import { Card } from '../../../shared/card/card';
+import { Nav } from '../../../shared/nav/nav';
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-manager',
   imports: [CommonModule, FormsModule, Footer, Card, Nav, TranslatePipe],
-  templateUrl: './manager.html',
-  styleUrl: './manager.css',
+  templateUrl: './dashboard.html',
+  styleUrl: './dashboard.css',
 })
 export class Manager {
   readonly managerService = inject(ManagerService);

@@ -1,4 +1,4 @@
-import {
+﻿import {
   ChangeDetectorRef,
   Component,
   computed,
@@ -17,18 +17,18 @@ import {
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
-import { WeeklyLogService } from '../../core/services/weeklog.service';
-import { DailyLogService } from '../../core/services/dailylog.service';
-import { WeeklyLogRequest } from '../../core/models/weeklylog.model';
-import { DailyLogRequest } from '../../core/models/dailylog.model';
-import { ToastService } from '../../core/services/toast.service';
-import { Footer } from '../../shared/footer/footer';
-import { Nav } from '../../shared/nav/nav';
-import { Modal } from '../../shared/modal/modal';
-import { FlatpickrTimeDirective } from '../../shared/directives/flatpickr-time.directive';
-import { FlatpickrDateDirective } from '../../shared/directives/flatpickr-date.directive';
+import { WeeklyLogService } from '../../../core/services/weeklog.service';
+import { DailyLogService } from '../../../core/services/dailylog.service';
+import { WeeklyLogRequest } from '../../../core/models/weeklylog.model';
+import { DailyLogRequest } from '../../../core/models/dailylog.model';
+import { ToastService } from '../../../core/services/toast.service';
+import { Footer } from '../../../shared/footer/footer';
+import { Nav } from '../../../shared/nav/nav';
+import { Modal } from '../../../shared/modal/modal';
+import { FlatpickrTimeDirective } from '../../../shared/directives/flatpickr-time.directive';
+import { FlatpickrDateDirective } from '../../../shared/directives/flatpickr-date.directive';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { PayrollScheduleService } from '../../core/services/payroll-schedule.service';
+import { PayrollScheduleService } from '../../../core/services/payroll-schedule.service';
 
 interface DayForm {
   date: string;

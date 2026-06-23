@@ -1,4 +1,4 @@
-import {
+﻿import {
   Component,
   computed,
   effect,
@@ -6,24 +6,24 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { Nav } from '../../shared/nav/nav';
+import { Nav } from '../../../shared/nav/nav';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../../core/services/auth.service';
-import { UserDto } from '../../core/models/admin.model';
-import { AdminService } from '../../core/services/admin.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { UserDto } from '../../../core/models/admin.model';
+import { AdminService } from '../../../core/services/admin.service';
 import { Router } from '@angular/router';
-import { ToastService } from '../../core/services/toast.service';
-import { Card } from '../../shared/card/card';
-import { Footer } from '../../shared/footer/footer';
-import { Modal } from '../../shared/modal/modal';
+import { ToastService } from '../../../core/services/toast.service';
+import { Card } from '../../../shared/card/card';
+import { Footer } from '../../../shared/footer/footer';
+import { Modal } from '../../../shared/modal/modal';
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-admin',
   imports: [CommonModule, FormsModule, Nav, Card, Footer, Modal, TranslatePipe],
-  templateUrl: './admin.html',
-  styleUrl: './admin.css',
+  templateUrl: './dashboard.html',
+  styleUrl: './dashboard.css',
 })
 export class Admin {
   readonly adminService = inject(AdminService);

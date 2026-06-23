@@ -1,16 +1,16 @@
-import { Component, inject, signal, OnInit, computed } from '@angular/core';
+﻿import { Component, inject, signal, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Nav } from '../../shared/nav/nav';
-import { Footer } from '../../shared/footer/footer';
-import { ToastService } from '../../core/services/toast.service';
+import { Nav } from '../../../shared/nav/nav';
+import { Footer } from '../../../shared/footer/footer';
+import { ToastService } from '../../../core/services/toast.service';
 import {
   PayrollScheduleService,
   PayrollScheduleEntry,
-} from '../../core/services/payroll-schedule.service';
-import { AdminSummaryService } from '../../core/services/admin-summary.service';
-import { PayrollSummaryItem, PayrollSummaryResponse } from '../../core/models/admin.model';
+} from '../../../core/services/payroll-schedule.service';
+import { AdminSummaryService } from '../../../core/services/admin-summary.service';
+import { PayrollSummaryItem, PayrollSummaryResponse } from '../../../core/models/admin.model';
 
 @Component({
   selector: 'app-admin-payroll-summary',

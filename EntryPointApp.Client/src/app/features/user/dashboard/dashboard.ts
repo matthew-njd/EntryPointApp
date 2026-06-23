@@ -1,12 +1,12 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+﻿import { Component, computed, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Nav } from '../../shared/nav/nav';
-import { Card } from '../../shared/card/card';
-import { WeeklyLogService } from '../../core/services/weeklog.service';
-import { AuthService } from '../../core/services/auth.service';
+import { Nav } from '../../../shared/nav/nav';
+import { Card } from '../../../shared/card/card';
+import { WeeklyLogService } from '../../../core/services/weeklog.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { Router } from '@angular/router';
-import { Footer } from '../../shared/footer/footer';
+import { Footer } from '../../../shared/footer/footer';
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({

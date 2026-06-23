@@ -1,16 +1,16 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+﻿import { Component, computed, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { DailyLogService } from '../../core/services/dailylog.service';
-import { Nav } from '../../shared/nav/nav';
+import { DailyLogService } from '../../../core/services/dailylog.service';
+import { Nav } from '../../../shared/nav/nav';
 import { DatePipe, NgClass } from '@angular/common';
-import { Card } from '../../shared/card/card';
-import { Footer } from '../../shared/footer/footer';
-import { WeeklyLogService } from '../../core/services/weeklog.service';
-import { WeeklyLog } from '../../core/models/weeklylog.model';
-import { ToastService } from '../../core/services/toast.service';
+import { Card } from '../../../shared/card/card';
+import { Footer } from '../../../shared/footer/footer';
+import { WeeklyLogService } from '../../../core/services/weeklog.service';
+import { WeeklyLog } from '../../../core/models/weeklylog.model';
+import { ToastService } from '../../../core/services/toast.service';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { PayrollScheduleService } from '../../core/services/payroll-schedule.service';
+import { PayrollScheduleService } from '../../../core/services/payroll-schedule.service';
 
 @Component({
   selector: 'app-dailylogs',

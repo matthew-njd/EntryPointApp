@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+﻿import { CommonModule } from '@angular/common';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import {
   FormBuilder,
@@ -12,13 +12,13 @@ import {
   UserDto,
   UserRateDto,
   UserRole,
-} from '../../core/models/admin.model';
+} from '../../../core/models/admin.model';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AdminService } from '../../core/services/admin.service';
-import { ToastService } from '../../core/services/toast.service';
+import { AdminService } from '../../../core/services/admin.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { Footer } from '../../shared/footer/footer';
-import { Nav } from '../../shared/nav/nav';
+import { Footer } from '../../../shared/footer/footer';
+import { Nav } from '../../../shared/nav/nav';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 @Component({

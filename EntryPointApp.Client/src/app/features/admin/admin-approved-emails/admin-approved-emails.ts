@@ -1,13 +1,13 @@
-import { Component, computed, inject, signal, OnInit, viewChild } from '@angular/core';
+﻿import { Component, computed, inject, signal, OnInit, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Nav } from '../../shared/nav/nav';
-import { Footer } from '../../shared/footer/footer';
-import { Modal } from '../../shared/modal/modal';
-import { ToastService } from '../../core/services/toast.service';
-import { ApprovedEmailsService } from '../../core/services/approved-emails.service';
-import { ApprovedEmailDto } from '../../core/models/approved-emails.model';
+import { Nav } from '../../../shared/nav/nav';
+import { Footer } from '../../../shared/footer/footer';
+import { Modal } from '../../../shared/modal/modal';
+import { ToastService } from '../../../core/services/toast.service';
+import { ApprovedEmailsService } from '../../../core/services/approved-emails.service';
+import { ApprovedEmailDto } from '../../../core/models/approved-emails.model';
 
 @Component({
   selector: 'app-admin-approved-emails',

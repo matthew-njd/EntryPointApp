@@ -1,19 +1,19 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
-import { SalesRepService } from '../../core/services/sales-rep.service';
-import { AuthService } from '../../core/services/auth.service';
+﻿import { Component, computed, effect, inject, signal } from '@angular/core';
+import { SalesRepService } from '../../../core/services/sales-rep.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Footer } from '../../shared/footer/footer';
-import { Card } from '../../shared/card/card';
-import { Nav } from '../../shared/nav/nav';
+import { Footer } from '../../../shared/footer/footer';
+import { Card } from '../../../shared/card/card';
+import { Nav } from '../../../shared/nav/nav';
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-sales-rep',
   imports: [CommonModule, FormsModule, Footer, Card, Nav, TranslatePipe],
-  templateUrl: './sales-rep.html',
-  styleUrl: './sales-rep.css',
+  templateUrl: './dashboard.html',
+  styleUrl: './dashboard.css',
 })
 export class SalesRep {
   readonly salesRepService = inject(SalesRepService);

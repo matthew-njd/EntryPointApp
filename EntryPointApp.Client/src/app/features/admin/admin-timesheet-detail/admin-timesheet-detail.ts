@@ -1,13 +1,13 @@
-import { Component, effect, inject, signal } from '@angular/core';
+﻿import { Component, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { AdminService } from '../../core/services/admin.service';
-import { DailyLogService } from '../../core/services/dailylog.service';
-import { ToastService } from '../../core/services/toast.service';
-import { AdminTimesheetDetailResponse } from '../../core/models/admin.model';
-import { Nav } from '../../shared/nav/nav';
-import { Footer } from '../../shared/footer/footer';
+import { AdminService } from '../../../core/services/admin.service';
+import { DailyLogService } from '../../../core/services/dailylog.service';
+import { ToastService } from '../../../core/services/toast.service';
+import { AdminTimesheetDetailResponse } from '../../../core/models/admin.model';
+import { Nav } from '../../../shared/nav/nav';
+import { Footer } from '../../../shared/footer/footer';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 @Component({

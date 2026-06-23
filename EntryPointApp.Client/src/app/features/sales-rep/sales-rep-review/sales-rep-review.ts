@@ -1,4 +1,4 @@
-import {
+﻿import {
   Component,
   computed,
   effect,
@@ -7,9 +7,9 @@ import {
   viewChild,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { SalesRepService } from '../../core/services/sales-rep.service';
-import { DailyLogService } from '../../core/services/dailylog.service';
-import { ToastService } from '../../core/services/toast.service';
+import { SalesRepService } from '../../../core/services/sales-rep.service';
+import { DailyLogService } from '../../../core/services/dailylog.service';
+import { ToastService } from '../../../core/services/toast.service';
 import {
   FormBuilder,
   FormGroup,
@@ -22,10 +22,10 @@ import {
   DenyTimesheetRequest,
   TeamTimesheetDetailResponse,
   TimesheetStatusHistoryEntry,
-} from '../../core/models/manager.model';
-import { Footer } from '../../shared/footer/footer';
-import { Nav } from '../../shared/nav/nav';
-import { Modal } from '../../shared/modal/modal';
+} from '../../../core/models/manager.model';
+import { Footer } from '../../../shared/footer/footer';
+import { Nav } from '../../../shared/nav/nav';
+import { Modal } from '../../../shared/modal/modal';
 import { CommonModule } from '@angular/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
