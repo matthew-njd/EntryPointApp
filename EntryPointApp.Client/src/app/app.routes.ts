@@ -1,103 +1,88 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { redirectGuard } from './core/guards/redirect.guard';
-import { Login } from './features/auth/login/login';
-import { Dashboard } from './features/user/dashboard/dashboard';
-import { Dailylogs } from './features/user/dailylogs/dailylogs';
-import { Register } from './features/auth/register/register';
-import { ForgotPassword } from './features/auth/forgot-password/forgot-password';
-import { ResetPassword } from './features/auth/reset-password/reset-password';
-import { CreateTimesheet } from './features/user/create-timesheet/create-timesheet';
-import { EditTimesheet } from './features/user/edit-timesheet/edit-timesheet';
-import { Admin } from './features/admin/dashboard/dashboard';
 import { adminGuard } from './core/guards/admin.guard';
-import { UserEdit } from './features/admin/user-edit/user-edit';
-import { Manager } from './features/manager/dashboard/dashboard';
 import { managerGuard } from './core/guards/manager.guard';
-import { ReviewTimsheet } from './features/manager/review-timsheet/review-timsheet';
-import { SalesRep } from './features/sales-rep/dashboard/dashboard';
-import { SalesRepReview } from './features/sales-rep/sales-rep-review/sales-rep-review';
 import { salesRepGuard } from './core/guards/sales-rep.guard';
-import { AdminUserTimesheets } from './features/admin/admin-user-timesheets/admin-user-timesheets';
-import { AdminTimesheetDetail } from './features/admin/admin-timesheet-detail/admin-timesheet-detail';
-import { AdminPayrollSchedule } from './features/admin/admin-payroll-schedule/admin-payroll-schedule';
-import { AdminApprovedEmails } from './features/admin/admin-approved-emails/admin-approved-emails';
-import { AdminPayrollSummary } from './features/admin/admin-payroll-summary/admin-payroll-summary';
 
 export const routes: Routes = [
-  { path: 'login', component: Login },
-  { path: 'forgot-password', component: ForgotPassword },
-  { path: 'reset-password', component: ResetPassword },
-  { path: 'register', component: Register },
-  { path: 'dashboard', component: Dashboard, canActivate: [authGuard] },
+  { path: 'login', loadComponent: () => import('./features/auth/login/login').then(m => m.Login) },
+  { path: 'forgot-password', loadComponent: () => import('./features/auth/forgot-password/forgot-password').then(m => m.ForgotPassword) },
+  { path: 'reset-password', loadComponent: () => import('./features/auth/reset-password/reset-password').then(m => m.ResetPassword) },
+  { path: 'register', loadComponent: () => import('./features/auth/register/register').then(m => m.Register) },
+  {
+    path: 'dashboard',
+    loadComponent: () => import('./features/user/dashboard/dashboard').then(m => m.Dashboard),
+    canActivate: [authGuard],
+  },
   {
     path: 'dashboard/create-timesheet',
-    component: CreateTimesheet,
+    loadComponent: () => import('./features/user/create-timesheet/create-timesheet').then(m => m.CreateTimesheet),
     canActivate: [authGuard],
   },
   {
     path: 'dashboard/week/:id',
-    component: Dailylogs,
+    loadComponent: () => import('./features/user/dailylogs/dailylogs').then(m => m.Dailylogs),
     canActivate: [authGuard],
   },
   {
     path: 'dashboard/week/:id/edit',
-    component: EditTimesheet,
+    loadComponent: () => import('./features/user/edit-timesheet/edit-timesheet').then(m => m.EditTimesheet),
     canActivate: [authGuard],
   },
   {
     path: 'admin',
-    component: Admin,
+    loadComponent: () => import('./features/admin/dashboard/dashboard').then(m => m.Admin),
     canActivate: [adminGuard],
   },
   {
     path: 'admin/users/:id/edit',
-    component: UserEdit,
+    loadComponent: () => import('./features/admin/user-edit/user-edit').then(m => m.UserEdit),
     canActivate: [adminGuard],
   },
   {
     path: 'admin/payroll-schedule',
-    component: AdminPayrollSchedule,
+    loadComponent: () => import('./features/admin/admin-payroll-schedule/admin-payroll-schedule').then(m => m.AdminPayrollSchedule),
     canActivate: [adminGuard],
   },
   {
     path: 'admin/approved-emails',
-    component: AdminApprovedEmails,
+    loadComponent: () => import('./features/admin/admin-approved-emails/admin-approved-emails').then(m => m.AdminApprovedEmails),
     canActivate: [adminGuard],
   },
   {
     path: 'admin/payroll-summary',
-    component: AdminPayrollSummary,
+    loadComponent: () => import('./features/admin/admin-payroll-summary/admin-payroll-summary').then(m => m.AdminPayrollSummary),
     canActivate: [adminGuard],
   },
   {
     path: 'admin/users/:id/timesheets',
-    component: AdminUserTimesheets,
+    loadComponent: () => import('./features/admin/admin-user-timesheets/admin-user-timesheets').then(m => m.AdminUserTimesheets),
     canActivate: [adminGuard],
   },
   {
     path: 'admin/users/:id/timesheets/:timesheetId',
-    component: AdminTimesheetDetail,
+    loadComponent: () => import('./features/admin/admin-timesheet-detail/admin-timesheet-detail').then(m => m.AdminTimesheetDetail),
     canActivate: [adminGuard],
   },
   {
     path: 'manager',
-    component: Manager,
+    loadComponent: () => import('./features/manager/dashboard/dashboard').then(m => m.Manager),
     canActivate: [managerGuard],
   },
   {
     path: 'manager/timesheets/:id',
-    component: ReviewTimsheet,
+    loadComponent: () => import('./features/manager/review-timsheet/review-timsheet').then(m => m.ReviewTimsheet),
     canActivate: [managerGuard],
   },
   {
     path: 'sales-rep',
-    component: SalesRep,
+    loadComponent: () => import('./features/sales-rep/dashboard/dashboard').then(m => m.SalesRep),
     canActivate: [salesRepGuard],
   },
   {
     path: 'sales-rep/timesheets/:id',
-    component: SalesRepReview,
+    loadComponent: () => import('./features/sales-rep/sales-rep-review/sales-rep-review').then(m => m.SalesRepReview),
     canActivate: [salesRepGuard],
   },
   { path: '', canActivate: [redirectGuard], children: [] },
