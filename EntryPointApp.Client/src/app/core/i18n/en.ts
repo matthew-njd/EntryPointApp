@@ -190,6 +190,8 @@ export const EN = {
     totalCharges: 'Total Charges',
     noDailylogs: 'No daily logs found for this week',
     denialReasonTitle: 'This timesheet was denied.',
+    deniedBySalesRep: 'Denied by your Sales Rep.',
+    deniedByManager: 'Denied by your Manager.',
     denialReasonLabel: 'Reason:',
   },
   admin: {

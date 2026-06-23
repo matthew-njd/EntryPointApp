@@ -194,6 +194,8 @@ export const ES = {
     totalCharges: 'Total de cargos',
     noDailylogs: 'No se encontraron registros para esta semana',
     denialReasonTitle: 'Esta hoja de tiempo fue rechazada.',
+    deniedBySalesRep: 'Rechazada por tu representante de ventas.',
+    deniedByManager: 'Rechazada por tu gerente.',
     denialReasonLabel: 'Motivo:',
   },
   admin: {

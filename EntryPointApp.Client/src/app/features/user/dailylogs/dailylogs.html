@@ -82,7 +82,7 @@
         ></app-card>
       </div>
 
-      @if (weeklyLog()?.status === "Denied" && weeklyLog()?.managerComment) {
+      @if (weeklyLog()?.status === "Denied" && (weeklyLog()?.managerComment || weeklyLog()?.salesRepComment)) {
         <div class="alert alert-error mt-4">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -98,13 +98,13 @@
           </svg>
           <div>
             <p class="font-semibold">
-              {{ "dailylogs.denialReasonTitle" | translate }}
+              {{ (weeklyLog()!.managerComment ? "dailylogs.deniedByManager" : "dailylogs.deniedBySalesRep") | translate }}
             </p>
             <p>
               <span class="font-semibold">{{
                 "dailylogs.denialReasonLabel" | translate
               }}</span>
-              {{ weeklyLog()!.managerComment }}
+              {{ weeklyLog()!.managerComment || weeklyLog()!.salesRepComment }}
             </p>
           </div>
         </div>
