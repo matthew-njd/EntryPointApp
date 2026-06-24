@@ -13,6 +13,6 @@ namespace EntryPointApp.Api.Models.Dtos.Users
         public decimal MileageRate { get; set; }
 
         [Required]
-        public DateTime EffectiveDate { get; set; }
+        public DateOnly EffectiveDate { get; set; }
     }
 }

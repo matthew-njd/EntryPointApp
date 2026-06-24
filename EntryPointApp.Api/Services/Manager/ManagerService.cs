@@ -342,9 +342,8 @@ namespace EntryPointApp.Api.Services.Manager
                 var totalHours = weeklyLog.TotalHours;
                 var totalCharges = weeklyLog.TotalCharges;
 
-                var weeklyLogDateFrom = weeklyLog.DateFrom.ToDateTime(TimeOnly.MinValue);
                 var userRate = await _context.Timesheet_UserRates
-                    .Where(r => r.UserId == weeklyLog.UserId && r.EffectiveDate <= weeklyLogDateFrom)
+                    .Where(r => r.UserId == weeklyLog.UserId && r.EffectiveDate <= weeklyLog.DateFrom)
                     .OrderByDescending(r => r.EffectiveDate)
                     .FirstOrDefaultAsync();
                 var hourlyRate = userRate?.HourlyRate ?? 0m;

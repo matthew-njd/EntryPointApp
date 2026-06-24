@@ -30,8 +30,6 @@ namespace EntryPointApp.Api.Services.Admin
 
                 var grouped = weeklyLogs.GroupBy(w => w.UserId);
 
-                var dateFromAsDateTime = dateFrom.ToDateTime(TimeOnly.MinValue);
-
                 var items = new List<PayrollSummaryItemDto>();
 
                 foreach (var group in grouped.OrderBy(g => g.First().User.LastName).ThenBy(g => g.First().User.FirstName))
@@ -45,7 +43,7 @@ namespace EntryPointApp.Api.Services.Admin
                     var totalOtherCharges = allDailyLogs.Sum(d => d.OtherCharges);
 
                     var userRate = await _context.Timesheet_UserRates
-                        .Where(r => r.UserId == user.Id && r.EffectiveDate <= dateFromAsDateTime)
+                        .Where(r => r.UserId == user.Id && r.EffectiveDate <= dateFrom)
                         .OrderByDescending(r => r.EffectiveDate)
                         .FirstOrDefaultAsync();
 

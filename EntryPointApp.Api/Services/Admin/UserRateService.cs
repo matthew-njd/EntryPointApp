@@ -76,9 +76,9 @@ namespace EntryPointApp.Api.Services.Admin
                     };
                 }
 
-                var now = DateTime.UtcNow;
+                var today = DateOnly.FromDateTime(DateTime.UtcNow);
                 var rate = await _context.Timesheet_UserRates
-                    .Where(r => r.UserId == userId && r.EffectiveDate <= now)
+                    .Where(r => r.UserId == userId && r.EffectiveDate <= today)
                     .OrderByDescending(r => r.EffectiveDate)
                     .Select(r => new UserRateDto
                     {
@@ -141,7 +141,7 @@ namespace EntryPointApp.Api.Services.Admin
                     UserId = userId,
                     HourlyRate = request.HourlyRate,
                     MileageRate = request.MileageRate,
-                    EffectiveDate = request.EffectiveDate.Date,
+                    EffectiveDate = request.EffectiveDate,
                     CreatedAt = DateTime.UtcNow,
                     CreatedByAdminId = adminId
                 };

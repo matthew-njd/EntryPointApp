@@ -6,7 +6,7 @@ namespace EntryPointApp.Api.Models.Entities
         public int UserId { get; set; }
         public decimal HourlyRate { get; set; }
         public decimal MileageRate { get; set; }
-        public DateTime EffectiveDate { get; set; }
+        public DateOnly EffectiveDate { get; set; }
         public DateTime CreatedAt { get; set; }
         public int CreatedByAdminId { get; set; }
 
