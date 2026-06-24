@@ -375,7 +375,7 @@ namespace EntryPointApp.Api.Services.DailyLog
                 );
 
                 var autoSubmitted = false;
-                if (allDaysFilled && weeklyLog.Status == Models.Enums.TimesheetStatus.Draft && weeklyLog.User?.SalesRepId != null)
+                if (allDaysFilled && (weeklyLog.Status == Models.Enums.TimesheetStatus.Draft || weeklyLog.Status == Models.Enums.TimesheetStatus.Denied) && weeklyLog.User?.SalesRepId != null)
                 {
                     weeklyLog.Status = Models.Enums.TimesheetStatus.PendingSalesRep;
                     weeklyLog.UpdatedAt = DateTime.UtcNow;
@@ -823,7 +823,7 @@ namespace EntryPointApp.Api.Services.DailyLog
                 );
 
                 var autoSubmitted = false;
-                if (allDaysFilled && weeklyLog.Status == Models.Enums.TimesheetStatus.Draft && weeklyLog.User?.SalesRepId != null)
+                if (allDaysFilled && (weeklyLog.Status == Models.Enums.TimesheetStatus.Draft || weeklyLog.Status == Models.Enums.TimesheetStatus.Denied) && weeklyLog.User?.SalesRepId != null)
                 {
                     weeklyLog.Status = Models.Enums.TimesheetStatus.PendingSalesRep;
                     weeklyLog.UpdatedAt = DateTime.UtcNow;
