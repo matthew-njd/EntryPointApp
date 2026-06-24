@@ -659,13 +659,13 @@ namespace EntryPointApp.Api.Services.DailyLog
                     };
                 }
 
-                if (weeklyLog.Status != Models.Enums.TimesheetStatus.Draft)
+                if (weeklyLog.Status != Models.Enums.TimesheetStatus.Draft && weeklyLog.Status != Models.Enums.TimesheetStatus.Denied)
                 {
                     return new DailyLogListResult
                     {
                         Success = false,
                         Message = "Cannot edit timesheet",
-                        Errors = [$"Only timesheets with Draft status can be edited. Current status: {weeklyLog.Status}"]
+                        Errors = [$"Only timesheets with Draft or Denied status can be edited. Current status: {weeklyLog.Status}"]
                     };
                 }
 
