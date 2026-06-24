@@ -1,15 +1,18 @@
 ﻿using EntryPointApp.Api.Data.Context;
 using EntryPointApp.Api.Models.Dtos.DailyLog;
+using EntryPointApp.Api.Services.Email;
 using EntryPointApp.Api.Services.WeeklyLog;
 using Microsoft.EntityFrameworkCore;
 
 namespace EntryPointApp.Api.Services.DailyLog
 {
-    public class DailyLogService(ApplicationDbContext context, IWeeklyLogService weeklyLogService, ILogger<DailyLogService> logger) : IDailyLogService
+    public class DailyLogService(ApplicationDbContext context, IWeeklyLogService weeklyLogService, ILogger<DailyLogService> logger, IEmailService emailService, IConfiguration configuration) : IDailyLogService
     {
         private readonly ApplicationDbContext _context = context;
         private readonly IWeeklyLogService _weeklyLogService = weeklyLogService;
         private readonly ILogger<DailyLogService> _logger = logger;
+        private readonly IEmailService _emailService = emailService;
+        private readonly IConfiguration _configuration = configuration;
 
         public async Task<DailyLogListResult> GetDailyLogsByWeeklyLogIdAsync(int weeklyLogId, int userId)
         {
@@ -382,6 +385,50 @@ namespace EntryPointApp.Api.Services.DailyLog
                 }
 
                 await transaction.CommitAsync();
+
+                if (autoSubmitted)
+                {
+                    var emailData = await _context.Timesheet_WeeklyLogs
+                        .Where(w => w.Id == weeklyLogId && !w.IsDeleted)
+                        .Select(w => new
+                        {
+                            w.DateFrom,
+                            w.DateTo,
+                            w.TotalHours,
+                            w.TotalCharges,
+                            EmployeeName = (w.User.FirstName + " " + w.User.LastName).Trim(),
+                            SalesRepEmail = w.User.SalesRep != null ? w.User.SalesRep.Email : null,
+                            SalesRepName = w.User.SalesRep != null
+                                ? (w.User.SalesRep.FirstName + " " + w.User.SalesRep.LastName).Trim()
+                                : null
+                        })
+                        .FirstOrDefaultAsync();
+
+                    if (emailData?.SalesRepEmail != null)
+                    {
+                        var weekPeriod = $"{emailData.DateFrom:MMM d} - {emailData.DateTo:MMM d, yyyy}";
+                        var timesheetUrl = $"{_configuration["AppSettings:BaseUrl"]}/sales-rep/timesheets/{weeklyLogId}";
+
+                        _ = Task.Run(async () =>
+                        {
+                            try
+                            {
+                                await _emailService.SendSalesRepSubmissionEmailAsync(
+                                    emailData.SalesRepEmail,
+                                    emailData.SalesRepName ?? "Sales Rep",
+                                    emailData.EmployeeName,
+                                    weekPeriod,
+                                    emailData.TotalHours,
+                                    emailData.TotalCharges,
+                                    timesheetUrl);
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(ex, "Failed to send sales rep submission email for timesheet {WeeklyLogId}", weeklyLogId);
+                            }
+                        });
+                    }
+                }
 
                 var statusMessage = autoSubmitted ? " Timesheet submitted for approval!" : "";
 
@@ -786,6 +833,50 @@ namespace EntryPointApp.Api.Services.DailyLog
                 }
 
                 await transaction.CommitAsync();
+
+                if (autoSubmitted)
+                {
+                    var emailData = await _context.Timesheet_WeeklyLogs
+                        .Where(w => w.Id == weeklyLogId && !w.IsDeleted)
+                        .Select(w => new
+                        {
+                            w.DateFrom,
+                            w.DateTo,
+                            w.TotalHours,
+                            w.TotalCharges,
+                            EmployeeName = (w.User.FirstName + " " + w.User.LastName).Trim(),
+                            SalesRepEmail = w.User.SalesRep != null ? w.User.SalesRep.Email : null,
+                            SalesRepName = w.User.SalesRep != null
+                                ? (w.User.SalesRep.FirstName + " " + w.User.SalesRep.LastName).Trim()
+                                : null
+                        })
+                        .FirstOrDefaultAsync();
+
+                    if (emailData?.SalesRepEmail != null)
+                    {
+                        var weekPeriod = $"{emailData.DateFrom:MMM d} - {emailData.DateTo:MMM d, yyyy}";
+                        var timesheetUrl = $"{_configuration["AppSettings:BaseUrl"]}/sales-rep/timesheets/{weeklyLogId}";
+
+                        _ = Task.Run(async () =>
+                        {
+                            try
+                            {
+                                await _emailService.SendSalesRepSubmissionEmailAsync(
+                                    emailData.SalesRepEmail,
+                                    emailData.SalesRepName ?? "Sales Rep",
+                                    emailData.EmployeeName,
+                                    weekPeriod,
+                                    emailData.TotalHours,
+                                    emailData.TotalCharges,
+                                    timesheetUrl);
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(ex, "Failed to send sales rep submission email for timesheet {WeeklyLogId}", weeklyLogId);
+                            }
+                        });
+                    }
+                }
 
                 var statusMessage = autoSubmitted ? " Timesheet submitted for approval!" : "";
 
