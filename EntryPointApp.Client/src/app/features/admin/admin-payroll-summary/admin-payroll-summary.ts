@@ -1,16 +1,24 @@
-﻿import { Component, inject, signal, OnInit, computed } from '@angular/core';
+import { Component, inject, signal, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Nav } from '../../../shared/nav/nav';
 import { Footer } from '../../../shared/footer/footer';
 import { ToastService } from '../../../core/services/toast.service';
-import {
-  PayrollScheduleService,
-  PayrollScheduleEntry,
-} from '../../../core/services/payroll-schedule.service';
+import { PayrollScheduleService } from '../../../core/services/payroll-schedule.service';
 import { AdminSummaryService } from '../../../core/services/admin-summary.service';
-import { PayrollSummaryItem, PayrollSummaryResponse } from '../../../core/models/admin.model';
+import { PayrollSummaryResponse } from '../../../core/models/admin.model';
+
+interface WeeklyPeriod {
+  dateFrom: string;
+  dateTo: string;
+  label: string;
+}
+
+interface WeeklyPeriodGroup {
+  year: number;
+  periods: WeeklyPeriod[];
+}
 
 @Component({
   selector: 'app-admin-payroll-summary',
@@ -23,16 +31,66 @@ export class AdminPayrollSummary implements OnInit {
   private toastService = inject(ToastService);
   private router = inject(Router);
 
-  scheduleEntries = signal<PayrollScheduleEntry[]>([]);
-  selectedEntryId = signal<number | null>(null);
+  private scheduleEntries = signal<{ dateFrom: string; dateTo: string }[]>([]);
+  selectedYear = signal<number | null>(null);
+  selectedWeekDateFrom = signal<string | null>(null);
   summary = signal<PayrollSummaryResponse | null>(null);
   isLoading = signal(false);
   isDownloading = signal(false);
 
-  selectedEntry = computed(() => {
-    const id = this.selectedEntryId();
-    if (id === null) return null;
-    return this.scheduleEntries().find((e) => e.id === id) ?? null;
+  private weeklyPeriodsByYear = computed<WeeklyPeriodGroup[]>(() => {
+    const allPeriods: WeeklyPeriod[] = [];
+
+    for (const entry of this.scheduleEntries()) {
+      const start = new Date(entry.dateFrom + 'T00:00:00');
+
+      const week1End = new Date(start);
+      week1End.setDate(week1End.getDate() + 6);
+
+      const week2Start = new Date(start);
+      week2Start.setDate(week2Start.getDate() + 7);
+
+      const fmt = (d: Date) => d.toISOString().slice(0, 10);
+
+      allPeriods.push({
+        dateFrom: entry.dateFrom,
+        dateTo: fmt(week1End),
+        label: `${this.formatDate(entry.dateFrom)} – ${this.formatDate(fmt(week1End))}`,
+      });
+
+      allPeriods.push({
+        dateFrom: fmt(week2Start),
+        dateTo: entry.dateTo,
+        label: `${this.formatDate(fmt(week2Start))} – ${this.formatDate(entry.dateTo)}`,
+      });
+    }
+
+    allPeriods.sort((a, b) => b.dateFrom.localeCompare(a.dateFrom));
+
+    const byYear = new Map<number, WeeklyPeriod[]>();
+    for (const p of allPeriods) {
+      const year = new Date(p.dateFrom + 'T00:00:00').getFullYear();
+      if (!byYear.has(year)) byYear.set(year, []);
+      byYear.get(year)!.push(p);
+    }
+
+    return Array.from(byYear.entries())
+      .sort((a, b) => b[0] - a[0])
+      .map(([year, periods]) => ({ year, periods }));
+  });
+
+  availableYears = computed(() => this.weeklyPeriodsByYear().map((g) => g.year));
+
+  weeksForSelectedYear = computed<WeeklyPeriod[]>(() => {
+    const year = this.selectedYear();
+    if (year === null) return [];
+    return this.weeklyPeriodsByYear().find((g) => g.year === year)?.periods ?? [];
+  });
+
+  selectedWeeklyPeriod = computed<WeeklyPeriod | null>(() => {
+    const dateFrom = this.selectedWeekDateFrom();
+    if (!dateFrom) return null;
+    return this.weeksForSelectedYear().find((p) => p.dateFrom === dateFrom) ?? null;
   });
 
   totalGrossPay = computed(() =>
@@ -73,9 +131,14 @@ export class AdminPayrollSummary implements OnInit {
     });
   }
 
-  onPeriodChange(): void {
-    const entry = this.selectedEntry();
-    if (!entry) {
+  onYearChange(): void {
+    this.selectedWeekDateFrom.set(null);
+    this.summary.set(null);
+  }
+
+  onWeekChange(): void {
+    const period = this.selectedWeeklyPeriod();
+    if (!period) {
       this.summary.set(null);
       return;
     }
@@ -83,7 +146,7 @@ export class AdminPayrollSummary implements OnInit {
     this.isLoading.set(true);
     this.summary.set(null);
 
-    this.summaryService.getSummary(entry.dateFrom, entry.dateTo).subscribe({
+    this.summaryService.getSummary(period.dateFrom, period.dateTo).subscribe({
       next: (res) => {
         if (res.success && res.data) {
           this.summary.set(res.data);
@@ -100,16 +163,16 @@ export class AdminPayrollSummary implements OnInit {
   }
 
   downloadExcel(): void {
-    const entry = this.selectedEntry();
-    if (!entry) return;
+    const period = this.selectedWeeklyPeriod();
+    if (!period) return;
 
     this.isDownloading.set(true);
-    this.summaryService.downloadSummaryExcel(entry.dateFrom, entry.dateTo).subscribe({
+    this.summaryService.downloadSummaryExcel(period.dateFrom, period.dateTo).subscribe({
       next: (blob) => {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `PayrollSummary_${entry.dateFrom}_${entry.dateTo}.xlsx`;
+        a.download = `PayrollSummary_${period.dateFrom}_${period.dateTo}.xlsx`;
         a.click();
         URL.revokeObjectURL(url);
         this.isDownloading.set(false);
